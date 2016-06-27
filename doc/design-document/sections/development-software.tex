@@ -1,0 +1,74 @@
+\section{Development Software}
+
+The tools to create this game are outlined.
+
+
+\subsection{Game Engine and Programming Language}
+
+The  game  will  be  developed  using either Unreal Engine 4 or the Urho3D  game
+engine. It is not yet clear which engine is most suitable. \todo{Choose an engine}
+
+The programming language will primarily be C++.
+
+Below we compare the two engines' capabilities.
+
+\subsubsection*{Urho3D}
+\begin{itemize}
+    \item \textbf{Supported Platforms}
+        Urho3D supports all 3 platforms mentioned, including mobile platforms.
+    \item \textbf{Level Editor}
+        Urho3D ships with a level editor designed around  the  engine. It can be used by
+        artists or programmers to create the worlds the game plays in.
+    \item \textbf{On-line Multi-player}
+        Urho3D  supports  automatic network synchronization of scene nodes. However,  it
+        does not support  client-side  prediction, which is important for a first person
+        shooter. This would have to be programmed manually.
+    \item \textbf{3D Model Work-flow}
+        An  Urho3D  exporter  plugin  exists  for  \textbf{blender}. The models that are
+        exported from blender can directly be imported into Urho3D's level editor, along
+        with materials. If other 3D modelling  software  besides  blender  is used, then
+        Urho3D  is  capable  of  importing  any format supported by the importer library
+        \textbf{AssImp}.
+\end{itemize}
+
+
+\subsubsection*{Unreal Engine 4}
+\begin{itemize}
+    \item \textbf{Supported Platforms}
+        Unknown.
+    \item \textbf{Level Edtiro}
+        UE4 ships with a powerful level  editor  designed  around  the engine. It can be
+        used  by  artists  or  programmers  to  create  the  worlds the game  plays  in.
+    \item \textbf{On-line Multi-player}
+        Unknown.
+    \item \textbf{3D Model Work-flow}
+        Unknown.
+\end{itemize}
+
+
+\subsection{3D Modelling Programs}
+
+Any   modelling   program   capable   of   exporting  to  formats  supported  by
+\textbf{AssImp} can be used.
+
+\textbf{Blender}  is  the  preferred  modelling  program, as it  is  capable  of
+directly exporting to Urho3D's format (if Urho3D is to be chosen as the engine).
+
+
+\subsection{3D Animation Programs}
+
+Any modellingi program capable of skinned animation can be used.
+
+\textbf{Blender}  is  the  preferred  modelling  program,  as  it  is capable of
+directly exporting to Urho3D's format (if Urho3D is to be chosen as the engine).
+
+
+\subsection{Image Editing Programs}
+
+Any program capable of exporting to common texture formats, such as .PNG or .DDS.
+
+
+\subsection{Sound and Music Editing Programs}
+
+Any program capable of exporting to common sound/music formats, such as .WAV, .OGG or .MP3.
+
