@@ -42,8 +42,8 @@ void IceWeasel::Setup()
 void IceWeasel::Start()
 {
     // configure resource cache
-    cache_ = GetSubsystem<ResourceCache>();
-    cache_->SetAutoReloadResources(true);
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    cache->SetAutoReloadResources(true);
 
     CreateScene();
     CreateCamera();
@@ -60,7 +60,6 @@ void IceWeasel::Start()
 void IceWeasel::Stop()
 {
     cameraNode_.Reset();
-    playerNode_.Reset();
 
     scene_.Reset();
 }
@@ -68,16 +67,13 @@ void IceWeasel::Stop()
 // ----------------------------------------------------------------------------
 void IceWeasel::CreateScene()
 {
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+
     // load scene, delete XML file after use
     scene_ = new Scene(context_);
-    XMLFile* xmlScene = cache_->GetResource<XMLFile>("Scenes/Test.xml");
+    XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/Test.xml");
     if(xmlScene)
         scene_->LoadXML(xmlScene->GetRoot());
-
-    // issue #1193 - gravity is not exported correctly from editor
-    PhysicsWorld* phy = scene_->GetComponent<PhysicsWorld>();
-    if(phy)
-        phy->SetGravity(Vector3(0, -9.81, 0));
 }
 
 // ----------------------------------------------------------------------------
@@ -96,10 +92,12 @@ void IceWeasel::CreateCamera()
 // ----------------------------------------------------------------------------
 void IceWeasel::CreateUI()
 {
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+
     UI* ui = GetSubsystem<UI>();
     UIElement* root = ui->GetRoot();
 
-    XMLFile* xmlDefaultStyle = cache_->GetResource<XMLFile>("UI/DefaultStyle.xml");
+    XMLFile* xmlDefaultStyle = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
     root->SetDefaultStyle(xmlDefaultStyle);
 
     Window* window = new Window(context_);

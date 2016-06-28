@@ -2,12 +2,8 @@
 
 namespace Urho3D {
     class Node;
-    class ResourceCache;
     class Scene;
 }
-
-class PlayerController;
-class CameraController;
 
 class IceWeasel : public Urho3D::Application
 {
@@ -26,9 +22,7 @@ private:
     void HandleKeyDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandlePostRenderUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    Urho3D::SharedPtr<Urho3D::ResourceCache> cache_;
     Urho3D::SharedPtr<Urho3D::Scene> scene_;
-    Urho3D::SharedPtr<Urho3D::Node> playerNode_;
     Urho3D::SharedPtr<Urho3D::Node> cameraNode_;
 
     bool drawDebugGeometry_;
