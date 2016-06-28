@@ -15,15 +15,17 @@ public:
 
 private:
 
+    void CreateDebugHud();
+    void CreateUI();
     void CreateScene();
     void CreateCamera();
-    void CreateUI();
 
     void HandleKeyDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandlePostRenderUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
     Urho3D::SharedPtr<Urho3D::Scene> scene_;
     Urho3D::SharedPtr<Urho3D::Node> cameraNode_;
+    Urho3D::SharedPtr<Urho3D::DebugHud> debugHud_;
 
     bool drawDebugGeometry_;
 };

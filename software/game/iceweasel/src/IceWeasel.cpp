@@ -1,6 +1,7 @@
 #include "iceweasel/IceWeasel.h"
 
 #include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Engine/DebugHud.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Renderer.h>
@@ -45,9 +46,10 @@ void IceWeasel::Start()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
 
+    CreateDebugHud();
+    CreateUI();
     CreateScene();
     CreateCamera();
-    CreateUI();
 
     // Shows mouse and allows it to exit the window boundaries
     GetSubsystem<Input>()->SetMouseVisible(true);
@@ -62,31 +64,6 @@ void IceWeasel::Stop()
     cameraNode_.Reset();
 
     scene_.Reset();
-}
-
-// ----------------------------------------------------------------------------
-void IceWeasel::CreateScene()
-{
-    ResourceCache* cache = GetSubsystem<ResourceCache>();
-
-    // load scene, delete XML file after use
-    scene_ = new Scene(context_);
-    XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/Test.xml");
-    if(xmlScene)
-        scene_->LoadXML(xmlScene->GetRoot());
-}
-
-// ----------------------------------------------------------------------------
-void IceWeasel::CreateCamera()
-{
-    cameraNode_ = scene_->CreateChild("Camera");
-    Camera* camera = cameraNode_->CreateComponent<Camera>();
-    camera->SetFarClip(300.0f);
-    cameraNode_->SetPosition(Vector3(0.0f, 5.0f, -20.0f));
-
-    Viewport* viewport = new Viewport(context_, scene_, camera);
-    viewport->SetDrawDebug(true);
-    GetSubsystem<Renderer>()->SetViewport(0, viewport);
 }
 
 // ----------------------------------------------------------------------------
@@ -135,6 +112,42 @@ void IceWeasel::CreateUI()
 }
 
 // ----------------------------------------------------------------------------
+void IceWeasel::CreateCamera()
+{
+    cameraNode_ = scene_->CreateChild("Camera");
+    Camera* camera = cameraNode_->CreateComponent<Camera>();
+    camera->SetFarClip(300.0f);
+    cameraNode_->SetPosition(Vector3(0.0f, 5.0f, -20.0f));
+
+    Viewport* viewport = new Viewport(context_, scene_, camera);
+    viewport->SetDrawDebug(true);
+    GetSubsystem<Renderer>()->SetViewport(0, viewport);
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::CreateScene()
+{
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+
+    // load scene, delete XML file after use
+    scene_ = new Scene(context_);
+    XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/TestMap.xml");
+    if(xmlScene)
+        scene_->LoadXML(xmlScene->GetRoot());
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::CreateDebugHud()
+{
+#ifdef DEBUG
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    XMLFile* style = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
+    debugHud_ = engine_->CreateDebugHud();
+    debugHud_->SetDefaultStyle(style);
+#endif
+}
+
+// ----------------------------------------------------------------------------
 void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 {
     using namespace KeyDown;
@@ -146,8 +159,21 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
         engine_->Exit();
 
     // Toggle debug geometry
-    if(key == KEY_P)
+#ifdef DEBUG
+    if(key == KEY_F1)
         drawDebugGeometry_ = !drawDebugGeometry_;
+
+    // Toggle debug HUD
+    if(key == KEY_F2)
+    {
+        if(debugHud_->GetMode() == DEBUGHUD_SHOW_NONE)
+            debugHud_->SetMode(DEBUGHUD_SHOW_ALL);
+        else if(debugHud_->GetMode() == DEBUGHUD_SHOW_ALL)
+            debugHud_->SetMode(DEBUGHUD_SHOW_MEMORY);
+        else
+            debugHud_->SetMode(DEBUGHUD_SHOW_NONE);
+    }
+#endif
 }
 
 // ----------------------------------------------------------------------------
