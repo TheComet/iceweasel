@@ -13,11 +13,11 @@ message (STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 project (IceWeasel)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic") 
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic")
     set(CMAKE_CXX_FLAGS_DEBUG "-g -rdynamic -DDEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic") 
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic")
     set(CMAKE_CXX_FLAGS_DEBUG "-g -rdynamic -DDEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
@@ -33,15 +33,15 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     endif ()
     # TODO set debug and release flags
 endif ()
- 
+
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/Modules")
 set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/urho3d")
- 
+
 include (Urho3D-CMake-common)
 
 find_package (Urho3D REQUIRED)
 include_directories(${URHO3D_INCLUDE_DIRS})
- 
+
 include_directories("iceweasel/include")
 
 add_subdirectory ("iceweasel")
