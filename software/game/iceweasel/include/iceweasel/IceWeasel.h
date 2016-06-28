@@ -1,9 +1,13 @@
+#pragma once
+
 #include <Urho3D/Engine/Application.h>
+
 
 namespace Urho3D {
     class Node;
     class Scene;
 }
+
 
 class IceWeasel : public Urho3D::Application
 {

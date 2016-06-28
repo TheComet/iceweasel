@@ -1,4 +1,6 @@
 #include "iceweasel/IceWeasel.h"
+#include "iceweasel/FPSCameraRotateController.h"
+#include "iceweasel/FreeCamMovementController.h"
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Engine/DebugHud.h>
@@ -52,7 +54,7 @@ void IceWeasel::Start()
     CreateCamera();
 
     // Shows mouse and allows it to exit the window boundaries
-    GetSubsystem<Input>()->SetMouseVisible(true);
+    //GetSubsystem<Input>()->SetMouseVisible(true);
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
@@ -115,13 +117,16 @@ void IceWeasel::CreateUI()
 void IceWeasel::CreateCamera()
 {
     cameraNode_ = scene_->CreateChild("Camera");
-    Camera* camera = cameraNode_->CreateComponent<Camera>();
+    Camera* camera = cameraNode_->CreateComponent<Camera>(Urho3D::LOCAL);
     camera->SetFarClip(300.0f);
     cameraNode_->SetPosition(Vector3(0.0f, 5.0f, -20.0f));
 
     Viewport* viewport = new Viewport(context_, scene_, camera);
     viewport->SetDrawDebug(true);
     GetSubsystem<Renderer>()->SetViewport(0, viewport);
+
+    cameraNode_->AddComponent(new FPSCameraRotateController(context_, cameraNode_), 0, Urho3D::LOCAL);
+    cameraNode_->AddComponent(new FreeCamMovementController(context_, cameraNode_), 0, Urho3D::LOCAL);
 }
 
 // ----------------------------------------------------------------------------
