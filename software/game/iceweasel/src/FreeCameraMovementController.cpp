@@ -30,7 +30,7 @@ void FreeCameraMovementController::HandleUpdate(StringHash eventType, VariantMap
     double timeStep = eventData[P_TIMESTEP].GetDouble();
 
     // get input direction
-    float speed = 0.1f;
+    float speed = 0.3f;
     float smoothness = 4.0f;
     Vector3 targetDirection(Vector3::ZERO);
     if(input_->GetKeyDown(KEY_SHIFT)) speed *= 5; // speed boost
@@ -38,8 +38,8 @@ void FreeCameraMovementController::HandleUpdate(StringHash eventType, VariantMap
     if(input_->GetKeyDown(KEY_S))     targetDirection.z_ -= 1;
     if(input_->GetKeyDown(KEY_A))     targetDirection.x_ += 1;
     if(input_->GetKeyDown(KEY_D))     targetDirection.x_ -= 1;
-    if(input_->GetKeyDown(KEY_SPACE)) targetDirection.y_ += 1;
-    if(input_->GetKeyDown(KEY_CTRL))  targetDirection.y_ -= 1;
+    if(input_->GetKeyDown(KEY_E)) targetDirection.y_ += 1;
+    if(input_->GetKeyDown(KEY_Q))  targetDirection.y_ -= 1;
     if(targetDirection.x_ != 0 || targetDirection.y_ != 0 || targetDirection.z_ != 0)
         targetDirection = targetDirection.Normalized() * speed;
 

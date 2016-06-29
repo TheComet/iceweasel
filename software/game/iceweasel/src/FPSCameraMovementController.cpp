@@ -79,21 +79,26 @@ void FPSCameraMovementController::HandleUpdate(StringHash eventType, VariantMap&
                               0, 1, 0,
                               Sin(cameraYAngle), 0, Cos(cameraYAngle)) * targetDirection;
 
+    unsigned int storeCollisionMask = body->GetCollisionMask();
+    body->SetCollisionMask(0);
+
+    PhysicsRaycastResult result;
+    Ray ray(moveNode_->GetWorldPosition(), Vector3::DOWN);
+    physicsWorld_->RaycastSingle(result, ray, 2.0f);
+    if(result.distance_ < 2.0f) // player height is 1.8
+        if(input_->GetKeyDown(KEY_SPACE))
+            body->ApplyImpulse(Vector3::UP * 80 * 4);
+
+    body->SetCollisionMask(storeCollisionMask);
+
+    // TODO limit velocity on slopes
+
     // smoothly approach target direction
     actualDirection_ += (targetDirection - actualDirection_) * timeStep * smoothness;
     Vector3 velocity = Vector3(actualDirection_.x_, body->GetLinearVelocity().y_, actualDirection_.z_);
 
     // update camera position
     body->SetLinearVelocity(velocity);
-
-    unsigned int storeCollisionMask = body->GetCollisionMask();
-    body->SetCollisionMask(0);
-    if(IsGroundUnderneath())
-        if(input_->GetKeyDown(KEY_SPACE))
-            body->ApplyImpulse(Vector3::UP * 80 * 2);
-
-    body->SetCollisionMask(storeCollisionMask);
-
 }
 
 // ----------------------------------------------------------------------------
