@@ -27,4 +27,7 @@ private:
 
     Urho3D::SharedPtr<Urho3D::Node> cameraNode_;
     Urho3D::SharedPtr<Urho3D::Input> input_;
+
+    float angleX_;
+    float angleY_;
 };

@@ -1,6 +1,7 @@
 #include "iceweasel/IceWeasel.h"
 #include "iceweasel/FPSCameraRotateController.h"
-#include "iceweasel/FreeCamMovementController.h"
+#include "iceweasel/FPSCameraMovementController.h"
+#include "iceweasel/FreeCameraMovementController.h"
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Engine/DebugHud.h>
@@ -11,6 +12,8 @@
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
+#include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/UI/UI.h>
@@ -25,7 +28,8 @@ using namespace Urho3D;
 // ----------------------------------------------------------------------------
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
-    drawDebugGeometry_(false)
+    drawDebugGeometry_(false),
+    cameraModeIsFreeCam_(true)
 {
 }
 
@@ -38,7 +42,7 @@ void IceWeasel::Setup()
     engineParameters_["FullScreen"]  = false;
     engineParameters_["Headless"]    = false;
     engineParameters_["Multisample"] = 2;
-    engineParameters_["VSync"] = false;
+    engineParameters_["VSync"] = true;
 }
 
 // ----------------------------------------------------------------------------
@@ -63,7 +67,8 @@ void IceWeasel::Start()
 // ----------------------------------------------------------------------------
 void IceWeasel::Stop()
 {
-    cameraNode_.Reset();
+    cameraMoveNode_.Reset();
+    cameraRotateNode_.Reset();
 
     scene_.Reset();
 }
@@ -116,17 +121,20 @@ void IceWeasel::CreateUI()
 // ----------------------------------------------------------------------------
 void IceWeasel::CreateCamera()
 {
-    cameraNode_ = scene_->CreateChild("Camera");
-    Camera* camera = cameraNode_->CreateComponent<Camera>(Urho3D::LOCAL);
+    cameraMoveNode_ = scene_->CreateChild("Camera Move");
+    cameraRotateNode_ = cameraMoveNode_->CreateChild("Camera Rotate");
+    Camera* camera = cameraRotateNode_->CreateComponent<Camera>(Urho3D::LOCAL);
     camera->SetFarClip(300.0f);
-    cameraNode_->SetPosition(Vector3(0.0f, 5.0f, -20.0f));
+    cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f));
+    cameraRotateNode_->SetPosition(Vector3::ZERO);
 
     Viewport* viewport = new Viewport(context_, scene_, camera);
     viewport->SetDrawDebug(true);
     GetSubsystem<Renderer>()->SetViewport(0, viewport);
 
-    cameraNode_->AddComponent(new FPSCameraRotateController(context_, cameraNode_), 0, Urho3D::LOCAL);
-    cameraNode_->AddComponent(new FreeCamMovementController(context_, cameraNode_), 0, Urho3D::LOCAL);
+    cameraRotateNode_->AddComponent(new FPSCameraRotateController(context_, cameraRotateNode_), 0, Urho3D::LOCAL);
+
+    SwitchCameraToFreeCam();
 }
 
 // ----------------------------------------------------------------------------
@@ -150,6 +158,30 @@ void IceWeasel::CreateDebugHud()
     debugHud_ = engine_->CreateDebugHud();
     debugHud_->SetDefaultStyle(style);
 #endif
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::SwitchCameraToFreeCam()
+{
+    if(cameraMoveNode_->HasComponent<FPSCameraMovementController>())
+        cameraMoveNode_->RemoveComponent<FPSCameraMovementController>();
+
+    cameraMoveNode_->AddComponent(
+        new FreeCameraMovementController(context_, cameraMoveNode_, cameraRotateNode_),
+        0, Urho3D::LOCAL
+    );
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::SwitchCameraToFPSCam()
+{
+    if(cameraMoveNode_->HasComponent<FreeCameraMovementController>())
+        cameraMoveNode_->RemoveComponent<FreeCameraMovementController>();
+
+    cameraMoveNode_->AddComponent(
+        new FPSCameraMovementController(context_, cameraMoveNode_, cameraRotateNode_),
+        0, Urho3D::LOCAL
+    );
 }
 
 // ----------------------------------------------------------------------------
@@ -178,6 +210,16 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
         else
             debugHud_->SetMode(DEBUGHUD_SHOW_NONE);
     }
+
+    // toggle between free-cam and FPS cam
+    if(key == KEY_F5)
+    {
+        cameraModeIsFreeCam_ = !cameraModeIsFreeCam_;
+        if(cameraModeIsFreeCam_)
+            SwitchCameraToFreeCam();
+        else
+            SwitchCameraToFPSCam();
+    }
 #endif
 }
 
@@ -190,6 +232,7 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
         return;
 
     PhysicsWorld* phy = scene_->GetComponent<PhysicsWorld>();
+    DebugRenderer* r = scene_->GetComponent<DebugRenderer>();
     if(!phy)
         return;
     phy->DrawDebugGeometry(true);
