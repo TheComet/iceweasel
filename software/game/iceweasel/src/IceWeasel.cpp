@@ -3,6 +3,7 @@
 #include "iceweasel/FPSCameraMovementController.h"
 #include "iceweasel/FreeCameraMovementController.h"
 
+#include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Engine/DebugHud.h>
 #include <Urho3D/Graphics/Camera.h>
@@ -51,6 +52,8 @@ void IceWeasel::Start()
     // configure resource cache
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
+
+    context_->RegisterSubsystem(new Script(context_));
 
     CreateDebugHud();
     CreateUI();
