@@ -9,6 +9,7 @@
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Renderer.h>
+#include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Graphics/Viewport.h>
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Input/Input.h>
@@ -134,6 +135,16 @@ void IceWeasel::CreateCamera()
     Viewport* viewport = new Viewport(context_, scene_, camera);
     viewport->SetDrawDebug(true);
     GetSubsystem<Renderer>()->SetViewport(0, viewport);
+
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    SharedPtr<RenderPath> effectRenderPath = viewport->GetRenderPath()->Clone();
+    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/Bloom.xml"));
+    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/FXAA2.xml"));
+
+    effectRenderPath->SetShaderParameter("BloomMix", Vector2(5.0f, 5.0f));
+    effectRenderPath->SetEnabled("Bloom", true);
+    effectRenderPath->SetEnabled("FXAA2", true);
+    viewport->SetRenderPath(effectRenderPath);
 
     cameraRotateNode_->AddComponent(new FPSCameraRotateController(context_, cameraRotateNode_), 0, Urho3D::LOCAL);
 
