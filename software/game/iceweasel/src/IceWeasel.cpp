@@ -138,13 +138,18 @@ void IceWeasel::CreateCamera()
 
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     SharedPtr<RenderPath> effectRenderPath = viewport->GetRenderPath()->Clone();
+    //effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/AutoExposure.xml"));
     effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/Bloom.xml"));
     effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/FXAA2.xml"));
 
-    effectRenderPath->SetShaderParameter("BloomMix", Vector2(5.0f, 5.0f));
+    //effectRenderPath->SetEnabled("AutoExposure", true);
+    effectRenderPath->SetShaderParameter("BloomMix", Vector2(2.0f, 2.0f));
+    effectRenderPath->SetShaderParameter("BloomThreshold", float(0.5));
     effectRenderPath->SetEnabled("Bloom", true);
     effectRenderPath->SetEnabled("FXAA2", true);
+
     viewport->SetRenderPath(effectRenderPath);
+    GetSubsystem<Renderer>()->SetHDRRendering(true);
 
     cameraRotateNode_->AddComponent(new FPSCameraRotateController(context_, cameraRotateNode_), 0, Urho3D::LOCAL);
 

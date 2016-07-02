@@ -11,7 +11,7 @@
 	<parameter name="MatSpecColor" value="0.2 0.2 0.2 8" />
 	<parameter name="RoughnessPS" value="0.5" />
 	<parameter name="MetallicPS" value="0" />
-	<cull value="ccw" />
+	<cull value="none" />
 	<shadowcull value="ccw" />
 	<fill value="solid" />
 	<depthbias constant="0" slopescaled="0" />
