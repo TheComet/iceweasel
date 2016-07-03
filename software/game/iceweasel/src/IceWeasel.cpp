@@ -1,7 +1,5 @@
 #include "iceweasel/IceWeasel.h"
-#include "iceweasel/FPSCameraRotateController.h"
-#include "iceweasel/FPSCameraMovementController.h"
-#include "iceweasel/FreeCameraMovementController.h"
+#include "iceweasel/CameraController.h"
 
 #include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -25,6 +23,7 @@
 #include <Urho3D/UI/Window.h>
 
 #include <iostream>
+
 
 using namespace Urho3D;
 
@@ -63,7 +62,7 @@ void IceWeasel::Start()
     CreateCamera();
 
     // Shows mouse and allows it to exit the window boundaries
-    //GetSubsystem<Input>()->SetMouseVisible(true);
+    GetSubsystem<Input>()->SetMouseVisible(true);
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
@@ -141,18 +140,29 @@ void IceWeasel::CreateUI()
 // ----------------------------------------------------------------------------
 void IceWeasel::CreateCamera()
 {
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    Renderer* renderer = GetSubsystem<Renderer>();
+
+    // The camera is attached to a "rotate node", which is in turn attached to
+    // a "move" node.
     cameraMoveNode_ = scene_->CreateChild("Camera Move");
     cameraRotateNode_ = cameraMoveNode_->CreateChild("Camera Rotate");
     Camera* camera = cameraRotateNode_->CreateComponent<Camera>(Urho3D::LOCAL);
     camera->SetFarClip(300.0f);
     cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f));
     cameraRotateNode_->SetPosition(Vector3::ZERO);
+    cameraMoveNode_->AddComponent(
+        new CameraController(context_, cameraMoveNode_, cameraRotateNode_),
+        0,
+        Urho3D::LOCAL
+    );
 
+    // Give the camera a viewport
     Viewport* viewport = new Viewport(context_, scene_, camera);
     viewport->SetDrawDebug(true);
-    GetSubsystem<Renderer>()->SetViewport(0, viewport);
+    renderer->SetViewport(0, viewport);
 
-    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    // Configure render path
     SharedPtr<RenderPath> effectRenderPath(new RenderPath);
     effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/Deferred.xml"));
     //effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/AutoExposure.xml"));
@@ -166,12 +176,7 @@ void IceWeasel::CreateCamera()
     effectRenderPath->SetEnabled("FXAA2", true);
 
     viewport->SetRenderPath(effectRenderPath);
-    GetSubsystem<Renderer>()->SetHDRRendering(true);
-
-    // Install the camera controllers. Default camera mode is FPS
-    // Create the camera rotation controller, it will be around forever
-    cameraRotateNode_->AddComponent(new FPSCameraRotateController(context_, cameraRotateNode_), 0, Urho3D::LOCAL);
-    SwitchCameraToFPSCam();
+    renderer->SetHDRRendering(true);
 }
 
 // ----------------------------------------------------------------------------
@@ -179,7 +184,7 @@ void IceWeasel::CreateScene()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
-    // load scene, delete XML file after use
+    // load scene from XML
     scene_ = new Scene(context_);
     XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/TestMap.xml");
     if(xmlScene)
@@ -200,25 +205,15 @@ void IceWeasel::CreateDebugHud()
 // ----------------------------------------------------------------------------
 void IceWeasel::SwitchCameraToFreeCam()
 {
-    if(cameraMoveNode_->HasComponent<FPSCameraMovementController>())
-        cameraMoveNode_->RemoveComponent<FPSCameraMovementController>();
-
-    cameraMoveNode_->AddComponent(
-        new FreeCameraMovementController(context_, cameraMoveNode_, cameraRotateNode_),
-        0, Urho3D::LOCAL
-    );
+    CameraController* controller = cameraMoveNode_->GetComponent<CameraController>();
+    controller->SetMode(CameraController::FREE);
 }
 
 // ----------------------------------------------------------------------------
 void IceWeasel::SwitchCameraToFPSCam()
 {
-    if(cameraMoveNode_->HasComponent<FreeCameraMovementController>())
-        cameraMoveNode_->RemoveComponent<FreeCameraMovementController>();
-
-    cameraMoveNode_->AddComponent(
-        new FPSCameraMovementController(context_, cameraMoveNode_, cameraRotateNode_),
-        0, Urho3D::LOCAL
-    );
+    CameraController* controller = cameraMoveNode_->GetComponent<CameraController>();
+    controller->SetMode(CameraController::FPS);
 }
 
 // ----------------------------------------------------------------------------
@@ -273,7 +268,6 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
         return;
 
     PhysicsWorld* phy = scene_->GetComponent<PhysicsWorld>();
-    DebugRenderer* r = scene_->GetComponent<DebugRenderer>();
     if(!phy)
         return;
     phy->DrawDebugGeometry(true);
