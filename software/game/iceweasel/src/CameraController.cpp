@@ -123,7 +123,7 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
 
     // Get input direction vector
     float speed = 8.0f; // TODO read this from an XML config file
-    Vector3 targetPlaneVelocity(Vector2::ZERO);
+    Vector3 targetPlaneVelocity(Vector3::ZERO);
     if(input_->GetKeyDown(KEY_W))     targetPlaneVelocity.z_ += 1;
     if(input_->GetKeyDown(KEY_S))     targetPlaneVelocity.z_ -= 1;
     if(input_->GetKeyDown(KEY_A))     targetPlaneVelocity.x_ += 1;
