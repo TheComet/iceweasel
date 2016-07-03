@@ -62,7 +62,7 @@ void IceWeasel::Start()
     CreateCamera();
 
     // Shows mouse and allows it to exit the window boundaries
-    GetSubsystem<Input>()->SetMouseVisible(true);
+    //GetSubsystem<Input>()->SetMouseVisible(true);
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));

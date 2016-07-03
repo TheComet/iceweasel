@@ -122,7 +122,7 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     RigidBody* body = moveNode_->GetComponent<RigidBody>();
 
     // Get input direction vector
-    float speed = 8.0f;
+    float speed = 8.0f; // TODO read this from an XML config file
     Vector3 targetPlaneVelocity(Vector2::ZERO);
     if(input_->GetKeyDown(KEY_W))     targetPlaneVelocity.z_ += 1;
     if(input_->GetKeyDown(KEY_S))     targetPlaneVelocity.z_ -= 1;
@@ -150,6 +150,10 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     // TODO limit velocity on slopes?
 
     // TODO Take upwards velocity into account when bunny hopping (e.g. on ramps)
+
+    // TODO Add a "lifter" collision sphere to handle steps or other sharp edges.
+
+    // TODO Collision feedback needs to affect planeVelocity_ and downVelocity_
 
     // smoothly approach target direction if we're on the ground. Otherwise
     // just maintain whatever plane velocity we had previously.
@@ -230,7 +234,7 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
         Ray ray(moveNode_->GetWorldPosition(), Vector3::DOWN);
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
         if(result.distance_ < rayCastLength)
-            // Reset player's Y velocity and boost speed
+            // Reset player's Y velocity
             downVelocity_ = 0.0f;
 
     // Restore collision mask
