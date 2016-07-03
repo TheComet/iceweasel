@@ -20,8 +20,9 @@
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Button.h>
-#include <Urho3D/UI/Window.h>
+#include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/Text.h>
+#include <Urho3D/UI/Window.h>
 
 #include <iostream>
 
@@ -57,7 +58,7 @@ void IceWeasel::Start()
     context_->RegisterSubsystem(new Script(context_));
 
     CreateDebugHud();
-    //CreateUI();
+    CreateUI();
     CreateScene();
     CreateCamera();
 
@@ -81,10 +82,25 @@ void IceWeasel::Stop()
 void IceWeasel::CreateUI()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
-
     UI* ui = GetSubsystem<UI>();
     UIElement* root = ui->GetRoot();
 
+#ifdef DEBUG
+    instructionText_ = root->CreateChild<Text>();
+    instructionText_->SetText(
+        "Use WASD and mouse to move, Q and E to move up/down in freecam mode\n"
+        "Press 1 to toggle debug geometry\n"
+        "Press 2 to toggle profiling information\n"
+        "Press 5 to toggle camera modes\n"
+        "Press 0 to toggle this text"
+    );
+    instructionText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 15);
+    instructionText_->SetTextAlignment(HA_CENTER);
+    instructionText_->SetHorizontalAlignment(HA_CENTER);
+    instructionText_->SetVerticalAlignment(VA_CENTER);
+    instructionText_->SetPosition(0, -root->GetHeight() / 4);
+#endif
+/*
     XMLFile* xmlDefaultStyle = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
     root->SetDefaultStyle(xmlDefaultStyle);
 
@@ -119,7 +135,7 @@ void IceWeasel::CreateUI()
     window->SetStyleAuto();
     button->SetStyleAuto();
     windowTitle->SetStyleAuto();
-    buttonText->SetStyleAuto();
+    buttonText->SetStyleAuto();*/
 }
 
 // ----------------------------------------------------------------------------
@@ -241,6 +257,10 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
         else
             SwitchCameraToFPSCam();
     }
+
+    // toggle instruction text
+    if(key == KEY_0)
+        instructionText_->SetVisible(!instructionText_->IsVisible());
 #endif
 }
 
