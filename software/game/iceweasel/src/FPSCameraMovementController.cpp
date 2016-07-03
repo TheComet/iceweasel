@@ -7,12 +7,13 @@
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
+#include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Scene/SceneEvents.h>
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Scene/Scene.h>
 
-
 using namespace Urho3D;
+
 
 // ----------------------------------------------------------------------------
 FPSCameraMovementController::FPSCameraMovementController(Context* context,
@@ -21,7 +22,10 @@ FPSCameraMovementController::FPSCameraMovementController(Context* context,
     LogicComponent(context),
     moveNode_(moveNode),
     rotateNode_(rotateNode),
-    downVelocity_(0.0f)
+    downVelocity_(0.0f),
+    playerParameters_({80.0f, 1.8f, 0.8f, 5.0f, 1.25f}) // weight, height, width, jump force, jump speed boost factor
+    // TODO Read these values from an XML file
+    // TODO Auto-reload XML file when it is edited
 {
 }
 
@@ -34,15 +38,15 @@ void FPSCameraMovementController::Start()
     CollisionShape* colShape = moveNode_->CreateComponent<CollisionShape>();
     RigidBody* body = moveNode_->CreateComponent<RigidBody>();
 
-    colShape->SetCapsule(0.8f, 1.8f, Vector3(0, -0.9f, 0));
+    colShape->SetCapsule(playerParameters_.width,
+                         playerParameters_.height,
+                         Vector3(0, -playerParameters_.height / 2, 0));
     body->SetAngularFactor(Vector3::ZERO);
-    body->SetMass(80);
+    body->SetMass(playerParameters_.mass);
     body->SetFriction(0.0f);
 
-    position_ = moveNode_->GetPosition();
-    oldPosition_ = position_;
-
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(FPSCameraMovementController, HandleUpdate));
+    SubscribeToEvent(E_NODECOLLISION, URHO3D_HANDLER(FPSCameraMovementController, HandleNodeCollision));
 }
 
 // ----------------------------------------------------------------------------
@@ -59,75 +63,74 @@ void FPSCameraMovementController::HandleUpdate(StringHash eventType, VariantMap&
     (void)eventType;
 
     double timeStep = eventData[P_TIMESTEP].GetDouble();
-
     RigidBody* body = moveNode_->GetComponent<RigidBody>();
 
-    // get input direction
+    // Get input direction vector
     float speed = 8.0f;
-    float smoothness = 16.0f;
-    Vector3 targetDirection(Vector2::ZERO);
-    if(input_->GetKeyDown(KEY_W))     targetDirection.z_ += 1;
-    if(input_->GetKeyDown(KEY_S))     targetDirection.z_ -= 1;
-    if(input_->GetKeyDown(KEY_A))     targetDirection.x_ += 1;
-    if(input_->GetKeyDown(KEY_D))     targetDirection.x_ -= 1;
-    if(targetDirection.x_ != 0 || targetDirection.z_ != 0)
-        targetDirection = targetDirection.Normalized() * speed;
+    Vector3 targetPlaneVelocity(Vector2::ZERO);
+    if(input_->GetKeyDown(KEY_W))     targetPlaneVelocity.z_ += 1;
+    if(input_->GetKeyDown(KEY_S))     targetPlaneVelocity.z_ -= 1;
+    if(input_->GetKeyDown(KEY_A))     targetPlaneVelocity.x_ += 1;
+    if(input_->GetKeyDown(KEY_D))     targetPlaneVelocity.x_ -= 1;
+    if(targetPlaneVelocity.x_ != 0 || targetPlaneVelocity.z_ != 0)
+        targetPlaneVelocity = targetPlaneVelocity.Normalized() * speed;
 
-    // rotate input direction by camera angle using a 3D rotation matrix
+    // Rotate input direction by camera angle using a 3D rotation matrix
     float cameraYAngle = rotateNode_->GetRotation().EulerAngles().y_;
-    targetDirection = Matrix3(-Cos(cameraYAngle), 0, Sin(cameraYAngle),
+    targetPlaneVelocity = Matrix3(-Cos(cameraYAngle), 0, Sin(cameraYAngle),
                               0, 1, 0,
-                              Sin(cameraYAngle), 0, Cos(cameraYAngle)) * targetDirection;
+                              Sin(cameraYAngle), 0, Cos(cameraYAngle)) * targetPlaneVelocity;
 
-    unsigned int storeCollisionMask = body->GetCollisionMask();
-    body->SetCollisionMask(0);
+    // Controls the player's Y velocity. The velocity is reset to 0.0f when
+    // E_NODECOLLISION occurs and the player is on the ground. Allow the player
+    // to jump by pressing space while the velocity is 0.0f.
+    if(input_->GetKeyDown(KEY_SPACE) && downVelocity_ == 0.0f)
+    {
+        downVelocity_ = playerParameters_.jumpForce;
+        // Give the player a slight speed boost so he moves faster than usual
+        // in the air.
+        planeVelocity_ *= playerParameters_.jumpSpeedBoostFactor;
+    }
 
-    PhysicsRaycastResult result;
-    Ray ray(moveNode_->GetWorldPosition(), Vector3::DOWN);
-    physicsWorld_->RaycastSingle(result, ray, 2.0f);
-    if(result.distance_ < 2.0f) // player height is 1.8
-        if(input_->GetKeyDown(KEY_SPACE))
-            body->ApplyImpulse(Vector3::UP * 80 * 4);
+    // TODO limit velocity on slopes?
 
-    body->SetCollisionMask(storeCollisionMask);
+    // smoothly approach target direction if we're on the ground. Otherwise
+    // just maintain whatever plane velocity we had previously.
+    float smoothness = 16.0f;
+    if(downVelocity_ == 0.0f)
+        planeVelocity_ += (targetPlaneVelocity - planeVelocity_) * timeStep * smoothness;
 
-    // TODO limit velocity on slopes
-
-    // smoothly approach target direction
-    actualDirection_ += (targetDirection - actualDirection_) * timeStep * smoothness;
-    Vector3 velocity = Vector3(actualDirection_.x_, body->GetLinearVelocity().y_, actualDirection_.z_);
+    // Integrate gravity to get Y velocity
+    downVelocity_ += physicsWorld_->GetGravity().y_ * timeStep;
 
     // update camera position
+    Vector3 velocity(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
     body->SetLinearVelocity(velocity);
 }
 
 // ----------------------------------------------------------------------------
-bool FPSCameraMovementController::IsGroundUnderneath() const
+void FPSCameraMovementController::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
 {
-    PhysicsRaycastResult result;
-    Ray ray(moveNode_->GetWorldPosition(), Vector3::DOWN);
-    physicsWorld_->RaycastSingle(result, ray, 2.0f); // height is 1.8, cast down slightly more
-    return (result.distance_ < 2.0f);
-}
+    using namespace NodeCollision;
+    (void)eventType;
+    (void)eventData;
 
-// ----------------------------------------------------------------------------
-void FPSCameraMovementController::ApplyGravity(float timeStep)
-{
-    float gravity = -9.81;
-    downVelocity_ += gravity * timeStep;
-    position_.y_ += downVelocity_ * timeStep;
-}
+    RigidBody* body = moveNode_->GetComponent<RigidBody>();
 
-// ----------------------------------------------------------------------------
-void FPSCameraMovementController::DoCollision()
-{
-    PhysicsRaycastResult result;
-    Ray ray(oldPosition_, position_ - Vector3(0, 1, 0));  // cast in direction of heading
-    float dist = 2;
-    physicsWorld_->SphereCast(result, ray, 10, dist);
-    if(result.distance_ < dist)
-    {
-        position_ = ray.origin_ + ray.direction_ * result.distance_;
-        downVelocity_ = 0;
-    }
+    // Temporarily disable collision checks for the player's rigid body, so
+    // raycasts don't collide with ourselves.
+    unsigned int storeCollisionMask = body->GetCollisionMask();
+    body->SetCollisionMask(0);
+
+        // Cast a ray down and check if we're on the ground
+        PhysicsRaycastResult result;
+        float rayCastLength = playerParameters_.height * 1.05;
+        Ray ray(moveNode_->GetWorldPosition(), Vector3::DOWN);
+        physicsWorld_->RaycastSingle(result, ray, rayCastLength);
+        if(result.distance_ < rayCastLength)
+            // Reset player's Y velocity and boost speed
+            downVelocity_ = 0.0f;
+
+    // Restore collision mask
+    body->SetCollisionMask(storeCollisionMask);
 }

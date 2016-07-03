@@ -33,17 +33,21 @@ private:
     virtual void Stop() override;
 
     void HandleUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
-    bool IsGroundUnderneath() const;
-    void ApplyGravity(float timeStep);
-    void DoCollision();
+    void HandleNodeCollision(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
     Urho3D::SharedPtr<Urho3D::Node> moveNode_;
     Urho3D::SharedPtr<Urho3D::Node> rotateNode_;
     Urho3D::SharedPtr<Urho3D::Input> input_;
     Urho3D::SharedPtr<Urho3D::PhysicsWorld> physicsWorld_;
 
-    Urho3D::Vector3 actualDirection_;
-    Urho3D::Vector3 oldPosition_;
-    Urho3D::Vector3 position_;
+    Urho3D::Vector3 planeVelocity_;
     float downVelocity_;
+
+    struct {
+        float mass;
+        float height;
+        float width;
+        float jumpForce;
+        float jumpSpeedBoostFactor;
+    } playerParameters_;
 };
