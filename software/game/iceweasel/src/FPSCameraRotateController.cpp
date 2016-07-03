@@ -44,7 +44,7 @@ void FPSCameraRotateController::HandleUpdate(StringHash eventType, VariantMap& e
 
 
     // Calculate new camera angle according to mouse movement
-    float sensitivity = 0.5f;
+    float sensitivity = 0.5f;  // TODO load this from an XML config file.
     const IntVector2& mouseMove = input_->GetMouseMove();
 
     angleX_ = angleX_ + mouseMove.y_ * sensitivity;

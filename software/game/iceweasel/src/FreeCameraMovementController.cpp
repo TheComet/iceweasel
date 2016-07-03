@@ -30,7 +30,7 @@ void FreeCameraMovementController::HandleUpdate(StringHash eventType, VariantMap
     double timeStep = eventData[P_TIMESTEP].GetDouble();
 
     // get input direction
-    float speed = 0.3f;
+    float speed = 0.3f; // TODO Load these from an XML config file.
     float smoothness = 4.0f;
     Vector3 targetDirection(Vector3::ZERO);
     if(input_->GetKeyDown(KEY_SHIFT)) speed *= 5; // speed boost

@@ -94,6 +94,8 @@ void FPSCameraMovementController::HandleUpdate(StringHash eventType, VariantMap&
 
     // TODO limit velocity on slopes?
 
+    // TODO Take upwards velocity into account when bunny hopping (e.g. on ramps)
+
     // smoothly approach target direction if we're on the ground. Otherwise
     // just maintain whatever plane velocity we had previously.
     float smoothness = 16.0f;
