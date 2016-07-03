@@ -31,7 +31,7 @@ using namespace Urho3D;
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
     drawDebugGeometry_(false),
-    cameraModeIsFreeCam_(true)
+    cameraModeIsFreeCam_(false)
 {
 }
 
@@ -57,7 +57,7 @@ void IceWeasel::Start()
     context_->RegisterSubsystem(new Script(context_));
 
     CreateDebugHud();
-    CreateUI();
+    //CreateUI();
     CreateScene();
     CreateCamera();
 
@@ -137,23 +137,25 @@ void IceWeasel::CreateCamera()
     GetSubsystem<Renderer>()->SetViewport(0, viewport);
 
     ResourceCache* cache = GetSubsystem<ResourceCache>();
-    SharedPtr<RenderPath> effectRenderPath = viewport->GetRenderPath()->Clone();
+    SharedPtr<RenderPath> effectRenderPath(new RenderPath);
+    effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/Deferred.xml"));
     //effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/AutoExposure.xml"));
-    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/Bloom.xml"));
+    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/BloomHDR.xml"));
     effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/FXAA2.xml"));
 
     //effectRenderPath->SetEnabled("AutoExposure", true);
-    effectRenderPath->SetShaderParameter("BloomMix", Vector2(2.0f, 2.0f));
-    effectRenderPath->SetShaderParameter("BloomThreshold", float(0.5));
-    effectRenderPath->SetEnabled("Bloom", true);
+    effectRenderPath->SetShaderParameter("BloomHDRMix", Vector2(1.0f, 0.3f));
+    effectRenderPath->SetShaderParameter("BloomHDRThreshold", float(0.3));
+    effectRenderPath->SetEnabled("BloomHDR", true);
     effectRenderPath->SetEnabled("FXAA2", true);
 
     viewport->SetRenderPath(effectRenderPath);
     GetSubsystem<Renderer>()->SetHDRRendering(true);
 
+    // Install the camera controllers. Default camera mode is FPS
+    // Create the camera rotation controller, it will be around forever
     cameraRotateNode_->AddComponent(new FPSCameraRotateController(context_, cameraRotateNode_), 0, Urho3D::LOCAL);
-
-    SwitchCameraToFreeCam();
+    SwitchCameraToFPSCam();
 }
 
 // ----------------------------------------------------------------------------
@@ -216,11 +218,11 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 
     // Toggle debug geometry
 #ifdef DEBUG
-    if(key == KEY_F1)
+    if(key == KEY_1)
         drawDebugGeometry_ = !drawDebugGeometry_;
 
     // Toggle debug HUD
-    if(key == KEY_F2)
+    if(key == KEY_2)
     {
         if(debugHud_->GetMode() == DEBUGHUD_SHOW_NONE)
             debugHud_->SetMode(DEBUGHUD_SHOW_ALL);
@@ -231,7 +233,7 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     }
 
     // toggle between free-cam and FPS cam
-    if(key == KEY_F5)
+    if(key == KEY_5)
     {
         cameraModeIsFreeCam_ = !cameraModeIsFreeCam_;
         if(cameraModeIsFreeCam_)
