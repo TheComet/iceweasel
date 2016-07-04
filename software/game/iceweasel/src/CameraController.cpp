@@ -177,6 +177,8 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
 
     // TODO Collision feedback needs to affect planeVelocity_ and downVelocity_
 
+    // TODO Limit bunny hopping speed.
+
     // smoothly approach target direction if we're on the ground. Otherwise
     // just maintain whatever plane velocity we had previously.
     float smoothness = 16.0f;
@@ -188,7 +190,6 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
     float gravityForce = gravity.Length();
     Quaternion gravityRotation(Vector3::DOWN, gravity);
-    // Integrate
     Vector3 velocity = gravityRotation.RotationMatrix() * Vector3(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
 
     // TODO Fix sliding! This is ugly as shit. PhysicsWorld gravity is temporarily set to 0 until this is fixed
