@@ -2,6 +2,7 @@
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Input/Input.h>
+#include <Urho3D/IceWeaselMods/Gravity.h>
 #include <Urho3D/Math/Matrix2.h>
 #include <Urho3D/Math/Ray.h>
 #include <Urho3D/Physics/CollisionShape.h>
@@ -80,6 +81,7 @@ void CameraController::Start()
 {
     input_ = GetSubsystem<Input>();
     physicsWorld_ = GetScene()->GetComponent<PhysicsWorld>();
+    gravity_ = GetScene()->GetComponent<Gravity>();
 
     // Set initial rotation to current camera angle
     const Vector3& cameraRotationEuler = rotateNode_->GetRotation().EulerAngles();
@@ -120,6 +122,7 @@ void CameraController::UpdateCameraRotation()
 void CameraController::UpdateFPSCameraMovement(float timeStep)
 {
     RigidBody* body = moveNode_->GetComponent<RigidBody>();
+    planeVelocity_ = body->GetLinearVelocity();
 
     // Get input direction vector
     float speed = 8.0f; // TODO read this from an XML config file
