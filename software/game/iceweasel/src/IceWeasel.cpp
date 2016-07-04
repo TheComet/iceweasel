@@ -41,7 +41,7 @@ void IceWeasel::Setup()
     // called before engine initialization
 
     engineParameters_["WindowTitle"] = "IceWeasel";
-    engineParameters_["FullScreen"]  = false;
+    engineParameters_["FullScreen"]  = true;
     engineParameters_["Headless"]    = false;
     engineParameters_["Multisample"] = 2;
     engineParameters_["VSync"] = true;
