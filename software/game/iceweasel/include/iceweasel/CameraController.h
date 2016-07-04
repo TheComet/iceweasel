@@ -7,6 +7,7 @@ namespace Urho3D {
     class Input;
     class Node;
     class PhysicsWorld;
+    class Text;
 }
 
 
@@ -58,6 +59,7 @@ private:
     Urho3D::SharedPtr<Urho3D::Gravity> gravity_;
 
     Urho3D::Vector3 planeVelocity_;
+    Urho3D::Quaternion gravityRotation_;
     float downVelocity_;
 
     float angleX_;
@@ -72,4 +74,6 @@ private:
     } playerParameters_;
 
     Mode mode_;
+
+    Urho3D::SharedPtr<Urho3D::Text> gravityDebugText_;
 };

@@ -13,6 +13,12 @@
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Scene/Scene.h>
 
+
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/Text.h>
+#include <Urho3D/UI/Font.h>
+
 using namespace Urho3D;
 
 
@@ -92,6 +98,15 @@ void CameraController::Start()
     SetMode(mode_);
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(CameraController, HandleUpdate));
+
+    // Debug text
+    UI* ui = GetSubsystem<UI>();
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    gravityDebugText_ = ui->GetRoot()->CreateChild<Text>();
+    gravityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 12);
+    gravityDebugText_->SetHorizontalAlignment(HA_LEFT);
+    gravityDebugText_->SetVerticalAlignment(VA_CENTER);
+    gravityDebugText_->SetPosition(10, 10);
 }
 
 // ----------------------------------------------------------------------------
@@ -100,6 +115,10 @@ void CameraController::Stop()
     // Clean up the components we added
     moveNode_->RemoveComponent<RigidBody>();
     moveNode_->RemoveComponent<CollisionShape>();
+
+    // Debug text
+    UI* ui = GetSubsystem<UI>();
+    ui->GetRoot()->RemoveChild(gravityDebugText_);
 }
 
 // ----------------------------------------------------------------------------
@@ -122,7 +141,7 @@ void CameraController::UpdateCameraRotation()
 void CameraController::UpdateFPSCameraMovement(float timeStep)
 {
     RigidBody* body = moveNode_->GetComponent<RigidBody>();
-    planeVelocity_ = body->GetLinearVelocity();
+    //TODO transform into local gravity planeVelocity_ = body->GetLinearVelocity();
 
     // Get input direction vector
     float speed = 8.0f; // TODO read this from an XML config file
@@ -164,12 +183,27 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     if(downVelocity_ == 0.0f)
         planeVelocity_ += (targetPlaneVelocity - planeVelocity_) * timeStep * smoothness;
 
-    // Integrate gravity to get Y velocity
-    downVelocity_ += physicsWorld_->GetGravity().y_ * timeStep;
+
+    // Get gravity and rotate our velocity vector according to the direction of gravity
+    Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
+    float gravityForce = gravity.Length();
+    Quaternion gravityRotation(Vector3::DOWN, gravity);
+    // Integrate
+    Vector3 velocity = gravityRotation.RotationMatrix() * Vector3(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
+
+    // TODO Fix sliding! This is ugly as shit. PhysicsWorld gravity is temporarily set to 0 until this is fixed
+    if(downVelocity_ != 0.0f)
+        velocity += gravity * timeStep;
+
+    // Integrate velocity
+    downVelocity_ -= gravityForce * timeStep;
 
     // update camera position
-    Vector3 velocity(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
     body->SetLinearVelocity(velocity);
+
+    // Smoothly rotate camera to target rotation
+    gravityRotation_ = gravityRotation_.Nlerp(gravityRotation, Min(1.0f, 8.0f * timeStep), true);
+    moveNode_->SetRotation(-gravityRotation_);
 }
 
 // ----------------------------------------------------------------------------
@@ -184,8 +218,8 @@ void CameraController::UpdateFreeCameraMovement(float timeStep)
     if(input_->GetKeyDown(KEY_S))     targetPlaneVelocity.z_ -= 1;
     if(input_->GetKeyDown(KEY_A))     targetPlaneVelocity.x_ += 1;
     if(input_->GetKeyDown(KEY_D))     targetPlaneVelocity.x_ -= 1;
-    if(input_->GetKeyDown(KEY_E)) targetPlaneVelocity.y_ += 1;
-    if(input_->GetKeyDown(KEY_Q))  targetPlaneVelocity.y_ -= 1;
+    if(input_->GetKeyDown(KEY_SPACE)) targetPlaneVelocity.y_ += 1;
+    if(input_->GetKeyDown(KEY_CTRL))  targetPlaneVelocity.y_ -= 1;
     if(targetPlaneVelocity.x_ != 0 || targetPlaneVelocity.y_ != 0 || targetPlaneVelocity.z_ != 0)
         targetPlaneVelocity = targetPlaneVelocity.Normalized() * speed;
 
@@ -209,6 +243,12 @@ void CameraController::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     double timeStep = eventData[P_TIMESTEP].GetDouble();
 
+    if(gravity_)
+    {
+        Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
+        gravityDebugText_->SetText(String("Gravity: ") + String(gravity.x_) + "," + String(gravity.y_) + "," + String(gravity.z_));
+    }
+
     UpdateCameraRotation();
 
     if(mode_ == FPS)
@@ -216,6 +256,8 @@ void CameraController::HandleUpdate(StringHash eventType, VariantMap& eventData)
     if(mode_ == FREE)
         return UpdateFreeCameraMovement(timeStep);
 }
+
+#include <Urho3D/Graphics/DebugRenderer.h>
 
 // ----------------------------------------------------------------------------
 void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
@@ -234,7 +276,8 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
         // Cast a ray down and check if we're on the ground
         PhysicsRaycastResult result;
         float rayCastLength = playerParameters_.height * 1.05;
-        Ray ray(moveNode_->GetWorldPosition(), Vector3::DOWN);
+        Vector3 downDirection = moveNode_->GetRotation() * Vector3::DOWN;
+        Ray ray(moveNode_->GetWorldPosition(), downDirection);
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
         if(result.distance_ < rayCastLength)
             // Reset player's Y velocity
@@ -242,4 +285,9 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
 
     // Restore collision mask
     body->SetCollisionMask(storeCollisionMask);
+
+    // Mark where the ray is being cast to
+    DebugRenderer* r = GetScene()->GetComponent<DebugRenderer>();
+    if(r)
+        r->AddSphere(Sphere(moveNode_->GetWorldPosition() + downDirection, 0.1), Color::RED);
 }
