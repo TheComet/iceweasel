@@ -74,10 +74,12 @@ void CameraController::SetMode(CameraController::Mode mode)
 
         // Need to listen to node collision events to reset gravity
         SubscribeToEvent(E_NODECOLLISION, URHO3D_HANDLER(CameraController, HandleNodeCollision));
-
-        // Initial physics parameters
-        downVelocity_ = 0.0f;
     }
+
+    // Initial physics parameters
+    planeVelocity_ = Vector3::ZERO;
+    downVelocity_ = 0.0f;
+    moveNode_->SetRotation(Quaternion::IDENTITY);
 
     mode_ = mode;
 }
@@ -125,7 +127,7 @@ void CameraController::Stop()
 void CameraController::UpdateCameraRotation()
 {
     // Calculate new camera angle according to mouse movement
-    float sensitivity = 0.5f;  // TODO load this from an XML config file.
+    float sensitivity = 0.2f;  // TODO load this from an XML config file.
     const IntVector2& mouseMove = input_->GetMouseMove();
 
     angleX_ = angleX_ + mouseMove.y_ * sensitivity;

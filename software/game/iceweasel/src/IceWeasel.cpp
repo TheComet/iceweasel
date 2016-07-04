@@ -87,7 +87,7 @@ void IceWeasel::CreateUI()
 #ifdef DEBUG
     instructionText_ = root->CreateChild<Text>();
     instructionText_->SetText(
-        "Use WASD and mouse to move, Q and E to move up/down in freecam mode\n"
+        "Use WASD and mouse to move, Space/CTRL to move up/down in freecam mode\n"
         "Press 1 to toggle debug geometry\n"
         "Press 2 to toggle profiling information\n"
         "Press 5 to toggle camera modes\n"
