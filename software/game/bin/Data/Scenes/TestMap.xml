@@ -1488,7 +1488,7 @@
 	</node>
 	<node id="70">
 		<attribute name="Is Enabled" value="true" />
-		<attribute name="Name" value="Gravity Probes" />
+		<attribute name="Name" value="Gravity Vectors" />
 		<attribute name="Tags" />
 		<attribute name="Position" value="0 0 0" />
 		<attribute name="Rotation" value="1 0 0 0" />
@@ -1502,7 +1502,7 @@
 			<attribute name="Rotation" value="0.707107 0.707107 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="178" />
+			<component type="GravityVector" id="178" />
 		</node>
 		<node id="72">
 			<attribute name="Is Enabled" value="true" />
@@ -1512,7 +1512,7 @@
 			<attribute name="Rotation" value="0.707107 0.707107 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="179" />
+			<component type="GravityVector" id="179" />
 		</node>
 		<node id="73">
 			<attribute name="Is Enabled" value="true" />
@@ -1522,7 +1522,7 @@
 			<attribute name="Rotation" value="0.691148 0.691148 0.14938 0.14938" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="180" />
+			<component type="GravityVector" id="180" />
 		</node>
 		<node id="74">
 			<attribute name="Is Enabled" value="true" />
@@ -1532,7 +1532,7 @@
 			<attribute name="Rotation" value="0.653282 0.653281 0.270598 0.270598" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="181" />
+			<component type="GravityVector" id="181" />
 		</node>
 		<node id="75">
 			<attribute name="Is Enabled" value="true" />
@@ -1542,7 +1542,7 @@
 			<attribute name="Rotation" value="0.653282 0.653281 0.270598 0.270598" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="182" />
+			<component type="GravityVector" id="182" />
 		</node>
 		<node id="76">
 			<attribute name="Is Enabled" value="true" />
@@ -1552,7 +1552,7 @@
 			<attribute name="Rotation" value="0.587939 0.587937 0.392847 0.392847" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="183" />
+			<component type="GravityVector" id="183" />
 		</node>
 		<node id="77">
 			<attribute name="Is Enabled" value="true" />
@@ -1562,7 +1562,7 @@
 			<attribute name="Rotation" value="0.500001 0.499999 0.5 0.5" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="184" />
+			<component type="GravityVector" id="184" />
 		</node>
 		<node id="109">
 			<attribute name="Is Enabled" value="true" />
@@ -1572,7 +1572,7 @@
 			<attribute name="Rotation" value="0.500001 0.499999 0.5 0.5" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="258" />
+			<component type="GravityVector" id="258" />
 		</node>
 		<node id="143">
 			<attribute name="Is Enabled" value="true" />
@@ -1582,7 +1582,7 @@
 			<attribute name="Rotation" value="0.5 0.5 0.5 0.5" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="335" />
+			<component type="GravityVector" id="335" />
 		</node>
 		<node id="144">
 			<attribute name="Is Enabled" value="true" />
@@ -1592,7 +1592,7 @@
 			<attribute name="Rotation" value="0.392847 0.392847 0.587938 0.587938" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="336" />
+			<component type="GravityVector" id="336" />
 		</node>
 		<node id="145">
 			<attribute name="Is Enabled" value="true" />
@@ -1602,7 +1602,7 @@
 			<attribute name="Rotation" value="0.270598 0.270598 0.653281 0.653281" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="337" />
+			<component type="GravityVector" id="337" />
 		</node>
 		<node id="146">
 			<attribute name="Is Enabled" value="true" />
@@ -1612,7 +1612,7 @@
 			<attribute name="Rotation" value="0.5 0.5 0.5 0.5" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="338" />
+			<component type="GravityVector" id="338" />
 		</node>
 		<node id="147">
 			<attribute name="Is Enabled" value="true" />
@@ -1622,7 +1622,7 @@
 			<attribute name="Rotation" value="0.270598 0.270598 0.653281 0.653281" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="339" />
+			<component type="GravityVector" id="339" />
 		</node>
 		<node id="148">
 			<attribute name="Is Enabled" value="true" />
@@ -1632,7 +1632,7 @@
 			<attribute name="Rotation" value="0.13795 0.13795 0.69352 0.69352" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="340" />
+			<component type="GravityVector" id="340" />
 		</node>
 		<node id="149">
 			<attribute name="Is Enabled" value="true" />
@@ -1642,7 +1642,7 @@
 			<attribute name="Rotation" value="0.00403179 0.00403028 0.707095 0.707096" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="341" />
+			<component type="GravityVector" id="341" />
 		</node>
 		<node id="150">
 			<attribute name="Is Enabled" value="true" />
@@ -1652,7 +1652,7 @@
 			<attribute name="Rotation" value="0.00403179 0.00403028 0.707095 0.707096" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="342" />
+			<component type="GravityVector" id="342" />
 		</node>
 		<node id="183">
 			<attribute name="Is Enabled" value="true" />
@@ -1662,7 +1662,7 @@
 			<attribute name="Rotation" value="0.707107 0.707107 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="420" />
+			<component type="GravityVector" id="420" />
 		</node>
 		<node id="184">
 			<attribute name="Is Enabled" value="true" />
@@ -1672,7 +1672,7 @@
 			<attribute name="Rotation" value="0.707107 0.707107 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="421" />
+			<component type="GravityVector" id="421" />
 		</node>
 		<node id="185">
 			<attribute name="Is Enabled" value="true" />
@@ -1682,7 +1682,7 @@
 			<attribute name="Rotation" value="0.691148 0.691148 0.14938 0.14938" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="422" />
+			<component type="GravityVector" id="422" />
 		</node>
 		<node id="186">
 			<attribute name="Is Enabled" value="true" />
@@ -1692,7 +1692,7 @@
 			<attribute name="Rotation" value="0.653282 0.653281 0.270598 0.270598" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="423" />
+			<component type="GravityVector" id="423" />
 		</node>
 		<node id="187">
 			<attribute name="Is Enabled" value="true" />
@@ -1702,7 +1702,7 @@
 			<attribute name="Rotation" value="0.653282 0.653281 0.270598 0.270598" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="424" />
+			<component type="GravityVector" id="424" />
 		</node>
 		<node id="188">
 			<attribute name="Is Enabled" value="true" />
@@ -1712,7 +1712,7 @@
 			<attribute name="Rotation" value="0.587938 0.587938 0.392847 0.392847" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="425" />
+			<component type="GravityVector" id="425" />
 		</node>
 		<node id="189">
 			<attribute name="Is Enabled" value="true" />
@@ -1722,7 +1722,7 @@
 			<attribute name="Rotation" value="0.5 0.5 0.5 0.5" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<component type="GravityProbe" id="426" />
+			<component type="GravityVector" id="426" />
 		</node>
 	</node>
 	<node id="90">
