@@ -37,6 +37,12 @@ private:
     Urho3D::SharedPtr<Urho3D::DebugHud> debugHud_;
     Urho3D::SharedPtr<Urho3D::Text> instructionText_;
 
-    bool drawDebugGeometry_;
+    enum DebugDrawMode {
+        DRAW_NONE,
+        DRAW_PHYSICS,
+        DRAW_GRAVITY
+    };
+
+    DebugDrawMode debugDrawMode_;
     bool cameraModeIsFreeCam_;
 };

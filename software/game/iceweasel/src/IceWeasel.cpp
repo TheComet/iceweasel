@@ -9,6 +9,7 @@
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Graphics/Viewport.h>
+#include <Urho3D/IceWeaselMods/Gravity.h>
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
@@ -30,7 +31,7 @@ using namespace Urho3D;
 // ----------------------------------------------------------------------------
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
-    drawDebugGeometry_(false),
+    debugDrawMode_(DRAW_NONE),
     cameraModeIsFreeCam_(false)
 {
 }
@@ -230,7 +231,14 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     // Toggle debug geometry
 #ifdef DEBUG
     if(key == KEY_1)
-        drawDebugGeometry_ = !drawDebugGeometry_;
+    {
+        switch(debugDrawMode_)
+        {
+            case DRAW_NONE    : debugDrawMode_ = DRAW_PHYSICS; break;
+            case DRAW_PHYSICS : debugDrawMode_ = DRAW_GRAVITY; break;
+            case DRAW_GRAVITY : debugDrawMode_ = DRAW_NONE;    break;
+        }
+    }
 
     // Toggle debug HUD
     if(key == KEY_2)
@@ -264,13 +272,36 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
 {
     (void)eventType;
     (void)eventData;
-    if(!drawDebugGeometry_)
+
+    if(debugDrawMode_ == DRAW_NONE)
         return;
 
-    PhysicsWorld* phy = scene_->GetComponent<PhysicsWorld>();
-    if(!phy)
+    DebugRenderer* debugRenderer = scene_->GetComponent<DebugRenderer>();
+    if(!debugRenderer)
         return;
-    phy->DrawDebugGeometry(true);
+    bool depthTest = true;
+
+    switch(debugDrawMode_)
+    {
+        case DRAW_NONE: return;
+
+        case DRAW_PHYSICS:
+        {
+            PhysicsWorld* phy = scene_->GetComponent<PhysicsWorld>();
+            if(!phy)
+                return;
+            phy->DrawDebugGeometry(depthTest);
+            break;
+        }
+
+        case DRAW_GRAVITY:
+        {
+            Gravity* gravity = scene_->GetComponent<Gravity>();
+            if(gravity)
+                gravity->DrawDebugGeometry(debugRenderer, depthTest);
+            break;
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
