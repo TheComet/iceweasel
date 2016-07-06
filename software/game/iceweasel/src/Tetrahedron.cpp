@@ -20,7 +20,7 @@ void Tetrahedron::PrecomputeBarycentricMatrix()
     Vector3 edge2 = vertices_[1] - vertices_[3];
     Vector3 edge3 = vertices_[2] - vertices_[3];
 
-    barycentricMatrix_ = Matrix3(
+    barycentricTransform_ = Matrix3(
         edge1.x_, edge2.x_, edge3.x_,
         edge1.y_, edge2.y_, edge3.y_,
         edge1.z_, edge2.z_, edge3.z_

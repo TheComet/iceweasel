@@ -163,7 +163,7 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     // Controls the player's Y velocity. The velocity is reset to 0.0f when
     // E_NODECOLLISION occurs and the player is on the ground. Allow the player
     // to jump by pressing space while the velocity is 0.0f.
-    if(input_->GetKeyDown(KEY_SPACE) && downVelocity_ == 0.0f)
+    if(input_->GetKeyPress(KEY_SPACE) && downVelocity_ == 0.0f)
     {
         downVelocity_ = playerParameters_.jumpForce;
         // Give the player a slight speed boost so he moves faster than usual
@@ -284,7 +284,7 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
         if(result.distance_ < rayCastLength)
             // Reset player's Y velocity
-            downVelocity_ = 0.0f;
+            if(downVelocity_ <= 0.0f) downVelocity_ = 0.0f;
 
     // Restore collision mask
     body->SetCollisionMask(storeCollisionMask);
