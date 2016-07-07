@@ -36,6 +36,7 @@ private:
     Urho3D::SharedPtr<Urho3D::Node> cameraRotateNode_;
     Urho3D::SharedPtr<Urho3D::DebugHud> debugHud_;
     Urho3D::SharedPtr<Urho3D::Text> instructionText_;
+    Urho3D::SharedPtr<Urho3D::Text> playerLocationText_;
 
     enum DebugDrawMode {
         DRAW_NONE,

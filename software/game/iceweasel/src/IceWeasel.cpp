@@ -23,6 +23,8 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/Window.h>
 
+#include "iceweasel/Tetrahedron.h"
+
 #include <iostream>
 
 
@@ -62,9 +64,6 @@ void IceWeasel::Start()
     CreateScene();
     CreateCamera();
 
-    // Shows mouse and allows it to exit the window boundaries
-    //GetSubsystem<Input>()->SetMouseVisible(true);
-
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
 }
@@ -84,6 +83,10 @@ void IceWeasel::CreateUI()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     UI* ui = GetSubsystem<UI>();
     UIElement* root = ui->GetRoot();
+
+    playerLocationText_ = root->CreateChild<Text>();
+    playerLocationText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 12);
+    playerLocationText_->SetPosition(0, 0);
 
 #ifdef DEBUG
     instructionText_ = root->CreateChild<Text>();
@@ -261,6 +264,10 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
             SwitchCameraToFPSCam();
     }
 
+    // Toggle mouse visibility (for debugging)
+    if(key == KEY_9)
+        GetSubsystem<Input>()->SetMouseVisible(!GetSubsystem<Input>()->IsMouseVisible());
+
     // toggle instruction text
     if(key == KEY_0)
         instructionText_->SetVisible(!instructionText_->IsVisible());
@@ -280,6 +287,38 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
     if(!debugRenderer)
         return;
     bool depthTest = true;
+
+    // Tetrahedron test stuff, will be removed
+    Tetrahedron t(
+        Vector3(0, 10, 0),
+        Vector3(0, 0, 0),
+        Vector3(-5, 5, 10),
+        Vector3(5, 5, 10)
+    );
+    Vector3 playerPos = cameraMoveNode_->GetWorldPosition() + cameraRotateNode_->GetDirection();
+    debugRenderer->AddSphere(Sphere(playerPos, 0.1), Color::RED, depthTest);
+    debugRenderer->AddLine(playerPos, playerPos - Vector3(0, 100, 0), Color::RED, depthTest);
+    t.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
+    if(t.PointLiesInside(playerPos))
+        t.DrawDebugGeometry(debugRenderer, depthTest, Color::BLUE);
+
+    Tetrahedron t1(
+        Vector3(0, 10, 20),
+        Vector3(0, 0, 20),
+        Vector3(-5, 5, 30),
+        Vector3(5, 5, 30)
+    );
+    t1.InvertVolume(1);
+    t1.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
+    if(t1.PointLiesInside(playerPos))
+        t1.DrawDebugGeometry(debugRenderer, depthTest, Color::BLUE);
+
+    Vector4 bary = t1.TransformToBarycentric(playerPos);
+    String location;
+    location.AppendWithFormat(
+        "Barycentric coordinates: %f,%f,%f,%f\n"
+        "Inside: %s", bary.x_, bary.y_, bary.z_, bary.w_, t1.PointLiesInside(playerPos) ? "Yes" : "No");
+    playerLocationText_->SetText(location);
 
     switch(debugDrawMode_)
     {
