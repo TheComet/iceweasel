@@ -82,10 +82,11 @@ void Tetrahedron::ExtendIntoInfinity(unsigned vertexID)
     );
 
     // Create final matrix. Note that the matrices are applied in reverse order
+    // in which they were multiplied.
     transform_ = CalculateBarycentricTransformationMatrix() * // #4 Transform into barycentric coordinates
-                 translateToOrigin.Inverse() *  // #3 Restore offset
-                 Matrix4(projectOntoTriangle) * // #2 Project position onto one of the tetrahedron's triangles
-                 translateToOrigin;             // #1 Remove offset to origin
+                 translateToOrigin.Inverse() *                // #3 Restore offset
+                 Matrix4(projectOntoTriangle) *               // #2 Project position onto one of the tetrahedron's triangles
+                 translateToOrigin;                           // #1 Remove offset to origin
 }
 
 // ----------------------------------------------------------------------------
