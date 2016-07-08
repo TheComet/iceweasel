@@ -1,4 +1,6 @@
-\section{The Math}
+\section{Projection Matrices}
+
+\subsection{Transforming from Cartesian to Barycentric}
 
 A 3D tetrahedron,  a  polyhedron having four triangular faces and four vertices,
 is defined  by its four vertices $v_1$, $v_2$, $v_3$ and $v_4$, where $v_n$ is a
@@ -10,66 +12,138 @@ vertex $r_1$ maps to barycentric coordinates $\lambda_1 = \begin{bmatrix} 1  & 0
 = 1$.
 
 This is a linear transformation and the problem can be written in matrix form so
-that  $v  =  R\lambda$ with $R=\begin{bmatrix} v_1|v_2|v_3|v_4 \\ \end{bmatrix}$
-and  $\lambda  =  \begin{bmatrix}   \lambda_1   &   \lambda_2   &  \lambda_3  \\
-\end{bmatrix}^T$. The condition $\lambda_1 + \lambda_2 + \lambda_3 + \lambda_4 =
-1$ can be augmented into the matrix to form the final equation:
+that  $\vec{v}  = B\vec{\lambda}$  with  $B=\begin{bmatrix}  v_1|v_2|v_3|v_4  \\
+\end{bmatrix}$  and  $\vec{\lambda}  =  \begin{bmatrix} \lambda_1 & \lambda_2  &
+\lambda_3 \\ \end{bmatrix}^T$.  The condition $\lambda_1 + \lambda_2 + \lambda_3
++  \lambda_4 = 1$ can be augmented into the matrix to form the  final  equation:
 
 \begin{align}
     \label{eq:bary:cartesian}
+    B\vec{\lambda} &= \vec{v} \\
     \begin{bmatrix}
         v_{1_x} & v_{2_x} & v_{3_x} & v_{4_x} \\
         v_{1_y} & v_{2_y} & v_{3_y} & v_{4_y} \\
         v_{1_z} & v_{2_z} & v_{3_z} & v_{4_z} \\
         1 & 1 & 1 & 1 \\
     \end{bmatrix}
-    \lambda = \begin{bmatrix}
+    \vec{\lambda} &= \begin{bmatrix}
         x \\
         y \\
         z \\
         1 \\
-    \end{bmatrix}
+    \end{bmatrix} \\
 \end{align}
 
 Where  $x$,  $y$, and $z$ define a 3D point in Cartesian space.  The  barymetric
-coordinates  $\lambda$  can  be  solved as the solution of the  linear  equation
+coordinates  $\lambda$   can   be   obtained  by  solving  the  linear  equation
 \ref{eq:bary:cartesian}.
 
-Given a subspace $V =  \text{span}\left(\vec{e_1}|\vec{e_2}|\ldots\right)$ where
-$\vec{e_n}$ is the basis for  $V$  and  $\vec{x},\vec{e_n}\in\mathbb{R}^N$,  the
-projection of $\vec{x}$ onto $V$ is defined as:
+\subsection{Barycentric Coordinates of a Surface Projection}
+
+Given a subspace $V = \text{span} \begin{bmatrix} \vec{e_1} | \vec{e_2} | \ldots
+\end{bmatrix}$ where $\vec{e_n}$ is the basis for $V$  and  $\vec{x} , \vec{e_n}
+\in  \mathbb{R}^N$,  the  projection  of  $\vec{x}$  onto  $V$  is  defined  as:
 
 \begin{align}
-    \text{proj}_V\vec{x} = A\left(A^\intercal A\right)\inv A^\intercal\vec{x}
+    \label{eq:triangle_proj}
+    \text{proj}_V\vec{x} = A\left(A\transpose A\right)\inverse A\transpose\vec{x}
 \end{align}
 
-The face of a tetrahedron is defined  by  the  three  vertices  $v_1$, $v_2$ and
-$v_3$, where $v_n\in\mathbb{R}^3$. A point $\vec{x}\in\mathbb{R}^3$ is projected
-into the triangle:
+The face of a  tetrahedron  is  defined  by  the three vertices $v_1$, $v_2$ and
+$v_3$,  where  $v_n \in \mathbb{R}^3$. The 3  dimensional  cartesian  coordinate
+$\vec{x}\in\mathbb{R}^3$  is  projected  into one of the tetrahedron's triangles
+using equation \ref{eq:triangle_proj} where $\vec{a}  =  \vec{v_2}  - \vec{v_1}$
+and  $\vec{b} = \vec{v_3}  -  \vec{v_1}$  and  the  matrix  $A$  is  defined  as
+$A=\begin{bmatrix} a|b \end{bmatrix}$.
+
+This projection is only valid for $\vec{v_1} = \vec{0}$.  If the triangle has an
+offset in 3D space,  then  the  offset  must be subtracted before performing the
+projection and added back after the projection. A translation matrix is used:
+
+\begin{align}
+    \label{eq:translate_offset}
+    T = \begin{bmatrix}
+        1 & 0 & 0 & -v_{1_x} \\
+        0 & 1 & 0 & -v_{1_y} \\
+        0 & 0 & 1 & -v_{1_z} \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}
+\end{align}
+
+The final matrix for transforming  a  3D  coordinate  $\vec{x}$  into  projected
+barycentric coordinates can now be constructed  by  combining  the matrices $B$,
+$T$ and $A$ from  equations  \ref{eq:bary:cartesian}, \ref{eq:triangle_proj} and
+\ref{eq:translate_offset}:
+
+\begin{align}
+    \label{eq:bary:triangle}
+    \vec{\lambda} = TA\left(A\transpose A\right)\inverse A\transpose T\inverse B \vec{x}
+\end{align}
+
+In  an effort to be more verbose, equation \ref{eq:bary:triangle} is broken down
+and   constructed   step-by-step   using  the  triangle  vertices   $\vec{v_1}$,
+$\vec{v_2}$, $\vec{v_3}$.
 
 \begin{align*}
     \vec{a} &= \vec{v_2} - \vec{v_1} \\
     \vec{b} &= \vec{v_3} - \vec{v_1} \\
-    \text{proj}_V\vec{x} &= A\left(A^\intercal A\right)\inv A^\intercal\vec{x} \\
-                         &= \begin{bmatrix}
-                                a_x & b_x \\
-                                a_y & b_y \\
-                                a_z & b_z \\
-                            \end{bmatrix}
-                            \left(
-                                \begin{bmatrix}
-                                    a_x & a_y & a_z \\
-                                    b_x & b_y & b_z \\
-                                \end{bmatrix}
-                                \begin{bmatrix}
-                                    a_x & b_x \\
-                                    a_y & b_y \\
-                                    a_z & b_z \\
-                                \end{bmatrix}
-                            \right)\inv
-                            \begin{bmatrix}
-                                a_x & a_y & a_z \\
-                                b_x & b_y & b_z \\
-                            \end{bmatrix} \\
+    \text{proj}_V\vec{x} &= A\left(A\transpose A\right)\inverse A\transpose \\
+    \begin{bmatrix}
+        m_{00} & m_{01} & m_{02} \\
+        m_{10} & m_{11} & m_{12} \\
+        m_{20} & m_{21} & m_{22} \\
+    \end{bmatrix}
+    &=  \begin{bmatrix}
+            a_x & b_x \\
+            a_y & b_y \\
+            a_z & b_z \\
+        \end{bmatrix}
+        \left(
+            \begin{bmatrix}
+                a_x & a_y & a_z \\
+                b_x & b_y & b_z \\
+            \end{bmatrix}
+            \begin{bmatrix}
+                a_x & b_x \\
+                a_y & b_y \\
+                a_z & b_z \\
+            \end{bmatrix}
+        \right)\inverse
+        \begin{bmatrix}
+            a_x & a_y & a_z \\
+            b_x & b_y & b_z \\
+        \end{bmatrix} \\
+\end{align*}
+
+The translation matrix from equation \ref{eq:translate_offset} can be applied to
+the projection matrix after expanding it to the same dimension:
+
+\begin{align*}
+    \vec{\lambda} = 
+    \begin{bmatrix}
+        1 & 0 & 0 & -v_{1_x} \\
+        0 & 1 & 0 & -v_{1_y} \\
+        0 & 0 & 1 & -v_{1_z} \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        m_{00} & m_{01} & m_{02} & 0 \\
+        m_{10} & m_{11} & m_{12} & 0 \\
+        m_{20} & m_{21} & m_{22} & 0 \\
+        0      & 0      & 0      & 1 \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        1 & 0 & 0 & -v_{1_x} \\
+        0 & 1 & 0 & -v_{1_y} \\
+        0 & 0 & 1 & -v_{1_z} \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}\inverse
+    \begin{bmatrix}
+        v_{1_x} & v_{2_x} & v_{3_x} & v_{4_x} \\
+        v_{1_y} & v_{2_y} & v_{3_y} & v_{4_y} \\
+        v_{1_z} & v_{2_z} & v_{3_z} & v_{4_z} \\
+        1 & 1 & 1 & 1 \\
+    \end{bmatrix}
+    \vec{x}
 \end{align*}
 
