@@ -26,6 +26,13 @@ void Tetrahedron::ExtendIntoInfinity(unsigned vertexID)
 {
     assert(vertexID < 4);
 
+    transform_ = CalculateBarycentricTransformationMatrix() *
+                 CalculateSurfaceProjectionMatrix(vertexID);
+}
+
+// ----------------------------------------------------------------------------
+Matrix4 Tetrahedron::CalculateSurfaceProjectionMatrix(unsigned excludeVertex) const
+{
     // This function builds a projection matrix that will project a 3D point
     // onto one of the tetrahedron's triangles (namely the face that doesn't
     // contain any vertices equal to vertexID) before transforming the
@@ -37,7 +44,7 @@ void Tetrahedron::ExtendIntoInfinity(unsigned vertexID)
     // infinitely far away vertex)
     const Vector3* vertices[3];
     for(unsigned i = 0; i != 3; ++i)
-        vertices[i] = i < vertexID ? &vertices_[i] : &vertices_[i + 1];
+        vertices[i] = i < excludeVertex ? &vertices_[i] : &vertices_[i + 1];
 
     // Let vertex 0 be our anchor point.
     Vector3 span1 = *vertices[1] - *vertices[0];
@@ -83,10 +90,9 @@ void Tetrahedron::ExtendIntoInfinity(unsigned vertexID)
 
     // Create final matrix. Note that the matrices are applied in reverse order
     // in which they were multiplied.
-    transform_ = CalculateBarycentricTransformationMatrix() * // #4 Transform into barycentric coordinates
-                 translateToOrigin.Inverse() *                // #3 Restore offset
-                 Matrix4(projectOntoTriangle) *               // #2 Project position onto one of the tetrahedron's triangles
-                 translateToOrigin;                           // #1 Remove offset to origin
+    return translateToOrigin.Inverse() *    // #3 Restore offset
+           Matrix4(projectOntoTriangle) *   // #2 Project position onto one of the tetrahedron's triangles
+           translateToOrigin;               // #1 Remove offset to origin
 }
 
 // ----------------------------------------------------------------------------

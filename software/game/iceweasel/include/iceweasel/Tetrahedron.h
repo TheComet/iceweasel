@@ -66,6 +66,7 @@ public:
     }
 
 private:
+    Matrix4 CalculateSurfaceProjectionMatrix(unsigned excludeVertex) const;
     Matrix4 CalculateBarycentricTransformationMatrix() const;
 
     Vector3 vertices_[4];
