@@ -9,4 +9,4 @@ TetrahedralMesh::TetrahedralMesh()
 {
 }
 
-}
+} // namespace Urho3D

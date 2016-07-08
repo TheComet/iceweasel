@@ -25,7 +25,7 @@ public:
                 const Vector3& v2,
                 const Vector3& v3);
 
-    void InvertVolume(unsigned vertexID);
+    void ExtendIntoInfinity(unsigned vertexID);
 
     /*!
      * @brief Returns true if the specified 3D point lies inside the

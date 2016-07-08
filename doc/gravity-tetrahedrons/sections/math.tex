@@ -1,0 +1,75 @@
+\section{The Math}
+
+A 3D tetrahedron,  a  polyhedron having four triangular faces and four vertices,
+is defined  by its four vertices $v_1$, $v_2$, $v_3$ and $v_4$, where $v_n$ is a
+3 dimensional point in Cartesian space $v_n = \begin{bmatrix} x_n & y_n & z_n \\
+\end{bmatrix}^T$.  The  barycentric  coordinates  are defined so that the  first
+vertex $r_1$ maps to barycentric coordinates $\lambda_1 = \begin{bmatrix} 1  & 0
+&  0 & 0 \\ \end{bmatrix}$,  $r_2  \to  \begin{bmatrix}  0  &  1  &  0  &  0  \\
+\end{bmatrix}$, etc. and that the sum of barycentric parameters $\sum\lambda_n
+= 1$.
+
+This is a linear transformation and the problem can be written in matrix form so
+that  $v  =  R\lambda$ with $R=\begin{bmatrix} v_1|v_2|v_3|v_4 \\ \end{bmatrix}$
+and  $\lambda  =  \begin{bmatrix}   \lambda_1   &   \lambda_2   &  \lambda_3  \\
+\end{bmatrix}^T$. The condition $\lambda_1 + \lambda_2 + \lambda_3 + \lambda_4 =
+1$ can be augmented into the matrix to form the final equation:
+
+\begin{align}
+    \label{eq:bary:cartesian}
+    \begin{bmatrix}
+        v_{1_x} & v_{2_x} & v_{3_x} & v_{4_x} \\
+        v_{1_y} & v_{2_y} & v_{3_y} & v_{4_y} \\
+        v_{1_z} & v_{2_z} & v_{3_z} & v_{4_z} \\
+        1 & 1 & 1 & 1 \\
+    \end{bmatrix}
+    \lambda = \begin{bmatrix}
+        x \\
+        y \\
+        z \\
+        1 \\
+    \end{bmatrix}
+\end{align}
+
+Where  $x$,  $y$, and $z$ define a 3D point in Cartesian space.  The  barymetric
+coordinates  $\lambda$  can  be  solved as the solution of the  linear  equation
+\ref{eq:bary:cartesian}.
+
+Given a subspace $V =  \text{span}\left(\vec{e_1}|\vec{e_2}|\ldots\right)$ where
+$\vec{e_n}$ is the basis for  $V$  and  $\vec{x},\vec{e_n}\in\mathbb{R}^N$,  the
+projection of $\vec{x}$ onto $V$ is defined as:
+
+\begin{align}
+    \text{proj}_V\vec{x} = A\left(A^\intercal A\right)\inv A^\intercal\vec{x}
+\end{align}
+
+The face of a tetrahedron is defined  by  the  three  vertices  $v_1$, $v_2$ and
+$v_3$, where $v_n\in\mathbb{R}^3$. A point $\vec{x}\in\mathbb{R}^3$ is projected
+into the triangle:
+
+\begin{align*}
+    \vec{a} &= \vec{v_2} - \vec{v_1} \\
+    \vec{b} &= \vec{v_3} - \vec{v_1} \\
+    \text{proj}_V\vec{x} &= A\left(A^\intercal A\right)\inv A^\intercal\vec{x} \\
+                         &= \begin{bmatrix}
+                                a_x & b_x \\
+                                a_y & b_y \\
+                                a_z & b_z \\
+                            \end{bmatrix}
+                            \left(
+                                \begin{bmatrix}
+                                    a_x & a_y & a_z \\
+                                    b_x & b_y & b_z \\
+                                \end{bmatrix}
+                                \begin{bmatrix}
+                                    a_x & b_x \\
+                                    a_y & b_y \\
+                                    a_z & b_z \\
+                                \end{bmatrix}
+                            \right)\inv
+                            \begin{bmatrix}
+                                a_x & a_y & a_z \\
+                                b_x & b_y & b_z \\
+                            \end{bmatrix} \\
+\end{align*}
+

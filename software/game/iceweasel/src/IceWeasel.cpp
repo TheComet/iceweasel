@@ -296,7 +296,7 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
         Vector3(5, 5, 10)
     );
     Vector3 playerPos = cameraMoveNode_->GetWorldPosition() + cameraRotateNode_->GetDirection();
-    debugRenderer->AddSphere(Sphere(playerPos, 0.1), Color::RED, depthTest);
+    debugRenderer->AddSphere(Sphere(playerPos, 0.04), Color::RED, depthTest);
     debugRenderer->AddLine(playerPos, playerPos - Vector3(0, 100, 0), Color::RED, depthTest);
     t.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
     if(t.PointLiesInside(playerPos))
@@ -308,13 +308,15 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
         Vector3(-5, 5, 30),
         Vector3(5, 5, 30)
     );
-    t1.InvertVolume(1);
+    t1.ExtendIntoInfinity(3);
     t1.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
     if(t1.PointLiesInside(playerPos))
         t1.DrawDebugGeometry(debugRenderer, depthTest, Color::BLUE);
 
     Vector4 bary = t1.TransformToBarycentric(playerPos);
     String location;
+    debugRenderer->AddSphere(Sphere(Vector3(bary.x_, bary.y_, bary.z_), 0.1), Color::RED, depthTest);
+    debugRenderer->AddLine(Vector3(bary.x_, bary.y_, bary.z_), Vector3(bary.x_, bary.y_ - 100, bary.z_), Color::RED, depthTest);
     location.AppendWithFormat(
         "Barycentric coordinates: %f,%f,%f,%f\n"
         "Inside: %s", bary.x_, bary.y_, bary.z_, bary.w_, t1.PointLiesInside(playerPos) ? "Yes" : "No");
