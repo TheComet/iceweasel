@@ -1,0 +1,30 @@
+\section{Introduction}
+
+A computer game featuring localised gravity -- the ``down'' direction of objects
+changes  depending on where you are located  in  3D  space  --  is  achieved  by
+creating a descrete  vector  field. Normalised vectors, referred to as ``Gravity
+Vectors'', are placed at key locations  in  the 3D world to define the direction
+gravity should have at that location.
+
+Ideally, a continuous vector field is desired,  as that would remove the need to
+smooth out  sudden  changes in gravity.
+
+The  gravity  vector locations are used to  construct  a  tetrahedral  mesh.  An
+arbitrary 3D location, if located inside any  one  of  the  tetrahedrons, can be
+converted into barycentric coordinates and used  to  calculate a new directional
+vector based on the interpolated values of the four  gravity vectors forming the
+tetrhahedron.
+
+If the 3D location is located outside the convex hull of the mesh, it is unclear
+how  the  vector  field should be  extrapolated.  To  address  this,  we  create
+``infinite tetrahedrons'' using the faces of the convex hull. The result is such
+that a 3D  point located outside of the convex hull is projected either onto one
+of the faces on the convex  hull  (if  the tetrahedron has one vertex located in
+infinitey),  projected  onto  one of the  edges  on  the  convex  hull  (if  the
+tetrahedron has two vertices  located  in infinity) or projected onto one of the
+vertices  of  the  convex hull (if the tetrahedron has three vertices located in
+infinity). The projected location can be converted to barycentric coordinates as
+usual and the interpolated vector can be computed.
+
+The  result is a continuous vector field,  capable  of  mapping  any  finite  3D
+location to a gravitational vector.
