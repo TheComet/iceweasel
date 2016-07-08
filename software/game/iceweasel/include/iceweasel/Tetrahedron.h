@@ -52,16 +52,24 @@ public:
      */
     Vector4 TransformToBarycentric(const Vector3& point) const
     {
-        return barycentricTransform_ * Vector4(point, 1.0f);
+        return transform_ * Vector4(point, 1.0f);
     }
 
     void DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color);
 
+    Vector3 TransformToCartesian(const Vector4& barycentric) const
+    {
+        return barycentric.x_ * vertices_[0] +
+               barycentric.y_ * vertices_[1] +
+               barycentric.z_ * vertices_[2] +
+               barycentric.w_ * vertices_[3];
+    }
+
 private:
-    void PrecomputeBarycentricMatrix();
+    Matrix4 CalculateBarycentricTransformationMatrix() const;
 
     Vector3 vertices_[4];
-    Matrix4 barycentricTransform_;
+    Matrix4 transform_;
 };
 
 } // namespace Urho3D

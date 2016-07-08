@@ -297,7 +297,6 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
     );
     Vector3 playerPos = cameraMoveNode_->GetWorldPosition() + cameraRotateNode_->GetDirection();
     debugRenderer->AddSphere(Sphere(playerPos, 0.04), Color::RED, depthTest);
-    debugRenderer->AddLine(playerPos, playerPos - Vector3(0, 100, 0), Color::RED, depthTest);
     t.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
     if(t.PointLiesInside(playerPos))
         t.DrawDebugGeometry(debugRenderer, depthTest, Color::BLUE);
@@ -308,19 +307,27 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
         Vector3(-5, 5, 30),
         Vector3(5, 5, 30)
     );
-    t1.ExtendIntoInfinity(3);
-    t1.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
+    t1.ExtendIntoInfinity(1);
     if(t1.PointLiesInside(playerPos))
+    {
         t1.DrawDebugGeometry(debugRenderer, depthTest, Color::BLUE);
+        Vector4 bary = t1.TransformToBarycentric(playerPos);
+        Vector3 back = t1.TransformToCartesian(bary);
+        debugRenderer->AddSphere(Sphere(back, 0.1), Color::RED, depthTest);
+        debugRenderer->AddLine(playerPos, back, Color::RED, depthTest);
 
-    Vector4 bary = t1.TransformToBarycentric(playerPos);
-    String location;
-    debugRenderer->AddSphere(Sphere(Vector3(bary.x_, bary.y_, bary.z_), 0.1), Color::RED, depthTest);
-    debugRenderer->AddLine(Vector3(bary.x_, bary.y_, bary.z_), Vector3(bary.x_, bary.y_ - 100, bary.z_), Color::RED, depthTest);
-    location.AppendWithFormat(
-        "Barycentric coordinates: %f,%f,%f,%f\n"
-        "Inside: %s", bary.x_, bary.y_, bary.z_, bary.w_, t1.PointLiesInside(playerPos) ? "Yes" : "No");
-    playerLocationText_->SetText(location);
+        String location;
+        location.AppendWithFormat(
+            "Barycentric coordinates: %f,%f,%f,%f\n"
+            "Inside: %s", bary.x_, bary.y_, bary.z_, bary.w_, t1.PointLiesInside(playerPos) ? "Yes" : "No");
+        playerLocationText_->SetText(location);
+        playerLocationText_->SetVisible(true);
+    }
+    else
+    {
+        t1.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
+        playerLocationText_->SetVisible(false);
+    }
 
     switch(debugDrawMode_)
     {
