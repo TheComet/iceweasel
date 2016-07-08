@@ -1,0 +1,31 @@
+\subsection{General Projection}
+
+Given a subspace $V = \text{span} \begin{bmatrix} \vec{e_1} | \vec{e_2} | \ldots
+\end{bmatrix}$ where $\vec{e_n}$ is the basis for $V$  and  $\vec{x} , \vec{e_n}
+\in  \mathbb{R}^N$,  the  projection  of  $\vec{x}$  onto  $V$  is  defined  as:
+
+\begin{align}
+    \label{eq:projection_origin}
+    \text{proj}_V\vec{x} = A\left(A\transpose A\right)\inverse A\transpose\vec{x}
+\end{align}
+
+This projection is only valid for $\vec{v_1} = \vec{0}$.  If the triangle has an
+offset in 3D space,  then  the  offset  must be subtracted before performing the
+projection and added back after the projection. A translation matrix is used:
+
+\begin{align}
+    \label{eq:translate_offset}
+    T = \begin{bmatrix}
+        1 & 0 & 0 & -v_{1_x} \\
+        0 & 1 & 0 & -v_{1_y} \\
+        0 & 0 & 1 & -v_{1_z} \\
+        0 & 0 & 0 & 1 \\
+    \end{bmatrix}
+\end{align}
+
+The projection becomes:
+
+\begin{align}
+    \label{eq:projection}
+    \text{proj}_V\vec{x} = TA\left(A\transpose A\right)\inverse A\transpose T\inverse\vec{x}
+\end{align}
