@@ -31,6 +31,20 @@ void Tetrahedron::ExtendIntoInfinity(unsigned vertexID)
 }
 
 // ----------------------------------------------------------------------------
+void Tetrahedron::InvertVolume(unsigned int vertexID)
+{
+    assert(vertexID < 4);
+
+    /*
+    int i = 4;
+    float* entry = &transform_.m00_;
+    while(i--)
+        *entry++ *= -1;*/
+
+    
+}
+
+// ----------------------------------------------------------------------------
 Matrix4 Tetrahedron::CalculateSurfaceProjectionMatrix(unsigned excludeVertex) const
 {
     // This function builds a projection matrix that will project a 3D point

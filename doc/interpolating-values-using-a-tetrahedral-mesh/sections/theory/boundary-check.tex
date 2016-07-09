@@ -1,0 +1,29 @@
+\subsection{Boundary Check}
+
+In this  section  we  discuss  how  to  determine if a point is located inside a
+tetrahedron or not. This includes cases  where  vertices  of the tetrahedron are
+located infinitely far away.
+
+The easist case is  a  normal  tetrahedron with no infinite vertices. A 3D point
+$\vec{x}$  is  located  inside  the  tetrahedron  if its barycentric coordinates
+$\vec{\lambda}  =  \begin{bmatrix}  \lambda_1,  \lambda_2, \lambda_3,  \lambda_4
+\end{bmatrix} \transpose$ satisfy the condition:
+
+\begin{equation}
+    \label{eq:boundary_check}
+    0\le\lambda_n\le 1
+\end{equation}
+
+If one vertex is  located  in  infinity  then  one of the barycentric parameters
+$\lambda_1$ will always equal 0. Therefore, we need  to additionally check which
+side of  the  triangle, defined by $\vec{v_1}$, $\vec{v_2}$, and $\vec{v_3}$ the
+point  $\vec{x}$ is being  projected  from.  The  following  condition  must  be
+satisfied   in   addition    to    the    condition    described   in   equation
+\ref{eq:boundary_check}
+
+\begin{align}
+    \left(\vec{v_2}-\vec{v_1}\right)\times\left(\vec{v_3}-\vec{v_1}\right) \odot \left(\vec{x}-\vec{v_1}\right) \ge 0
+\end{align}
+
+If  two vertices are located in infinity then two of the barycentric  parameters
+$\lambda_{1,2}$ will always equal 0.

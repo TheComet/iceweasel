@@ -1,10 +1,16 @@
-\subsection{Barycentric Coordinates of an Edge Projection}
+\subsubsection{Barycentric Coordinates of a Face Projection}
 
-The edge of  a tetrahedron is defined by the two vertices $v_1$ and $v_2$, where
-$v_n    \in    \mathbb{R}^3$.    The   3   dimensional   Cartesian    coordinate
-$\vec{x}\in\mathbb{R}^3$  is projected onto one of the tetrahedron's edges using
-equation  \ref{eq:projection}  where  the  matrix  $A$   is   defined  as  $A  =
-\begin{bmatrix} \vec{v_2} - \vec{v_1} \end{bmatrix}$.
+In the case of a single vertex of the tetrahedron being  located  infinitely far
+away, any 3D point located inside its volume will be projected onto the triangle
+formed  by the three finite vertex locations. Thus, a projection matrix must  be
+constructed.
+
+The face of a  tetrahedron  is  defined  by  the three vertices $v_1$, $v_2$ and
+$v_3$,  where  $v_n \in \mathbb{R}^3$. The 3  dimensional  Cartesian  coordinate
+$\vec{x}\in\mathbb{R}^3$  is  projected  onto one of the tetrahedron's triangles
+using equation \ref{eq:projection} where $\vec{a}  =  \vec{v_2}  - \vec{v_1}$
+and  $\vec{b} = \vec{v_3}  -  \vec{v_1}$  and  the  matrix  $A$  is  defined  as
+$A=\begin{bmatrix} a|b \end{bmatrix}$.
 
 The matrices $B$ and $\text{proj}_V$ from equations \ref{eq:bary:cartesian}  and
 \ref{eq:projection} may be combined to form the final matrix  for transforming a
@@ -12,15 +18,17 @@ The matrices $B$ and $\text{proj}_V$ from equations \ref{eq:bary:cartesian}  and
 barycentric coordinates $\vec{\lambda}$:
 
 \begin{align}
-    \label{eq:bary:edge}
+    \label{eq:bary:triangle}
     \vec{\lambda} = TA\left(A\transpose A\right)\inverse A\transpose T\inverse B \vec{x}
 \end{align}
 
-In an effort to be more verbose, equation \ref{eq:bary:edge} is broken down  and
-constructed  step-by-step  using  the  edge  vertices  $\vec{v_1}$, $\vec{v_2}$.
+In  an effort to be more verbose, equation \ref{eq:bary:triangle} is broken down
+and   constructed   step-by-step   using  the  triangle  vertices   $\vec{v_1}$,
+$\vec{v_2}$, $\vec{v_3}$.
 
 \begin{align*}
     \vec{a} &= \vec{v_2} - \vec{v_1} \\
+    \vec{b} &= \vec{v_3} - \vec{v_1} \\
     \text{proj}_V &= A\left(A\transpose A\right)\inverse A\transpose \\
     \begin{bmatrix}
         m_{00} & m_{01} & m_{02} \\
@@ -28,27 +36,29 @@ constructed  step-by-step  using  the  edge  vertices  $\vec{v_1}$, $\vec{v_2}$.
         m_{20} & m_{21} & m_{22} \\
     \end{bmatrix}
     &=  \begin{bmatrix}
-            a_x \\
-            a_y \\
-            a_z \\
+            a_x & b_x \\
+            a_y & b_y \\
+            a_z & b_z \\
         \end{bmatrix}
         \left(
             \begin{bmatrix}
                 a_x & a_y & a_z \\
+                b_x & b_y & b_z \\
             \end{bmatrix}
             \begin{bmatrix}
-                a_x \\
-                a_y \\
-                a_z \\
+                a_x & b_x \\
+                a_y & b_y \\
+                a_z & b_z \\
             \end{bmatrix}
         \right)\inverse
         \begin{bmatrix}
             a_x & a_y & a_z \\
+            b_x & b_y & b_z \\
         \end{bmatrix}
 \end{align*}
 
-The  calculated  projection matrix can be  sandwiched  between  the  translation
-matrix  $T$  from equation \ref{eq:translate_offset} and then be multiplied with
+The  calculated  projection  matrix  can be sandwiched between  the  translation
+matrix $T$ from equation \ref{eq:translate_offset} and then be  multiplied  with
 the  barycentric transformation matrix $B$ from equation \ref{eq:bary:cartesian}
 to yield the final transformation matrix.
 

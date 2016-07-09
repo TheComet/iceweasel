@@ -27,6 +27,8 @@ public:
 
     void ExtendIntoInfinity(unsigned vertexID);
 
+    void InvertVolume(unsigned vertexID);
+
     /*!
      * @brief Returns true if the specified 3D point lies inside the
      * tetrahedron.
@@ -52,7 +54,23 @@ public:
      */
     Vector4 TransformToBarycentric(const Vector3& point) const
     {
-        return transform_ * Vector4(point, 1.0f);
+        /*return transform_ * Vector4(point, 1.0f);*/
+
+        Vector3 E1 = vertices_[2] - vertices_[1];
+        Vector3 E2 = vertices_[3] - vertices_[1];
+        Vector3 T = point - vertices_[1];
+        Vector3 D = (point - vertices_[0]).Normalized();
+
+        Vector3 P = D.CrossProduct(E2);
+        Vector3 Q = T.CrossProduct(E1);
+
+        Vector3 tuv = 1.0f / P.DotProduct(E1) * Vector3(
+            Q.DotProduct(E2),
+            P.DotProduct(T),
+            Q.DotProduct(D)
+        );
+
+        return Vector4(0, 1 - tuv.y_ - tuv.z_, tuv.y_, tuv.z_);
     }
 
     void DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color);

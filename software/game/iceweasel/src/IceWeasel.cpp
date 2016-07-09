@@ -307,7 +307,7 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
         Vector3(-5, 5, 30),
         Vector3(5, 5, 30)
     );
-    t1.ExtendIntoInfinity(1);
+    t1.ExtendIntoInfinity(3);
     if(t1.PointLiesInside(playerPos))
     {
         t1.DrawDebugGeometry(debugRenderer, depthTest, Color::BLUE);
