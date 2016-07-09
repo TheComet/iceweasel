@@ -14,3 +14,82 @@ is described in detail in the following sections.
 \input{sections/theory/transformation-matrices}
 \input{sections/theory/boundary-check}
 
+\section{Another Approach}
+
+Instead of dealing with four different cases and having to build eight different
+transformation matrices,  another approach is to cast a ray from the 3D location
+$\vec{x}$ to the center of the convex hull of the tetrahedral mesh and determine
+the location of intercection on the hull's surface.
+
+\subsection{Intersection of a Ray and a Triangle}
+
+A  triangle  is  defined  by  its  three  vertices  $\vec{v_1}$, $\vec{v_2}$ and
+$\vec{v_3}$. A point $\vec{T}(\lambda_1,\lambda_2)$ on a  triangle  is  given by
+
+\begin{equation}
+    \label{eq:point_on_triangle}
+    \vec{T}(\lambda_1,\lambda_2) = (1-\lambda_1-\lambda_2)\vec{v_1} + u\vec{v_2} + v\vec{v_3}
+\end{equation}
+
+Where  $(\lambda_1,\lambda_2)$  are the barycentric coordinates of the triangle,
+which must fulfill the requirement $0\le\lambda_n\le 1$.
+
+A  ray  $\vec{R}(t)$  with  origin $\vec{r_0}$ and normalised direction  $\vec{d}$  is
+defined as
+
+\begin{equation}
+    \label{eq:ray}
+    \vec{R}(t) = \vec{r_0} + t\vec{d}
+\end{equation}
+
+Computing  the  intersection  between  the  ray  $\vec{R}(t)$  and  the triangle
+$\vec{T}  (\lambda_1,  \lambda_2)$  is  equivalent  to  $\vec{R}(t)  =   \vec{T}
+(\lambda_1, \lambda_2)$, which yields
+
+\begin{equation}
+    \vec{r_0} + t\vec{d} = (1-\lambda_1-\lambda_2)\vec{v_1} + \lambda_1\vec{v_2} + \lambda_2\vec{v_3}
+\end{equation}
+
+Rearranging the terms gives
+
+\begin{equation}
+    \label{eq:ray_equation}
+    \begin{bmatrix} -d & \vec{v_2}-\vec{v_1} & \vec{v_3}-\vec{v_1} \\ \end{bmatrix}
+    \begin{bmatrix} t \\ \lambda_1 \\ \lambda_2 \\ \end{bmatrix} = \vec{r_0} - \vec{v_1}
+\end{equation}
+
+This means the barycentric coordinates $(\lambda_1, \lambda_2)$ and the distance
+$t$ from the ray origin to the intersection point can be  found  by  solving the
+lienar system of equations above.
+
+Denoting $\vec{a} = \vec{v_2} -  \vec{v_1}$,  $\vec{b}  = \vec{v_3} - \vec{v_1}$
+and   $\vec{c}   =   \vec{r_0}   -   \vec{v_1}$,   the   solution  to   equation
+\ref{eq:ray_equation} is obtained by using Cramer's rule:
+
+\begin{equation}
+    \label{eq:ray_equation_solved}
+    \begin{bmatrix} t \\ \lambda_1 \\ \lambda_2 \\ \end{bmatrix}
+    = \frac{1}{\begin{vmatrix} -\vec{d} & \vec{a} & \vec{b} \end{vmatrix}}
+    \begin{bmatrix}\begin{vmatrix}
+        \vec{c}  & \vec{a} & \vec{b} \\
+        -\vec{d} & \vec{c} & \vec{b} \\
+        -\vec{d} & \vec{a} & \vec{c} \\
+    \end{vmatrix}\end{bmatrix}
+\end{equation}
+
+From linear algebra, we  know  that $\begin{vmatrix} \vec{A} & \vec{B} & \vec{C}
+\\ \end{vmatrix} =  -\left(  \vec{A}  \times  \vec{C}  \right) \cdot B = -\left(
+\vec{C} \times \vec{B} \right) \cdot A$.  Equation  \ref{eq:ray_equation_solved}
+could therefore be rewritten as
+
+\begin{equation}
+    \begin{bmatrix} t \\ \lambda_1 \\ \lambda_2 \\ \end{bmatrix} =
+    \frac{1}{\left(\vec{d}\times\vec{b}\right)\cdot\vec{a}}
+    \begin{bmatrix}
+        \left(\vec{c}\times\vec{a}\right)\cdot\vec{b} \\
+        \left(\vec{d}\times\vec{b}\right)\cdot\vec{c} \\
+        \left(\vec{c}\times\vec{a}\right)\cdot\vec{d} \\
+    \end{bmatrix}
+\end{equation}
+
+

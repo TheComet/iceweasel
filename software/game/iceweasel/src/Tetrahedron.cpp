@@ -22,27 +22,14 @@ Tetrahedron::Tetrahedron(const Vector3& v0,
 }
 
 // ----------------------------------------------------------------------------
+/*
 void Tetrahedron::ExtendIntoInfinity(unsigned vertexID)
 {
     assert(vertexID < 4);
 
     transform_ = CalculateBarycentricTransformationMatrix() *
                  CalculateSurfaceProjectionMatrix(vertexID);
-}
-
-// ----------------------------------------------------------------------------
-void Tetrahedron::InvertVolume(unsigned int vertexID)
-{
-    assert(vertexID < 4);
-
-    /*
-    int i = 4;
-    float* entry = &transform_.m00_;
-    while(i--)
-        *entry++ *= -1;*/
-
-    
-}
+}*/
 
 // ----------------------------------------------------------------------------
 Matrix4 Tetrahedron::CalculateSurfaceProjectionMatrix(unsigned excludeVertex) const

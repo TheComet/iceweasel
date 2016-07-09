@@ -5,26 +5,23 @@ away, any 3D point located  inside its volume will effectively be projected onto
 the one finite vertex.
 
 The  3  dimensional Cartesian coordinate $\vec{x}\in\mathbb{R}^3$  is  projected
-onto  one  of  the  tetrahedron's  vertices  $v_1 \in  \mathbb{R}^3$  using  the
-following projection matrix:
+onto one of the tetrahedron's vertices $v_1 \in \mathbb{R}^3$. This means one of
+the  barycentric  coordinates will always be 1 and the other  three  barycentric
+coordinates will have value 0.  This  can  be  described with the transformation
+matrix:
 
 \begin{equation}
     \label{eq:point}
     P = \begin{bmatrix}
-        0 & 0 & 0 & v_{1_x} \\
-        0 & 0 & 0 & v_{1_y} \\
-        0 & 0 & 0 & v_{1_z} \\
-        0 & 0 & 0 & 1 \\
+        0 & 0 & 0 & \lambda_1 \\
+        0 & 0 & 0 & \lambda_2 \\
+        0 & 0 & 0 & \lambda_3 \\
+        0 & 0 & 0 & \lambda_4 \\
     \end{bmatrix}
 \end{equation}
 
-The barycentric coordinates $\vec{\lambda}$  of  $\vec{x}$  can  be  computed by
-combining   matrices   $P$   and   $B$   from   equations   \ref{eq:point}   and
-\ref{eq:bary:cartesian}:
-
-\begin{equation}
-    \vec{\lambda} = PB\vec{x}
-\end{equation}
+Where one of the entries in $\vec{\lambda}$ has  value  1  and all other entries
+have value 0.
 
 It should be noted that a projection  matrix may be overkill for this particular
 case. However, it is necessary if one wants to generalise  the implementation by
