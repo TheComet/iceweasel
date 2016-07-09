@@ -35,7 +35,8 @@ using namespace Urho3D;
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
     debugDrawMode_(DRAW_NONE),
-    cameraModeIsFreeCam_(true)
+    cameraModeIsFreeCam_(true),
+    addGravityVectorCounter_(3)
 {
 }
 
@@ -247,8 +248,8 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
             addGravityVectorCounter_--;
         if(addGravityVectorCounter_ >= vertexCloud.Size())
             addGravityVectorCounter_ = vertexCloud.Size();
-        if(addGravityVectorCounter_ < 0)
-            addGravityVectorCounter_ = 0;
+        if(addGravityVectorCounter_ < 3)
+            addGravityVectorCounter_ = 3;
         Vector<Vector3> cloud;
         Vector<Vector3>::Iterator it2 = vertexCloud.Begin();
         while(it2 != vertexCloud.Begin() + addGravityVectorCounter_)

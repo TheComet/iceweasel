@@ -71,15 +71,17 @@ public:
         Urho3D::Vector3 c = v3 - v0;
 
         float aa = a.LengthSquared();
-        float ba = b.LengthSquared();
-        float ca = c.LengthSquared();
+        float bb = b.LengthSquared();
+        float cc = c.LengthSquared();
 
         Urho3D::Vector3 numerator(
-            ca * a.CrossProduct(b) +
-            ba * c.CrossProduct(a) +
+            cc * a.CrossProduct(b) +
+            bb * c.CrossProduct(a) +
             aa * b.CrossProduct(c)
         );
 
-        return numerator / (2.0f * b.CrossProduct(c).AbsDotProduct(a));
+        float denominator = 2.0f * b.CrossProduct(c).DotProduct(a);
+
+        return v0 + numerator / denominator;
     }
 };

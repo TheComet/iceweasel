@@ -122,10 +122,11 @@ void TetrahedralMesh::Construct(const Vector<Vector3>& vertexList)
             );
             float radiusSquared = (circumsphereCenter - t->v_[0]->position_).LengthSquared();
 
-            // Test if point is inside circumcircle of tetrahedron. If not, add to bad list
+            // Test if point is inside circumcircle of tetrahedron. Add to bad list
             if((*vertIt - circumsphereCenter).LengthSquared() < radiusSquared)
                 badTetrahedrons.Push(SharedPtr<internal::Tetrahedron>(t));
-/*
+
+            /* Tests if a point is inside a tetrahedron
             if(Urho3D::Tetrahedron(t->v_[0]->position_,
                                    t->v_[1]->position_,
                                    t->v_[2]->position_,
@@ -231,7 +232,7 @@ void TetrahedralMesh::Construct(const Vector<Vector3>& vertexList)
             internal::Vertex* v2 = *vertex++;
             internal::Vertex* v3 = *vertex++;
             triangulation.Push(SharedPtr<internal::Tetrahedron>(
-                new internal::Tetrahedron(v1, v2, v3, connectToVertex)
+                new internal::Tetrahedron(connectToVertex, v1, v2, v3)
             ));
         }
     }
@@ -240,10 +241,10 @@ void TetrahedralMesh::Construct(const Vector<Vector3>& vertexList)
     for(; tetIt != triangulation.End(); ++tetIt)
     {
         internal::Tetrahedron* t = *tetIt;
-        /*for(int i = 0; i != 4; ++i)
+        for(int i = 0; i != 4; ++i)
             for(int j = 0; j != 4; ++j)
                 if(t->v_[i] == superTetrahedron->v_[j])
-                    goto break_skip;*/
+                    goto break_skip;
 
         tetrahedrons_.Push(Tetrahedron(
             t->v_[0]->position_,
@@ -254,6 +255,11 @@ void TetrahedralMesh::Construct(const Vector<Vector3>& vertexList)
 
         break_skip: continue;
     }
+/*
+    tetrahedrons_.Clear();
+    tetrahedrons_.Push(Tetrahedron(
+        Vector3(-5, 0, 0),Vector3(0, -5, 5),Vector3(5, 0, 0),Vector3(0, 5, 5)
+    ));*/
 }
 
 // ----------------------------------------------------------------------------
@@ -264,7 +270,7 @@ void TetrahedralMesh::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Ve
         if(it->PointLiesInside(pos))
             it->DrawDebugGeometry(debug, false, Color::RED);
         else
-            it->DrawDebugGeometry(debug, depthTest, Color::GRAY);
+            it->DrawDebugGeometry(debug, depthTest, Color::WHITE);
 }
 
 } // namespace Urho3D
