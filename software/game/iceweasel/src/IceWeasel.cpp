@@ -10,6 +10,7 @@
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Graphics/Viewport.h>
 #include <Urho3D/IceWeaselMods/Gravity.h>
+#include <Urho3D/IceWeaselMods/GravityVector.h>
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
@@ -23,7 +24,7 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/Window.h>
 
-#include "iceweasel/Tetrahedron.h"
+#include "iceweasel/TetrahedralMesh.h"
 
 #include <iostream>
 
@@ -34,7 +35,7 @@ using namespace Urho3D;
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
     debugDrawMode_(DRAW_NONE),
-    cameraModeIsFreeCam_(false)
+    cameraModeIsFreeCam_(true)
 {
 }
 
@@ -44,7 +45,7 @@ void IceWeasel::Setup()
     // called before engine initialization
 
     engineParameters_["WindowTitle"] = "IceWeasel";
-    engineParameters_["FullScreen"]  = true;
+    engineParameters_["FullScreen"]  = false;
     engineParameters_["Headless"]    = false;
     engineParameters_["Multisample"] = 2;
     engineParameters_["VSync"] = true;
@@ -63,6 +64,8 @@ void IceWeasel::Start()
     CreateUI();
     CreateScene();
     CreateCamera();
+
+    debugDrawMode_ = DRAW_GRAVITY;
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
@@ -83,10 +86,6 @@ void IceWeasel::CreateUI()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     UI* ui = GetSubsystem<UI>();
     UIElement* root = ui->GetRoot();
-
-    playerLocationText_ = root->CreateChild<Text>();
-    playerLocationText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 12);
-    playerLocationText_->SetPosition(0, 0);
 
 #ifdef DEBUG
     instructionText_ = root->CreateChild<Text>();
@@ -156,7 +155,7 @@ void IceWeasel::CreateCamera()
     cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f));
     cameraRotateNode_->SetPosition(Vector3::ZERO);
     cameraMoveNode_->AddComponent(
-        new CameraController(context_, cameraMoveNode_, cameraRotateNode_),
+        new CameraController(context_, cameraMoveNode_, cameraRotateNode_, CameraController::FREE),
         0,
         Urho3D::LOCAL
     );
@@ -190,9 +189,12 @@ void IceWeasel::CreateScene()
 
     // load scene from XML
     scene_ = new Scene(context_);
-    XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/TestMap.xml");
+    XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/GravityMeshTest.xml");
     if(xmlScene)
         scene_->LoadXML(xmlScene->GetRoot());
+
+    Vector<Vector3> vertexCloud;
+    gravityMesh_ = new TetrahedralMesh(vertexCloud);
 }
 
 // ----------------------------------------------------------------------------
@@ -230,6 +232,29 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     int key = eventData[P_KEY].GetInt();
     if(key == KEY_ESCAPE)
         engine_->Exit();
+
+    if(key == KEY_F1 || key == KEY_F2)
+    {
+        Gravity* gravity = scene_->GetComponent<Gravity>();
+        PODVector<GravityVector*>::ConstIterator it = gravity->gravityVectors_.Begin();
+        Vector<Vector3> vertexCloud;
+        for(; it != gravity->gravityVectors_.End(); ++it)
+            vertexCloud.Push((*it)->GetPosition());
+
+        if(key == KEY_F1)
+            addGravityVectorCounter_++;
+        else
+            addGravityVectorCounter_--;
+        if(addGravityVectorCounter_ >= vertexCloud.Size())
+            addGravityVectorCounter_ = vertexCloud.Size();
+        if(addGravityVectorCounter_ < 0)
+            addGravityVectorCounter_ = 0;
+        Vector<Vector3> cloud;
+        Vector<Vector3>::Iterator it2 = vertexCloud.Begin();
+        while(it2 != vertexCloud.Begin() + addGravityVectorCounter_)
+            cloud.Push(*it2++);
+        gravityMesh_ = new TetrahedralMesh(cloud);
+    }
 
     // Toggle debug geometry
 #ifdef DEBUG
@@ -288,46 +313,6 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
         return;
     bool depthTest = true;
 
-    // Tetrahedron test stuff, will be removed
-    Tetrahedron t(
-        Vector3(0, 10, 0),
-        Vector3(0, 0, 0),
-        Vector3(-5, 5, 10),
-        Vector3(5, 5, 10)
-    );
-    Vector3 playerPos = cameraMoveNode_->GetWorldPosition() + cameraRotateNode_->GetDirection();
-    debugRenderer->AddSphere(Sphere(playerPos, 0.04), Color::RED, depthTest);
-    t.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
-    if(t.PointLiesInside(playerPos))
-        t.DrawDebugGeometry(debugRenderer, depthTest, Color::BLUE);
-
-    Tetrahedron t1(
-        Vector3(0, 10, 20),
-        Vector3(0, 0, 20),
-        Vector3(-5, 5, 30),
-        Vector3(5, 5, 30)
-    );
-    if(t1.PointLiesInside(playerPos))
-    {
-        t1.DrawDebugGeometry(debugRenderer, depthTest, Color::BLUE);
-        Vector4 bary = t1.TransformToBarycentric(playerPos);
-        Vector3 back = t1.TransformToCartesian(bary);
-        debugRenderer->AddSphere(Sphere(back, 0.1), Color::RED, depthTest);
-        debugRenderer->AddLine(playerPos, back, Color::RED, depthTest);
-
-        String location;
-        location.AppendWithFormat(
-            "Barycentric coordinates: %f,%f,%f,%f\n"
-            "Inside: %s", bary.x_, bary.y_, bary.z_, bary.w_, t1.PointLiesInside(playerPos) ? "Yes" : "No");
-        playerLocationText_->SetText(location);
-        playerLocationText_->SetVisible(true);
-    }
-    else
-    {
-        t1.DrawDebugGeometry(debugRenderer, depthTest, Color::GRAY);
-        playerLocationText_->SetVisible(false);
-    }
-
     switch(debugDrawMode_)
     {
         case DRAW_NONE: return;
@@ -346,6 +331,7 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
             Gravity* gravity = scene_->GetComponent<Gravity>();
             if(gravity)
                 gravity->DrawDebugGeometry(debugRenderer, depthTest);
+            gravityMesh_->DrawDebugGeometry(debugRenderer, depthTest, cameraMoveNode_->GetWorldPosition());
             break;
         }
     }

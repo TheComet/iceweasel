@@ -1,4 +1,5 @@
 #include "iceweasel/Tetrahedron.h"
+#include "iceweasel/Math.h"
 
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Math/Matrix2.h>
@@ -18,6 +19,7 @@ Tetrahedron::Tetrahedron(const Vector3& v0,
     vertices_[2] = v2;
     vertices_[3] = v3;
 
+    sphereCenter_ = Math::CircumscribeSphere(v0, v1, v2, v3);
     transform_ = CalculateBarycentricTransformationMatrix();
 }
 
@@ -121,6 +123,8 @@ void Tetrahedron::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const 
                 color, depthTest
             );
     }
+
+    //debug->AddSphere(Sphere(sphereCenter_, (vertices_[0] - sphereCenter_).Length()), Color::GRAY, depthTest);
 }
 
 } // namespace Urho3D

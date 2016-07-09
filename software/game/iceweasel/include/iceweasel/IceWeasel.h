@@ -7,6 +7,7 @@ namespace Urho3D {
     class Node;
     class Scene;
     class Text;
+    class TetrahedralMesh;
 }
 
 
@@ -36,7 +37,9 @@ private:
     Urho3D::SharedPtr<Urho3D::Node> cameraRotateNode_;
     Urho3D::SharedPtr<Urho3D::DebugHud> debugHud_;
     Urho3D::SharedPtr<Urho3D::Text> instructionText_;
-    Urho3D::SharedPtr<Urho3D::Text> playerLocationText_;
+
+    Urho3D::SharedPtr<Urho3D::TetrahedralMesh> gravityMesh_;
+    int addGravityVectorCounter_; // debug
 
     enum DebugDrawMode {
         DRAW_NONE,

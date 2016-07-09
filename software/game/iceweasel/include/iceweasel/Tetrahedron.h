@@ -16,6 +16,8 @@ class Tetrahedron
 {
 public:
 
+    Tetrahedron() { assert(false); } // Required for Vector<Tetrahedron>
+
     /*!
      * @brief Constructs a tetrahedron from 4 vertex locations in cartesian
      * space.
@@ -69,6 +71,7 @@ private:
 
     Vector3 vertices_[4];
     Matrix4 transform_;
+    Vector3 sphereCenter_;
 };
 
 } // namespace Urho3D

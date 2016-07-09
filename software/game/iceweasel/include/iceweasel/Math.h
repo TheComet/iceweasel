@@ -1,12 +1,11 @@
 #pragma once
 
 #include <Urho3D/Math/Vector3.h>
+#include <Urho3D/Math/Matrix3.h>
 
 class Math
 {
 public:
-
-    using namespace Urho3D;
 
     /*!
      * @brief Projects a point onto the plane defined by a non-degenerate
@@ -22,17 +21,17 @@ public:
      * @return Returns true if the point was inside of the triangle, false if
      * the point was outside of the triangle.
      */
-    static bool ProjectOntoTriangle(Vector3* pointOnTriangle,
-                                    const Vector3& pointToProject,
-                                    const Vector3& v0,
-                                    const Vector3& v1,
-                                    const Vector3& v2)
+    static bool ProjectOntoTriangle(Urho3D::Vector3* pointOnTriangle,
+                                    const Urho3D::Vector3& pointToProject,
+                                    const Urho3D::Vector3& v0,
+                                    const Urho3D::Vector3& v1,
+                                    const Urho3D::Vector3& v2)
     {
         // http://math.stackexchange.com/questions/544946/determine-if-projection-of-3d-point-onto-plane-is-within-a-triangle
-        Vector3 edge1 = v1 - v0;
-        Vector3 edge2 = v2 - v0;
-        Vector3 normal = v1.CrossProduct(v2);
-        Vector3 w = pointToProject - v0;
+        Urho3D::Vector3 edge1 = v1 - v0;
+        Urho3D::Vector3 edge2 = v2 - v0;
+        Urho3D::Vector3 normal = v1.CrossProduct(v2);
+        Urho3D::Vector3 w = pointToProject - v0;
         float normalSquared = normal.DotProduct(normal);
 
         float gamma = edge1.CrossProduct(w).DotProduct(normal) / normalSquared;
@@ -49,16 +48,38 @@ public:
         );
     }
 
-    static float DistanceToPlane(const Vector3& pointToProject,
-                                 const Vector3& v0,
-                                 const Vector3& v1,
-                                 const Vector3& v2)
+    static float DistanceToPlane(const Urho3D::Vector3& pointToProject,
+                                 const Urho3D::Vector3& v0,
+                                 const Urho3D::Vector3& v1,
+                                 const Urho3D::Vector3& v2)
     {
-        Vector3 edge1 = v1 - v0;
-        Vector3 edge2 = v2 - v0;
-        Vector3 normal = v1.CrossProduct(v2);
-        Vector3 w = pointToProject - v0;
+        Urho3D::Vector3 edge1 = v1 - v0;
+        Urho3D::Vector3 edge2 = v2 - v0;
+        Urho3D::Vector3 normal = v1.CrossProduct(v2);
+        Urho3D::Vector3 w = pointToProject - v0;
 
         return w.DotProduct(normal.Normalized());
+    }
+
+    static Urho3D::Vector3 CircumscribeSphere(const Urho3D::Vector3& v0,
+                                              const Urho3D::Vector3& v1,
+                                              const Urho3D::Vector3& v2,
+                                              const Urho3D::Vector3& v3)
+    {
+        Urho3D::Vector3 a = v1 - v0;
+        Urho3D::Vector3 b = v2 - v0;
+        Urho3D::Vector3 c = v3 - v0;
+
+        float aa = a.LengthSquared();
+        float ba = b.LengthSquared();
+        float ca = c.LengthSquared();
+
+        Urho3D::Vector3 numerator(
+            ca * a.CrossProduct(b) +
+            ba * c.CrossProduct(a) +
+            aa * b.CrossProduct(c)
+        );
+
+        return numerator / (2.0f * b.CrossProduct(c).AbsDotProduct(a));
     }
 };
