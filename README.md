@@ -17,8 +17,7 @@ You will need to checkout the ```iceweasel``` branch.
 
 Install it to a well  known  place  on  your computer (e.g. ```/usr/urho3d``` or
 perhaps  ```/home/username/urho3d```  or  ```C:\urho3d``` if you're on Windows).
-You        can         set        the        install        location        with
-```-DCMAKE_INSTALL_PREFIX=/path/to/installation```.
+You can set the install location with ```-DCMAKE_INSTALL_PREFIX=/path/to/installation```.
 
 You will also need to enable the iceweasel mods with ```-DURHO3D_ICEWEASELMODS=ON```
 
