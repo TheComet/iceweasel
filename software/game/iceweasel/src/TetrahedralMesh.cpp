@@ -61,12 +61,12 @@ public:
 } // namespace internal
 
 // ----------------------------------------------------------------------------
-static internal::Tetrahedron* ConstructSuperTetrahedron(const Vector<Vector3>& vertexList)
+static internal::Tetrahedron* ConstructSuperTetrahedron(const Vector<Vector3>& pointList)
 {
     // Compute bounding box
     BoundingBox aabb;
-    Vector<Vector3>::ConstIterator it = vertexList.Begin();
-    for(; it != vertexList.End(); ++it)
+    Vector<Vector3>::ConstIterator it = pointList.Begin();
+    for(; it != pointList.End(); ++it)
     {
         if(aabb.min_.x_ > it->x_) aabb.min_.x_ = it->x_;
         if(aabb.min_.y_ > it->y_) aabb.min_.y_ = it->y_;
@@ -94,9 +94,28 @@ static internal::Tetrahedron* ConstructSuperTetrahedron(const Vector<Vector3>& v
 }
 
 // ----------------------------------------------------------------------------
-TetrahedralMesh::TetrahedralMesh(const Vector<Vector3>& vertexList)
+TetrahedralMesh::TetrahedralMesh(const Vector<Vector3>& pointList)
 {
-    Construct(vertexList);
+    Construct(pointList);
+}
+
+// ----------------------------------------------------------------------------
+const Tetrahedron* TetrahedralMesh::Query(const Vector3& position, Vector4* barycentric) const
+{
+    // Use a linear search for now. Can optimise later
+    Vector<Tetrahedron>::ConstIterator tetrahedron = tetrahedrons_.Begin();
+    for(; tetrahedron != tetrahedrons_.End(); ++tetrahedron)
+    {
+        Vector4 bary = tetrahedron->TransformToBarycentric(position);
+        if(tetrahedron->PointLiesInside(bary))
+        {
+            if(barycentric != NULL)
+                *barycentric = bary;
+            return &(*tetrahedron);
+        }
+    }
+
+    return NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -258,7 +277,7 @@ void TetrahedralMesh::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Ve
         else
             it->DrawDebugGeometry(debug, depthTest, Color::WHITE);
 
-    assert(count < 2);
+    assert(count < 2); // Detects overlapping tetrahedrons (should never happen)
 }
 
 } // namespace Urho3D

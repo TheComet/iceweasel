@@ -34,9 +34,9 @@ using namespace Urho3D;
 // ----------------------------------------------------------------------------
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
+    addGravityVectorCounter_(0),
     debugDrawMode_(DRAW_NONE),
-    cameraModeIsFreeCam_(true),
-    addGravityVectorCounter_(0)
+    cameraModeIsFreeCam_(true)
 {
 }
 

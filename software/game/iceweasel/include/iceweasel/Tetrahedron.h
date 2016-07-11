@@ -31,10 +31,17 @@ public:
      * @brief Returns true if the specified 3D point lies inside the
      * tetrahedron.
      */
-    bool PointLiesInside(const Vector3& point)
+    bool PointLiesInside(const Vector3& point) const
     {
-        Vector4 bary = TransformToBarycentric(point);
+        return PointLiesInside(TransformToBarycentric(point));
+    }
 
+    /*!
+     * @brief Returns true if the specified barycentric coordinate lies inside
+     * the tetrahedron.
+     */
+    bool PointLiesInside(const Vector4& bary) const
+    {
         return (
             bary.x_ >= 0.0f &&
             bary.y_ >= 0.0f &&
