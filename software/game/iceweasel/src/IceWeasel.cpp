@@ -24,8 +24,6 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/Window.h>
 
-#include "iceweasel/TetrahedralMesh.h"
-
 #include <iostream>
 
 
@@ -34,7 +32,6 @@ using namespace Urho3D;
 // ----------------------------------------------------------------------------
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
-    addGravityVectorCounter_(0),
     debugDrawMode_(DRAW_NONE),
     cameraModeIsFreeCam_(true)
 {
@@ -193,9 +190,6 @@ void IceWeasel::CreateScene()
     XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/TestMap.xml");
     if(xmlScene)
         scene_->LoadXML(xmlScene->GetRoot());
-
-    Vector<Vector3> vertexCloud;
-    gravityMesh_ = new TetrahedralMesh(vertexCloud);
 }
 
 // ----------------------------------------------------------------------------
@@ -233,29 +227,6 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     int key = eventData[P_KEY].GetInt();
     if(key == KEY_ESCAPE)
         engine_->Exit();
-
-    if(key == KEY_F1 || key == KEY_F2)
-    {
-        Gravity* gravity = scene_->GetComponent<Gravity>();
-        PODVector<GravityVector*>::ConstIterator it = gravity->gravityVectors_.Begin();
-        Vector<Vector3> vertexCloud;
-        for(; it != gravity->gravityVectors_.End(); ++it)
-            vertexCloud.Push((*it)->GetPosition());
-
-        if(key == KEY_F1)
-            addGravityVectorCounter_++;
-        else
-            addGravityVectorCounter_--;
-        if(addGravityVectorCounter_ >= vertexCloud.Size())
-            addGravityVectorCounter_ = vertexCloud.Size();
-        if(addGravityVectorCounter_ < 0)
-            addGravityVectorCounter_ = 0;
-        Vector<Vector3> cloud;
-        Vector<Vector3>::Iterator it2 = vertexCloud.Begin();
-        while(it2 != vertexCloud.Begin() + addGravityVectorCounter_)
-            cloud.Push(*it2++);
-        gravityMesh_ = new TetrahedralMesh(cloud);
-    }
 
     // Toggle debug geometry
 #ifdef DEBUG
@@ -332,7 +303,6 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
             Gravity* gravity = scene_->GetComponent<Gravity>();
             if(gravity)
                 gravity->DrawDebugGeometry(debugRenderer, depthTest);
-            gravityMesh_->DrawDebugGeometry(debugRenderer, depthTest, cameraMoveNode_->GetWorldPosition());
             break;
         }
     }

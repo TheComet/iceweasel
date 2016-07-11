@@ -38,9 +38,6 @@ private:
     Urho3D::SharedPtr<Urho3D::DebugHud> debugHud_;
     Urho3D::SharedPtr<Urho3D::Text> instructionText_;
 
-    Urho3D::SharedPtr<Urho3D::TetrahedralMesh> gravityMesh_;
-    int addGravityVectorCounter_; // debug
-
     enum DebugDrawMode {
         DRAW_NONE,
         DRAW_PHYSICS,
