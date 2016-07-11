@@ -1,10 +1,11 @@
 #include "iceweasel/TetrahedralMesh.h"
+#include "iceweasel/Tetrahedron.h"
 
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Math/BoundingBox.h>
 #include <iceweasel/Math.h>
-#include "iceweasel/Tetrahedron.h"
+
 
 
 namespace Urho3D
@@ -34,6 +35,29 @@ public:
     Vector3 circumscibedSphereCenter_;
 };
 
+class Face
+{
+public:
+    Face() {}
+    Face(Vertex* v1, Vertex* v2, Vertex* v3) :
+        marked_(true)
+    { v_[0] = v1; v_[1] = v2; v_[2] = v3; }
+
+    bool FaceIsShared(const Face* other)
+    {
+        unsigned count = 0;
+        for(unsigned i = 0; i != 3; ++i)
+            for(unsigned j = 0; j != 3; ++j)
+                if(other->v_[i] == v_[j])
+                    if(++count == 3)
+                        return true;
+        return false;
+    }
+
+    Vertex* v_[3];
+    bool marked_;
+};
+
 } // namespace internal
 
 // ----------------------------------------------------------------------------
@@ -52,37 +76,21 @@ static internal::Tetrahedron* ConstructSuperTetrahedron(const Vector<Vector3>& v
         if(aabb.max_.z_ < it->z_) aabb.max_.z_ = it->z_;
     }
 
+    // Expand bounding box by factor 4 plus a small error margin
+    aabb.min_.x_ -= (aabb.max_.x_ - aabb.min_.x_) * 2.2f;
+    aabb.min_.y_ -= (aabb.max_.y_ - aabb.min_.y_) * 2.2f;
+    aabb.min_.z_ -= (aabb.max_.z_ - aabb.min_.z_) * 2.2f;
+    aabb.max_.x_ += Abs(aabb.max_.x_ * 0.1f);
+    aabb.max_.y_ += Abs(aabb.max_.y_ * 0.1f);
+    aabb.max_.z_ += Abs(aabb.max_.z_ * 0.1f);
+
     // This tetrahedron should encompass all vertices in the list
     return new internal::Tetrahedron(
-        /*
-        new internal::Vertex(aabb.max_ * 100.1f),
-        new internal::Vertex(Vector3(aabb.max_.x_ - aabb.min_.x_, 0, 0) * 200 * 1.1f + aabb.min_),
-        new internal::Vertex(Vector3(0, aabb.max_.y_ - aabb.min_.y_, 0) * 200 * 1.1f + aabb.min_),
-        new internal::Vertex(Vector3(0, 0, aabb.max_.z_ - aabb.min_.z_) * 200 * 1.1f + aabb.min_)*/
-        new internal::Vertex(Vector3(0, 50, 0)),
-        new internal::Vertex(Vector3(0, -50, 50)),
-        new internal::Vertex(Vector3(-50, -50, -50)),
-        new internal::Vertex(Vector3(50, -50, -50))
+        new internal::Vertex(aabb.max_),
+        new internal::Vertex(Vector3(aabb.min_.x_, aabb.max_.y_, aabb.max_.z_)),
+        new internal::Vertex(Vector3(aabb.max_.x_, aabb.min_.y_, aabb.max_.z_)),
+        new internal::Vertex(Vector3(aabb.max_.x_, aabb.max_.y_, aabb.min_.z_))
     );
-}
-
-// ----------------------------------------------------------------------------
-static Vector<SharedPtr<internal::Tetrahedron> >::Iterator
-FindTetrahedronContaining(Vector<SharedPtr<internal::Tetrahedron> >& tetrahedrons,
-                          const Vector3& point)
-{
-    Vector<SharedPtr<internal::Tetrahedron> >::Iterator it = tetrahedrons.Begin();
-    for(; it != tetrahedrons.End(); ++it)
-    {
-        internal::Tetrahedron* t = *it;
-        if(Urho3D::Tetrahedron(t->v_[0]->position_,
-                               t->v_[1]->position_,
-                               t->v_[2]->position_,
-                               t->v_[3]->position_).PointLiesInside(point))
-            return it;
-    }
-
-    return tetrahedrons.End();
 }
 
 // ----------------------------------------------------------------------------
@@ -92,155 +100,134 @@ TetrahedralMesh::TetrahedralMesh(const Vector<Vector3>& vertexList)
 }
 
 // ----------------------------------------------------------------------------
-void TetrahedralMesh::Construct(const Vector<Vector3>& vertexList)
+/*!
+ * @brief Finds all tetrahedrons who's circumsphere contains a point.
+ * @param[out] badTetrahedrons All tetrahedrons containing the point will be
+ * stored in this list.
+ * @param[in] triangulationResult The current state of the triangulation.
+ * @param[in] point The 3D point to test for.
+ */
+static void FindBadTetrahedrons(Vector<SharedPtr<internal::Tetrahedron> >* badTetrahedrons,
+                                const Vector<SharedPtr<internal::Tetrahedron> >& triangulationResult,
+                                Vector3 point)
+{
+    badTetrahedrons->Clear();
+
+    Vector<SharedPtr<internal::Tetrahedron> >::ConstIterator tetrahedron = triangulationResult.Begin();
+    for(; tetrahedron != triangulationResult.End(); ++tetrahedron)
+    {
+        internal::Tetrahedron* t = *tetrahedron;
+
+        Vector3 circumsphereCenter = Math::CircumscribeSphere(
+            t->v_[0]->position_,
+            t->v_[1]->position_,
+            t->v_[2]->position_,
+            t->v_[3]->position_
+        );
+        float radiusSquared = (circumsphereCenter - t->v_[0]->position_).LengthSquared();
+
+        // Test if point is inside circumcircle of tetrahedron. Add to bad list
+        if((point - circumsphereCenter).LengthSquared() < radiusSquared)
+            badTetrahedrons->Push(SharedPtr<internal::Tetrahedron>(t));
+
+        /* Tests if a point is inside a tetrahedron
+        if(Urho3D::Tetrahedron(t->v_[0]->position_,
+                                t->v_[1]->position_,
+                                t->v_[2]->position_,
+                                t->v_[3]->position_).PointLiesInside(*vertIt))
+            badTetrahedrons.Push(SharedPtr<internal::Tetrahedron>(t));*/
+    }
+}
+
+// ----------------------------------------------------------------------------
+static void CreatePolyhedronFromBadTetrahedrons(Vector<internal::Vertex*>* polyhedron,
+                                                const Vector<SharedPtr<internal::Tetrahedron> >& badTetrahedrons)
+{
+    polyhedron->Clear();
+
+    // Create a list of faces from the bad tetrahedrons. Note that by default
+    // all faces are marked initially.
+    unsigned numFaces = badTetrahedrons.Size() * 4;
+    internal::Face* face = new internal::Face[numFaces];
+    Vector<SharedPtr<internal::Tetrahedron> >::ConstIterator tetrahedron = badTetrahedrons.Begin();
+    for(unsigned i = 0; tetrahedron != badTetrahedrons.End(); ++tetrahedron, i += 4)
+    {
+        internal::Tetrahedron* t = *tetrahedron;
+        face[i+0] = internal::Face(t->v_[0], t->v_[1], t->v_[2]);
+        face[i+1] = internal::Face(t->v_[3], t->v_[0], t->v_[1]);
+        face[i+2] = internal::Face(t->v_[3], t->v_[1], t->v_[2]);
+        face[i+3] = internal::Face(t->v_[3], t->v_[2], t->v_[0]);
+    }
+
+    // Check each face against all of the other faces, see if they are
+    // connected. If they are, unmark them.
+    for(unsigned i = 0; i != numFaces; ++i)
+        for(unsigned j = i+1; j != numFaces; ++j)
+            if(face[i].FaceIsShared(&face[j]))
+            {
+                face[i].marked_ = false;
+                face[j].marked_ = false;
+            }
+
+    // The remaining marked faces are the hull of the bad tetrahedrons. Add
+    // them to the polyhedron so they can be connected with the new vertex.
+    for(unsigned i = 0; i != numFaces; ++i)
+        if(face[i].marked_)
+        {
+            polyhedron->Push(face[i].v_[0]);
+            polyhedron->Push(face[i].v_[1]);
+            polyhedron->Push(face[i].v_[2]);
+        }
+
+    delete[] face;
+}
+
+// ----------------------------------------------------------------------------
+void TetrahedralMesh::Construct(const Vector<Vector3>& pointList)
 {
     // Create triangulation list and add super tetrahedron to it.
-    Vector<SharedPtr<internal::Tetrahedron> > triangulation;
-    SharedPtr<internal::Tetrahedron> superTetrahedron(ConstructSuperTetrahedron(vertexList));
-    triangulation.Push(superTetrahedron);
+    Vector<SharedPtr<internal::Tetrahedron> > triangulationResult;
+    SharedPtr<internal::Tetrahedron> superTetrahedron(ConstructSuperTetrahedron(pointList));
+    triangulationResult.Push(superTetrahedron);
 
-    Vector<SharedPtr<internal::Tetrahedron>> badTetrahedrons;
+    Vector<SharedPtr<internal::Tetrahedron> > badTetrahedrons;
     Vector<internal::Vertex*> polyhedron;
 
-    Vector<Vector3>::ConstIterator vertIt = vertexList.Begin();
-    for(; vertIt != vertexList.End(); ++vertIt)
+    Vector<Vector3>::ConstIterator point = pointList.Begin();
+    for(; point != pointList.End(); ++point)
     {
-        badTetrahedrons.Clear();
-        polyhedron.Clear();
-
         // First find all tetrahedrons that are no longer valid due to the insertion
-        Vector<SharedPtr<internal::Tetrahedron> >::Iterator tetrahedron = triangulation.Begin();
-        for(; tetrahedron != triangulation.End(); ++tetrahedron)
-        {
-            internal::Tetrahedron* t = *tetrahedron;
-
-            Vector3 circumsphereCenter = Math::CircumscribeSphere(
-                t->v_[0]->position_,
-                t->v_[1]->position_,
-                t->v_[2]->position_,
-                t->v_[3]->position_
-            );
-            float radiusSquared = (circumsphereCenter - t->v_[0]->position_).LengthSquared();
-
-            // Test if point is inside circumcircle of tetrahedron. Add to bad list
-            if((*vertIt - circumsphereCenter).LengthSquared() < radiusSquared)
-                badTetrahedrons.Push(SharedPtr<internal::Tetrahedron>(t));
-
-            /* Tests if a point is inside a tetrahedron
-            if(Urho3D::Tetrahedron(t->v_[0]->position_,
-                                   t->v_[1]->position_,
-                                   t->v_[2]->position_,
-                                   t->v_[3]->position_).PointLiesInside(*vertIt))
-                badTetrahedrons.Push(SharedPtr<internal::Tetrahedron>(t));*/
-        }
+        FindBadTetrahedrons(&badTetrahedrons, triangulationResult, *point);
 
         // Find the boundary of the hole
-        tetrahedron = badTetrahedrons.Begin();
-        for(; tetrahedron != badTetrahedrons.End(); ++tetrahedron)
-        {
-            internal::Tetrahedron* t = *tetrahedron;
-
-            // Stores all vertices that are shared with other tetrahedrons in the bad list
-            internal::Vertex* sharedVertices[4];
-            internal::Vertex** sharedVerticesPtr = sharedVertices;
-            Vector<SharedPtr<internal::Tetrahedron> >::Iterator other = tetrahedron + 1;
-            for(; other != badTetrahedrons.End(); ++other)
-            {
-                for(int i = 0; i != 4; ++i)
-                    for(int j = 0; j != 4; ++j)
-                        if(t->v_[i] == (*other)->v_[j])
-                        {
-                            for(int k = 0; k != 4; ++k)
-                                if(sharedVertices[k] == t->v_[i])
-                                    goto break_already_marked_as_shared;
-                            *sharedVerticesPtr++ = t->v_[i].Get();
-                            break_already_marked_as_shared: continue;
-                        }
-            }
-
-            unsigned numSharedVertices = sharedVerticesPtr - sharedVertices;
-            assert(numSharedVertices <= 4);
-            if(numSharedVertices < 3) // No shared faces
-            {
-                // Add all four faces of the tetrahedron
-                polyhedron.Push(t->v_[0]);
-                polyhedron.Push(t->v_[1]);
-                polyhedron.Push(t->v_[2]);
-
-                polyhedron.Push(t->v_[0]);
-                polyhedron.Push(t->v_[1]);
-                polyhedron.Push(t->v_[3]);
-
-                polyhedron.Push(t->v_[1]);
-                polyhedron.Push(t->v_[2]);
-                polyhedron.Push(t->v_[3]);
-
-                polyhedron.Push(t->v_[2]);
-                polyhedron.Push(t->v_[0]);
-                polyhedron.Push(t->v_[3]);
-            }
-            else if(numSharedVertices == 3) // One face is shared
-            {
-                // Find the vertex that is not part of the face
-                internal::Vertex* vertex = NULL;
-                for(int i = 0; i != 4; ++i)
-                {
-                    for(int j = 0; j != numSharedVertices; ++j)
-                        if(t->v_[i] == sharedVertices[j])
-                            goto break_vertex_is_shared;
-                    // Found the vertex
-                    vertex = t->v_[i];
-                    break;
-
-                    break_vertex_is_shared: continue;
-                }
-
-                assert(vertex);
-
-                // Add the three faces
-                polyhedron.Push(sharedVertices[0]);
-                polyhedron.Push(sharedVertices[1]);
-                polyhedron.Push(vertex);
-
-                polyhedron.Push(sharedVertices[1]);
-                polyhedron.Push(sharedVertices[2]);
-                polyhedron.Push(vertex);
-
-                polyhedron.Push(sharedVertices[2]);
-                polyhedron.Push(sharedVertices[0]);
-                polyhedron.Push(vertex);
-            }
-            else
-            {
-                // All faces are shared, don't add anything
-            }
-        }
+        CreatePolyhedronFromBadTetrahedrons(&polyhedron, badTetrahedrons);
 
         // Remove bad tetrahedrons from triangulation
-        tetrahedron = badTetrahedrons.Begin();
+        Vector<SharedPtr<internal::Tetrahedron> >::ConstIterator tetrahedron = badTetrahedrons.Begin();
         for(; tetrahedron != badTetrahedrons.End(); ++tetrahedron)
         {
-            triangulation.Remove(*tetrahedron);
+            triangulationResult.Remove(*tetrahedron);
         }
 
         // Re-triangulate the hole
         Vector<internal::Vertex*>::Iterator vertex = polyhedron.Begin();
-        SharedPtr<internal::Vertex> connectToVertex(new internal::Vertex(*vertIt));
+        SharedPtr<internal::Vertex> connectToVertex(new internal::Vertex(*point));
         while(vertex != polyhedron.End())
         {
             internal::Vertex* v1 = *vertex++;
             internal::Vertex* v2 = *vertex++;
             internal::Vertex* v3 = *vertex++;
-            triangulation.Push(SharedPtr<internal::Tetrahedron>(
+            triangulationResult.Push(SharedPtr<internal::Tetrahedron>(
                 new internal::Tetrahedron(connectToVertex, v1, v2, v3)
             ));
         }
     }
 
-    Vector<SharedPtr<internal::Tetrahedron> >::ConstIterator tetIt = triangulation.Begin();
-    for(; tetIt != triangulation.End(); ++tetIt)
+    Vector<SharedPtr<internal::Tetrahedron> >::ConstIterator tetIt = triangulationResult.Begin();
+    for(; tetIt != triangulationResult.End(); ++tetIt)
     {
         internal::Tetrahedron* t = *tetIt;
+
         for(int i = 0; i != 4; ++i)
             for(int j = 0; j != 4; ++j)
                 if(t->v_[i] == superTetrahedron->v_[j])
@@ -255,22 +242,23 @@ void TetrahedralMesh::Construct(const Vector<Vector3>& vertexList)
 
         break_skip: continue;
     }
-/*
-    tetrahedrons_.Clear();
-    tetrahedrons_.Push(Tetrahedron(
-        Vector3(-5, 0, 0),Vector3(0, -5, 5),Vector3(5, 0, 0),Vector3(0, 5, 5)
-    ));*/
 }
 
 // ----------------------------------------------------------------------------
 void TetrahedralMesh::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector3 pos)
 {
     Vector<Tetrahedron>::Iterator it = tetrahedrons_.Begin();
+    unsigned count = 0;
     for(; it != tetrahedrons_.End(); ++it)
         if(it->PointLiesInside(pos))
+        {
             it->DrawDebugGeometry(debug, false, Color::RED);
+            ++count;
+        }
         else
             it->DrawDebugGeometry(debug, depthTest, Color::WHITE);
+
+    assert(count < 2);
 }
 
 } // namespace Urho3D

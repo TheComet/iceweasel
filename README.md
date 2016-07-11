@@ -31,7 +31,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr/urho3d \
 ```
 
 Once you've  installed  Urho3D,  go  into the directory ```software/game```. You
-will find a script names ```setup-urho3d.sh```. Execute it as:
+will find a script named ```setup-urho3d.sh```. Execute it as:
 ```
 ./setup-urho3d.sh /usr/urho3d
 ```

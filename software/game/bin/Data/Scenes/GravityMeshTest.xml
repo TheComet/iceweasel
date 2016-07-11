@@ -7,8 +7,8 @@
 	<attribute name="Elapsed Time" value="0" />
 	<attribute name="Next Replicated Node ID" value="15" />
 	<attribute name="Next Replicated Component ID" value="16" />
-	<attribute name="Next Local Node ID" value="16777223" />
-	<attribute name="Next Local Component ID" value="16777300" />
+	<attribute name="Next Local Node ID" value="16777225" />
+	<attribute name="Next Local Component ID" value="16777324" />
 	<attribute name="Variables" />
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
@@ -47,7 +47,7 @@
 		<attribute name="Tags" />
 		<attribute name="Position" value="0 0 0" />
 		<attribute name="Rotation" value="1 0 0 0" />
-		<attribute name="Scale" value="1 1 1" />
+		<attribute name="Scale" value="3.79877 3.79877 3.79877" />
 		<attribute name="Variables" />
 		<node id="5">
 			<attribute name="Is Enabled" value="true" />
@@ -93,7 +93,7 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="2.18691 7.89961 -2.65039" />
+			<attribute name="Position" value="2.18691 7.89961 6.69981" />
 			<attribute name="Rotation" value="1 0 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
@@ -103,7 +103,7 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="6.56501 7.89961 8.38154" />
+			<attribute name="Position" value="2.92537 7.89961 -6.5389" />
 			<attribute name="Rotation" value="1 0 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
@@ -113,7 +113,7 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="0.45652 10.1368 2.00427" />
+			<attribute name="Position" value="-8.47626 10.1368 2.00427" />
 			<attribute name="Rotation" value="1 0 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
@@ -123,7 +123,7 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="-2.95967 7.89961 0" />
+			<attribute name="Position" value="5.77328 7.89961 0" />
 			<attribute name="Rotation" value="1 0 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />

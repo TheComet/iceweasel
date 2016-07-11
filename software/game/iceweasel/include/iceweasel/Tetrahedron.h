@@ -63,6 +63,12 @@ public:
                barycentric.w_ * vertices_[3];
     }
 
+    Vector3 GetVertexPosition(unsigned vertexID) const
+    {
+        assert(vertexID < 4);
+        return vertices_[vertexID];
+    }
+
     void DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color);
 
 private:

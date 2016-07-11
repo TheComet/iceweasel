@@ -53,8 +53,6 @@ public:
                                  const Urho3D::Vector3& v1,
                                  const Urho3D::Vector3& v2)
     {
-        Urho3D::Vector3 edge1 = v1 - v0;
-        Urho3D::Vector3 edge2 = v2 - v0;
         Urho3D::Vector3 normal = v1.CrossProduct(v2);
         Urho3D::Vector3 w = pointToProject - v0;
 

@@ -36,7 +36,7 @@ IceWeasel::IceWeasel(Context* context) :
     Application(context),
     debugDrawMode_(DRAW_NONE),
     cameraModeIsFreeCam_(true),
-    addGravityVectorCounter_(3)
+    addGravityVectorCounter_(0)
 {
 }
 
@@ -190,7 +190,7 @@ void IceWeasel::CreateScene()
 
     // load scene from XML
     scene_ = new Scene(context_);
-    XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/GravityMeshTest.xml");
+    XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/TestMap.xml");
     if(xmlScene)
         scene_->LoadXML(xmlScene->GetRoot());
 
@@ -248,8 +248,8 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
             addGravityVectorCounter_--;
         if(addGravityVectorCounter_ >= vertexCloud.Size())
             addGravityVectorCounter_ = vertexCloud.Size();
-        if(addGravityVectorCounter_ < 3)
-            addGravityVectorCounter_ = 3;
+        if(addGravityVectorCounter_ < 0)
+            addGravityVectorCounter_ = 0;
         Vector<Vector3> cloud;
         Vector<Vector3>::Iterator it2 = vertexCloud.Begin();
         while(it2 != vertexCloud.Begin() + addGravityVectorCounter_)

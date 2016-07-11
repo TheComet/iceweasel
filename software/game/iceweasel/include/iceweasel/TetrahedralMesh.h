@@ -8,7 +8,7 @@
 namespace Urho3D
 {
 
-class TetrahedralMesh : public Urho3D::RefCounted
+class TetrahedralMesh : public RefCounted
 {
 public:
     TetrahedralMesh(const Vector<Vector3>& vertexList);
