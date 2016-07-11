@@ -25,9 +25,6 @@
 #include <Urho3D/UI/Window.h>
 
 
-#include <iostream>
-
-
 using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
