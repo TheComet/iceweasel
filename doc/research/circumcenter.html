@@ -1,0 +1,694 @@
+
+<!-- saved from url=(0059)http://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body><hr><pre><b>Newsgroups:</b>     comp.graphics,sci.image.processing,comp.graphics.algorithms
+<b>From:</b>           <a href="mailto:orourke@sophia.smith.edu">orourke@sophia.smith.edu</a> (Joseph O'Rourke)
+<b>Subject:</b>        Re: Center of circle from 3 edge points
+<b>Organization:</b>   Smith College, Northampton, MA, US
+<b>Date:</b>           Sat, 18 Sep 1993 17:54:05 GMT
+</pre><hr><pre>It so happens I just prepared an answer to the posed question as
+part of a textbook exercise.
+
+Let a, b, and c be the three given points.  
+Use _0 and _1 as x and y coordinates.
+The coordinates of the center p=(p_0,p_1) of the circle through them is:
+
+	p_0 =
+	( b_1 a_0^2 
+	- c_1 a_0^2
+	- b_1^2 a_1
+	+ c_1^2 a_1
+	+ b_0^2 c_1
+	+ a_1^2 b_1
+	+ c_0^2 a_1
+	- c_1^2 b_1
+	- c_0^2 b_1 
+	- b_0^2 a_1
+	+ b_1^2 c_1
+	- a_1^2 c_1 )
+	 / D
+	
+	p_1 =
+	( a_0^2 c_0
+	+ a_1^2 c_0
+	+ b_0^2 a_0
+	- b_0^2 c_0
+	+ b_1^2 a_0
+	- b_1^2 c_0
+	- a_0^2 b_0
+	- a_1^2 b_0
+	- c_0^2 a_0
+	+ c_0^2 b_0
+	- c_1^2 a_0
+	+ c_1^2 b_0) 
+	 / D
+
+where
+
+D = 2( a_1 c_0 + b_1 a_0 - b_1 c_0 -a_1 b_0 -c_1 a_0 + c_1 b_0 ).
+
+The radius of the circle is then:
+
+r^2 = (a_0 - p_0)^2 + (a_1 - p_1)^2
+
+Degeneracies occur when D=0.
+</pre><hr><pre><b>From:</b>           <a href="mailto:watson@madvax.uwa.oz.au">watson@madvax.uwa.oz.au</a> (Dave Watson)
+<b>Newsgroups:</b>     comp.graphics,sci.image.processing,comp.graphics.algorithms
+<b>Subject:</b>        Re: Center of circle from 3 edge points (triangle circumcenter)
+<b>Date:</b>           20 Sep 1993 01:23:09 GMT
+<b>Organization:</b>   Maths Dept UWA
+</pre><hr><pre>In article &lt;<a href="mailto:1993Sep18.175405.16512@sophia.smith.edu">1993Sep18.175405.16512@sophia.smith.edu</a>&gt;, <a href="mailto:orourke@sophia.smith.edu">orourke@sophia.smith.edu</a>
+  (Joseph O'Rourke) writes:
+|&gt; It so happens I just prepared an answer to the posed question as
+|&gt; part of a textbook exercise.
+|&gt; Let a, b, and c be the three given points.  
+|&gt; Use _0 and _1 as x and y coordinates.
+|&gt; The coordinates of the center p=(p_0,p_1) of the circle through them is:
+
+[Equations for p_0 and p_1 deleted]
+ 
+|&gt; where
+|&gt; 
+|&gt; D = 2( a_1 c_0 + b_1 a_0 - b_1 c_0 -a_1 b_0 -c_1 a_0 + c_1 b_0 ).
+|&gt; 
+|&gt; The radius of the circle is then:
+|&gt; 
+|&gt; r^2 = (a_0 - p_0)^2 + (a_1 - p_1)^2
+|&gt; 
+|&gt; Degeneracies occur when D=0.
+
+More efficiently (20 multiply/divide operations versus 57) use
+
+p_0 = (((a_0 - c_0) * (a_0 + c_0) + (a_1 - c_1) * (a_1 + c_1)) / 2 * (b_1 - c_1) 
+    -  ((b_0 - c_0) * (b_0 + c_0) + (b_1 - c_1) * (b_1 + c_1)) / 2 * (a_1 - c_1)) 
+    / D
+
+p_1 = (((b_0 - c_0) * (b_0 + c_0) + (b_1 - c_1) * (b_1 + c_1)) / 2 * (a_0 - c_0)
+    -  ((a_0 - c_0) * (a_0 + c_0) + (a_1 - c_1) * (a_1 + c_1)) / 2 * (b_0 - c_0))
+    / D
+
+where D = (a_0 - c_0) * (b_1 - c_1) - (b_0 - c_0) * (a_1 - c_1)
+
+The _squared_ circumradius is then:
+
+r^2 = (c_0 - p_0)^2 + (c_1 - p_1)^2
+
+This approach uses Cramer's Rule to find the intersection of two
+perpendicular bisectors of triangle edges
+
+-- 
+Dave Watson                          Internet: <a href="mailto:watson@maths.uwa.edu.au">watson@maths.uwa.edu.au</a>
+Department of Mathematics                         Tel: (61 9) 380 3359
+The University of Western Australia               FAX: (61 9) 380 1028
+Nedlands, WA 6009  Australia.          Real data are full of surprises
+</pre>
+<hr><pre><b>Date:</b>           19 Jun 1997 09:45:45 -0400
+<b>From:</b>           William Flis &lt;<a href="mailto:flis@indy.dynaeast.com">flis@indy.dynaeast.com</a>&gt;
+<b>Subject:</b>        Circumscribing simplices
+<b>To:</b>             "<a href="mailto:eppstein@ics.uci.edu">eppstein@ics.uci.edu</a>" &lt;<a href="mailto:eppstein@ics.uci.edu">eppstein@ics.uci.edu</a>&gt;
+</pre><hr><pre>Re: <a href="http://www.ics.uci.edu/~eppstein/junkyard/circumcircle.html">http://www.ics.uci.edu/~eppstein/junkyard/circumcircle.html</a>
+
+Circumscribing the triangle or tet or any simplex, given the vertex
+coordinates, can easily be done algebraically with a little trick.  Expand
+
+(x - a)^2 + (y - b)^2 = R^2
+
+to
+
+x^2 - 2ax + a^2 + y^2 - 2by + b^2 = R^2
+
+Since this is non-linear in a, b, and R, it seems you can't easily use it to
+find them.  But let
+
+q = R^2 - a^2 - b^2                        [1]
+
+and re-arrange to yield
+
+(2x)a + (2y)b + q = x^2 + y^2              [2]
+
+which is now linear in a, b, and q.  Apply at 3 points and solve by Cramer's
+rule:
+
+     |(x1^2 + y1^2) 2y1 1|
+     |(x2^2 + y2^2) 2y2 1|   |(x2^2 + y2^2 - x1^2 - y1^2) (y2 - y1)|
+     |(x3^2 + y3^2) 2y3 1|   |(x3^2 + y3^2 - x1^2 - y1^2) (y3 - y1)|
+a = ---------------------- = ---------------------------------------
+        | 2x1  2y1  1 |           2 * | (x2 - x1)  (y2 - y1) |
+        | 2x2  2y2  1 |               | (x3 - x1)  (y3 - y1) |
+        | 2x3  2y3  1 |
+
+Similarly,
+
+      |(x2 - x1) (x2^2 + y2^2 - x1^2 - y1^2)|
+      |(y2 - y1) (x3^2 + y3^2 - x1^2 - y1^2)|
+b = -----------------------------------------
+           (same denominator)
+
+This is equivalent to Watson's formula, which he derived geometrically.  (A
+side note: Watson could have saved 3 more multiplications in his formula by
+incorporating a factor of 2 into his denominator term D.)  It's then cheaper
+to find R by the original equation than by applying Cramer's rule a 3rd time,
+etc.
+
+This can also be written down by comparing Eq. [2] with the 'three-point
+form':
+
+     | (x^2  + y^2)   x   y   1 |
+     | (x1^2 + y1^2)  x1  y1  1 |  = 0
+     | (x2^2 + y2^2)  x2  y2  1 |
+     | (x3^2 + y3^2)  x3  y3  1 |
+
+For the sphere about a tet (after factoring out the 2's),
+
+     |(x1^2 + y1^2 + z1^2)  y1  z1  1 |
+     |(x2^2 + y2^2 + z2^2)  y2  z2  1 | 
+     |(x3^2 + y3^2 + z3^2)  y3  z3  1 |
+     |(x4^2 + y4^2 + z4^2)  y4  z4  1 |
+a = ------------------------------------
+         2 *  | x1   y1   z1  1 |
+              | x2   y2   z2  1 |
+              | x3   y3   z3  1 |
+              | x4   y4   z4  1 |
+
+and so on.  (The determinants are easily reduced to 3X3 size.)
+
+This is not original with me, and I'm uncertain as to the source.  I found
+the result for triangles in a computer program that was written 15 years ago
+(which I've been using ever since) but only recently did I figure out how the
+formula is derived.
+
+P.S.: Your web pages are a valuable resource. Thank you for maintaining them
+and please keep up the good work!
+------------------------------------------------------------
+William J. Flis, Director of Research, Dyna East Corporation
+3620 Horizon Drive, King of Prussia, PA 19406, U.S.A.
+(610)270-9900 Ext. 130   Fax: (610)270-9744
+<a href="http://www.dynaeast.com/~flis/FlisHome.html">http://www.dynaeast.com/~flis/FlisHome.html</a>
+------------------------------------------------------------
+</pre>
+<hr><pre><b>From:</b>           <a href="mailto:eppstein@ICS.UCI.EDU">eppstein@ICS.UCI.EDU</a>
+<b>To:</b>             <a href="mailto:flis@indy.dynaeast.com">flis@indy.dynaeast.com</a>
+<b>Subject:</b>        Re: Circumscribing simplices
+<b>Date:</b>           Thu, 19 Jun 1997 09:56:25 -0700
+</pre><hr><pre>Yes, this linearization trick is pretty standard in computational geometry.
+The specific variation you use, mapping a vector v onto (v,|v|^2),
+turns circles or more generally spheres in d dimensions into planes
+or more generally hyperplanes in d+1 dimensions. Your equation
+
+     | (x^2  + y^2)   x   y   1 |
+     | (x1^2 + y1^2)  x1  y1  1 |  = 0
+     | (x2^2 + y2^2)  x2  y2  1 |
+     | (x3^2 + y3^2)  x3  y3  1 |
+
+is the standard equation for a plane through three points (xi,yi,xi^2+yi^2).
+
+One reference for general ideas like this (i.e. of turning nonlinear
+equations into higher-dimensional linear ones by adding extra variables
+that are polynomials in the original equations)
+is "A general approach to d-dimensional geometric queries",
+A. C. Yao and F. F. Yao, 17th ACM Symp. Theory of Computing (1985) 163-168.
+But probably the same idea was known long before then in
+less algorithmic contexts.
+
+I've added your message to my page (I assume this is ok; let me know if not).
+</pre>
+<hr><pre><b>To:</b>             <a href="mailto:compgeom-discuss@research.bell-labs.com">compgeom-discuss@research.bell-labs.com</a>
+<b>Subject:</b>        Re: circumsphere
+<b>Date:</b>           Wed, 1 Apr 98 0:34:28 EST
+<b>From:</b>           Jonathan R Shewchuk &lt;<a href="mailto:jrs+@cs.cmu.edu">jrs+@cs.cmu.edu</a>&gt;
+</pre><hr><pre>&gt; I am searching for a numerically stable algorithm to calculate the radius r 
+&gt; (and perhaps the center m) of the circumsphere of a tetrahedron in
+&gt; three dimensions, given by the coordinates of the vertices a, b, c, d in R^3.
+
+Let a, b, c, d, and m be vectors in R^3.  Let ax, ay, and az be the components
+of a, and likewise for b, c, and d.  Let |a| denote the Euclidean norm of a,
+and let a x b denote the cross product of a and b.  Then
+
+    |                                                                       |
+    | |d-a|^2 [(b-a)x(c-a)] + |c-a|^2 [(d-a)x(b-a)] + |b-a|^2 [(c-a)x(d-a)] |
+    |                                                                       |
+r = -------------------------------------------------------------------------,
+                              | bx-ax  by-ay  bz-az |
+                            2 | cx-ax  cy-ay  cz-az |
+                              | dx-ax  dy-ay  dz-az |
+
+and
+
+        |d-a|^2 [(b-a)x(c-a)] + |c-a|^2 [(d-a)x(b-a)] + |b-a|^2 [(c-a)x(d-a)]
+m = a + ---------------------------------------------------------------------.
+                                | bx-ax  by-ay  bz-az |
+                              2 | cx-ax  cy-ay  cz-az |
+                                | dx-ax  dy-ay  dz-az |
+
+Some notes on stability:
+
+- Note that the expression for r is purely a function of differences between
+  coordinates.  The advantage is that the relative error incurred in the
+  computation of r is also a function of the _differences_ between the
+  vertices, and is not influenced by the _absolute_ coordinates of the
+  vertices.  In most applications, vertices are usually nearer to each other
+  than to the origin, so this property is advantageous.  If someone gives you
+  a formula that doesn't have this property, be wary.
+
+  Similarly, the formula for m incurs roundoff error proportional to the
+  differences between vertices, but does not incur roundoff error proportional
+  to the absolute coordinates of the vertices until the final addition.
+
+- These expressions are unstable in only one case:  if the denominator is
+  close to zero.  This instability, which arises if the tetrahedron is nearly
+  degenerate, is unavoidable.  Depending on your application, you may want
+  to use exact arithmetic to compute the value of the determinant.
+  Fortunately, this determinant is the basis of the well-studied 3D orientation
+  test, and several fast algorithms for providing accurate approximations to
+  the determinant are available.  Some resources are available from the
+  "Numerical and algebraic computation" page of Nina Amenta's Directory of
+  Computational Geometry Software:
+
+  <a href="http://www.geom.umn.edu/software/cglist/alg.html">http://www.geom.umn.edu/software/cglist/alg.html</a>
+
+  If you're using floating-point inputs (as opposed to integers), one
+  package that can estimate this determinant somewhat accurately is my own:
+
+  <a href="http://www.cs.cmu.edu/~quake/robust.html">http://www.cs.cmu.edu/~quake/robust.html</a>
+
+- If you want to be even more aggressive about stability, you might reorder
+  the vertices of the tetrahedron so that the vertex `a' (which is subtracted
+  from the other vertices) is, roughly speaking, the vertex at the center of
+  the minimum spanning tree of the tetrahedron's four vertices.  For more
+  information about this idea, see Steven Fortune, "Numerical Stability of
+  Algorithms for 2D Delaunay Triangulations," International Journal of
+  Computational Geometry &amp; Applications 5(1-2):193-213, March-June 1995.
+
+For completeness, here are stable expressions for the circumradius and
+circumcenter of a triangle, in R^2 and in R^3.  Incidentally, the expressions
+given here for R^2 are better behaved in terms of relative error than the
+suggestions currently given in the Geometry Junkyard
+(<a href="http://www.ics.uci.edu/~eppstein/junkyard/triangulation.html">http://www.ics.uci.edu/~eppstein/junkyard/triangulation.html</a>).
+
+Triangle in R^2:
+
+     |b-a| |c-a| |b-c|            &lt; Note: You only want to compute one sqrt, so
+r = ------------------,             use sqrt{ |b-a|^2 |c-a|^2 |b-c|^2 }
+      | bx-ax  by-ay |
+    2 | cx-ax  cy-ay |
+
+          | by-ay  |b-a|^2 |
+          | cy-ay  |c-a|^2 |
+mx = ax - ------------------,
+            | bx-ax  by-ay |
+          2 | cx-ax  cy-ay |
+
+          | bx-ax  |b-a|^2 |
+          | cx-ax  |c-a|^2 |
+my = ay + ------------------.
+            | bx-ax  by-ay |
+          2 | cx-ax  cy-ay |
+
+Triangle in R^3:
+
+    |                                                           |
+    | |c-a|^2 [(b-a)x(c-a)]x(b-a) + |b-a|^2 (c-a)x[(b-a)x(c-a)] |
+    |                                                           |
+r = -------------------------------------------------------------,
+                         2 | (b-a)x(c-a) |^2
+
+        |c-a|^2 [(b-a)x(c-a)]x(b-a) + |b-a|^2 (c-a)x[(b-a)x(c-a)]
+m = a + ---------------------------------------------------------.
+                           2 | (b-a)x(c-a) |^2
+
+Finally, here's some C code that computes the vector m-a (whose norm is r) in
+each of these three cases.  Notice the #ifdef statements, which allow you to
+choose whether or not to use my aforementioned package to approximate the
+determinant.  (No attempt is made here to reorder the vertices to improve
+stability.)
+
+/*****************************************************************************/
+/*                                                                           */
+/*  tetcircumcenter()   Find the circumcenter of a tetrahedron.              */
+/*                                                                           */
+/*  The result is returned both in terms of xyz coordinates and xi-eta-zeta  */
+/*  coordinates, relative to the tetrahedron's point `a' (that is, `a' is    */
+/*  the origin of both coordinate systems).  Hence, the xyz coordinates      */
+/*  returned are NOT absolute; one must add the coordinates of `a' to        */
+/*  find the absolute coordinates of the circumcircle.  However, this means  */
+/*  that the result is frequently more accurate than would be possible if    */
+/*  absolute coordinates were returned, due to limited floating-point        */
+/*  precision.  In general, the circumradius can be computed much more       */
+/*  accurately.                                                              */
+/*                                                                           */
+/*  The xi-eta-zeta coordinate system is defined in terms of the             */
+/*  tetrahedron.  Point `a' is the origin of the coordinate system.          */
+/*  The edge `ab' extends one unit along the xi axis.  The edge `ac'         */
+/*  extends one unit along the eta axis.  The edge `ad' extends one unit     */
+/*  along the zeta axis.  These coordinate values are useful for linear      */
+/*  interpolation.                                                           */
+/*                                                                           */
+/*  If `xi' is NULL on input, the xi-eta-zeta coordinates will not be        */
+/*  computed.                                                                */
+/*                                                                           */
+/*****************************************************************************/
+
+void tetcircumcenter(a, b, c, d, circumcenter, xi, eta, zeta)
+double a[3];
+double b[3];
+double c[3];
+double d[3];
+double circumcenter[3];
+double *xi;
+double *eta;
+double *zeta;
+{
+  double xba, yba, zba, xca, yca, zca, xda, yda, zda;
+  double balength, calength, dalength;
+  double xcrosscd, ycrosscd, zcrosscd;
+  double xcrossdb, ycrossdb, zcrossdb;
+  double xcrossbc, ycrossbc, zcrossbc;
+  double denominator;
+  double xcirca, ycirca, zcirca;
+
+  /* Use coordinates relative to point `a' of the tetrahedron. */
+  xba = b[0] - a[0];
+  yba = b[1] - a[1];
+  zba = b[2] - a[2];
+  xca = c[0] - a[0];
+  yca = c[1] - a[1];
+  zca = c[2] - a[2];
+  xda = d[0] - a[0];
+  yda = d[1] - a[1];
+  zda = d[2] - a[2];
+  /* Squares of lengths of the edges incident to `a'. */
+  balength = xba * xba + yba * yba + zba * zba;
+  calength = xca * xca + yca * yca + zca * zca;
+  dalength = xda * xda + yda * yda + zda * zda;
+  /* Cross products of these edges. */
+  xcrosscd = yca * zda - yda * zca;
+  ycrosscd = zca * xda - zda * xca;
+  zcrosscd = xca * yda - xda * yca;
+  xcrossdb = yda * zba - yba * zda;
+  ycrossdb = zda * xba - zba * xda;
+  zcrossdb = xda * yba - xba * yda;
+  xcrossbc = yba * zca - yca * zba;
+  ycrossbc = zba * xca - zca * xba;
+  zcrossbc = xba * yca - xca * yba;
+
+  /* Calculate the denominator of the formulae. */
+#ifdef EXACT
+  /* Use orient3d() from <a href="http://www.cs.cmu.edu/~quake/robust.html">http://www.cs.cmu.edu/~quake/robust.html</a>     */
+  /*   to ensure a correctly signed (and reasonably accurate) result, */
+  /*   avoiding any possibility of division by zero.                  */
+  denominator = 0.5 / orient3d(b, c, d, a);
+#else
+  /* Take your chances with floating-point roundoff. */
+  denominator = 0.5 / (xba * xcrosscd + yba * ycrosscd + zba * zcrosscd);
+#endif
+
+  /* Calculate offset (from `a') of circumcenter. */
+  xcirca = (balength * xcrosscd + calength * xcrossdb + dalength * xcrossbc) *
+           denominator;
+  ycirca = (balength * ycrosscd + calength * ycrossdb + dalength * ycrossbc) *
+           denominator;
+  zcirca = (balength * zcrosscd + calength * zcrossdb + dalength * zcrossbc) *
+           denominator;
+  circumcenter[0] = xcirca;
+  circumcenter[1] = ycirca;
+  circumcenter[2] = zcirca;
+
+  if (xi != (double *) NULL) {
+    /* To interpolate a linear function at the circumcenter, define a    */
+    /*   coordinate system with a xi-axis directed from `a' to `b',      */
+    /*   an eta-axis directed from `a' to `c', and a zeta-axis directed  */
+    /*   from `a' to `d'.  The values for xi, eta, and zeta are computed */
+    /*   by Cramer's Rule for solving systems of linear equations.       */
+    *xi = (xcirca * xcrosscd + ycirca * ycrosscd + zcirca * zcrosscd) *
+          (2.0 * denominator);
+    *eta = (xcirca * xcrossdb + ycirca * ycrossdb + zcirca * zcrossdb) *
+           (2.0 * denominator);
+    *zeta = (xcirca * xcrossbc + ycirca * ycrossbc + zcirca * zcrossbc) *
+            (2.0 * denominator);
+  }
+}
+
+/*****************************************************************************/
+/*                                                                           */
+/*  tricircumcenter()   Find the circumcenter of a triangle.                 */
+/*                                                                           */
+/*  The result is returned both in terms of x-y coordinates and xi-eta       */
+/*  coordinates, relative to the triangle's point `a' (that is, `a' is       */
+/*  the origin of both coordinate systems).  Hence, the x-y coordinates      */
+/*  returned are NOT absolute; one must add the coordinates of `a' to        */
+/*  find the absolute coordinates of the circumcircle.  However, this means  */
+/*  that the result is frequently more accurate than would be possible if    */
+/*  absolute coordinates were returned, due to limited floating-point        */
+/*  precision.  In general, the circumradius can be computed much more       */
+/*  accurately.                                                              */
+/*                                                                           */
+/*  The xi-eta coordinate system is defined in terms of the triangle.        */
+/*  Point `a' is the origin of the coordinate system.  The edge `ab' extends */
+/*  one unit along the xi axis.  The edge `ac' extends one unit along the    */
+/*  eta axis.  These coordinate values are useful for linear interpolation.  */
+/*                                                                           */
+/*  If `xi' is NULL on input, the xi-eta coordinates will not be computed.   */
+/*                                                                           */
+/*****************************************************************************/
+
+void tricircumcenter(a, b, c, circumcenter, xi, eta)
+double a[2];
+double b[2];
+double c[2];
+double circumcenter[2];
+double *xi;
+double *eta;
+{
+  double xba, yba, xca, yca;
+  double balength, calength;
+  double denominator;
+  double xcirca, ycirca;
+
+  /* Use coordinates relative to point `a' of the triangle. */
+  xba = b[0] - a[0];
+  yba = b[1] - a[1];
+  xca = c[0] - a[0];
+  yca = c[1] - a[1];
+  /* Squares of lengths of the edges incident to `a'. */
+  balength = xba * xba + yba * yba;
+  calength = xca * xca + yca * yca;
+
+  /* Calculate the denominator of the formulae. */
+#ifdef EXACT
+  /* Use orient2d() from <a href="http://www.cs.cmu.edu/~quake/robust.html">http://www.cs.cmu.edu/~quake/robust.html</a>     */
+  /*   to ensure a correctly signed (and reasonably accurate) result, */
+  /*   avoiding any possibility of division by zero.                  */
+  denominator = 0.5 / orient2d(b, c, a);
+#else
+  /* Take your chances with floating-point roundoff. */
+  denominator = 0.5 / (xba * yca - yba * xca);
+#endif
+
+  /* Calculate offset (from `a') of circumcenter. */
+  xcirca = (yca * balength - yba * calength) * denominator;  
+  ycirca = (xba * calength - xca * balength) * denominator;  
+  circumcenter[0] = xcirca;
+  circumcenter[1] = ycirca;
+
+  if (xi != (double *) NULL) {
+    /* To interpolate a linear function at the circumcenter, define a     */
+    /*   coordinate system with a xi-axis directed from `a' to `b' and    */
+    /*   an eta-axis directed from `a' to `c'.  The values for xi and eta */
+    /*   are computed by Cramer's Rule for solving systems of linear      */
+    /*   equations.                                                       */
+    *xi = (xcirca * yca - ycirca * xca) * (2.0 * denominator);
+    *eta = (ycirca * xba - xcirca * yba) * (2.0 * denominator);
+  }
+}
+
+/*****************************************************************************/
+/*                                                                           */
+/*  tricircumcenter3d()   Find the circumcenter of a triangle in 3D.         */
+/*                                                                           */
+/*  The result is returned both in terms of xyz coordinates and xi-eta       */
+/*  coordinates, relative to the triangle's point `a' (that is, `a' is       */
+/*  the origin of both coordinate systems).  Hence, the xyz coordinates      */
+/*  returned are NOT absolute; one must add the coordinates of `a' to        */
+/*  find the absolute coordinates of the circumcircle.  However, this means  */
+/*  that the result is frequently more accurate than would be possible if    */
+/*  absolute coordinates were returned, due to limited floating-point        */
+/*  precision.  In general, the circumradius can be computed much more       */
+/*  accurately.                                                              */
+/*                                                                           */
+/*  The xi-eta coordinate system is defined in terms of the triangle.        */
+/*  Point `a' is the origin of the coordinate system.  The edge `ab' extends */
+/*  one unit along the xi axis.  The edge `ac' extends one unit along the    */
+/*  eta axis.  These coordinate values are useful for linear interpolation.  */
+/*                                                                           */
+/*  If `xi' is NULL on input, the xi-eta coordinates will not be computed.   */
+/*                                                                           */
+/*****************************************************************************/
+
+void tricircumcenter3d(a, b, c, circumcenter, xi, eta)
+double a[3];
+double b[3];
+double c[3];
+double circumcenter[3];
+double *xi;
+double *eta;
+{
+  double xba, yba, zba, xca, yca, zca;
+  double balength, calength;
+  double xcrossbc, ycrossbc, zcrossbc;
+  double denominator;
+  double xcirca, ycirca, zcirca;
+
+  /* Use coordinates relative to point `a' of the triangle. */
+  xba = b[0] - a[0];
+  yba = b[1] - a[1];
+  zba = b[2] - a[2];
+  xca = c[0] - a[0];
+  yca = c[1] - a[1];
+  zca = c[2] - a[2];
+  /* Squares of lengths of the edges incident to `a'. */
+  balength = xba * xba + yba * yba + zba * zba;
+  calength = xca * xca + yca * yca + zca * zca;
+  
+  /* Cross product of these edges. */
+#ifdef EXACT
+  /* Use orient2d() from <a href="http://www.cs.cmu.edu/~quake/robust.html">http://www.cs.cmu.edu/~quake/robust.html</a>     */
+  /*   to ensure a correctly signed (and reasonably accurate) result, */
+  /*   avoiding any possibility of division by zero.                  */
+  xcrossbc = orient2d(b[1], b[2], c[1], c[2], a[1], a[2]);
+  ycrossbc = orient2d(b[2], b[0], c[2], c[0], a[2], a[0]);
+  zcrossbc = orient2d(b[0], b[1], c[0], c[1], a[0], a[1]);
+#else
+  /* Take your chances with floating-point roundoff. */
+  xcrossbc = yba * zca - yca * zba;
+  ycrossbc = zba * xca - zca * xba;
+  zcrossbc = xba * yca - xca * yba;
+#endif
+
+  /* Calculate the denominator of the formulae. */
+  denominator = 0.5 / (xcrossbc * xcrossbc + ycrossbc * ycrossbc +
+                       zcrossbc * zcrossbc);
+
+  /* Calculate offset (from `a') of circumcenter. */
+  xcirca = ((balength * yca - calength * yba) * zcrossbc -
+            (balength * zca - calength * zba) * ycrossbc) * denominator;
+  ycirca = ((balength * zca - calength * zba) * xcrossbc -
+            (balength * xca - calength * xba) * zcrossbc) * denominator;
+  zcirca = ((balength * xca - calength * xba) * ycrossbc -
+            (balength * yca - calength * yba) * xcrossbc) * denominator;
+  circumcenter[0] = xcirca;
+  circumcenter[1] = ycirca;
+  circumcenter[2] = zcirca;
+
+  if (xi != (double *) NULL) {
+    /* To interpolate a linear function at the circumcenter, define a     */
+    /*   coordinate system with a xi-axis directed from `a' to `b' and    */
+    /*   an eta-axis directed from `a' to `c'.  The values for xi and eta */
+    /*   are computed by Cramer's Rule for solving systems of linear      */
+    /*   equations.                                                       */
+
+    /* There are three ways to do this calculation - using xcrossbc, */
+    /*   ycrossbc, or zcrossbc.  Choose whichever has the largest    */
+    /*   magnitude, to improve stability and avoid division by zero. */
+    if (((xcrossbc &gt;= ycrossbc) ^ (-xcrossbc &gt; ycrossbc)) &amp;&amp;
+        ((xcrossbc &gt;= zcrossbc) ^ (-xcrossbc &gt; zcrossbc))) {
+      *xi = (ycirca * zca - zcirca * yca) / xcrossbc;
+      *eta = (zcirca * yba - ycirca * zba) / xcrossbc;
+    } else if ((ycrossbc &gt;= zcrossbc) ^ (-ycrossbc &gt; zcrossbc)) {
+      *xi = (zcirca * xca - xcirca * zca) / ycrossbc;
+      *eta = (xcirca * zba - zcirca * xba) / ycrossbc;
+    } else {
+      *xi = (xcirca * yca - ycirca * xca) / zcrossbc;
+      *eta = (ycirca * xba - xcirca * yba) / zcrossbc;
+    }
+  }
+}
+
+-------------
+The compgeom mailing lists: see
+<a href="http://netlib.bell-labs.com/netlib/compgeom/readme.html">http://netlib.bell-labs.com/netlib/compgeom/readme.html</a>
+or send mail to <a href="mailto:compgeom-request@research.bell-labs.com">compgeom-request@research.bell-labs.com</a> with the line:
+send readme
+</pre>
+<hr><pre><b>Date:</b>           Thu, 02 Apr 1998 08:44:46 -0500
+<b>From:</b>           William Flis &lt;<a href="mailto:flis@indy.dynaeast.com">flis@indy.dynaeast.com</a>&gt;
+<b>Reply-To:</b>       <a href="mailto:flis@indy.dynaeast.com">flis@indy.dynaeast.com</a>
+<b>Organization:</b>   Dyna East Corporation
+<b>To:</b>             <a href="mailto:compgeom-discuss@research.bell-labs.com">compgeom-discuss@research.bell-labs.com</a>
+<b>Subject:</b>        Re: circumsphere
+</pre><hr><pre><a href="mailto:jrs+@pyramid.cmcl.cs.cmu.edu">jrs+@pyramid.cmcl.cs.cmu.edu</a> wrote:
+&gt; 
+&gt; &gt; I am searching for a numerically stable algorithm to calculate the radius r
+&gt; &gt; (and perhaps the center m) of the circumsphere of a tetrahedron in
+&gt; &gt; three dimensions, given by the coordinates of the vertices a, b, c, d in R^3.
+&gt; 
+.....(part omitted).....
+&gt; 
+&gt; Some notes on stability:
+&gt; 
+&gt; - Note that the expression for r is purely a function of differences between
+&gt;   coordinates.  The advantage is that the relative error incurred in the
+&gt;   computation of r is also a function of the _differences_ between the
+&gt;   vertices, and is not influenced by the _absolute_ coordinates of the
+&gt;   vertices.  In most applications, vertices are usually nearer to each other
+&gt;   than to the origin, so this property is advantageous.  If someone gives you
+&gt;   a formula that doesn't have this property, be wary.
+
+...(part omitted)..... 
+
+&gt; For completeness, here are stable expressions for the circumradius and
+&gt; circumcenter of a triangle, in R^2 and in R^3.  Incidentally, the expressions
+&gt; given here for R^2 are better behaved in terms of relative error than the
+&gt; suggestions currently given in the Geometry Junkyard
+&gt; (<a href="http://www.ics.uci.edu/~eppstein/junkyard/triangulation.html">http://www.ics.uci.edu/~eppstein/junkyard/triangulation.html</a>).
+
+In a private response to Herr Kerscher's question, I recommended that he
+look at this page, particularly my contribution to it. Let me say that
+Prof. Shewchuk's criticism regarding relative error is not only correct,
+but also of some practical significance. The good behavior which he
+refers to is obtained for 2-D triangles using the particular form
+(attributed to Jim Ward) given by the most recent
+comp.graphics.algorithms FAQ at
+<a href="http://www.cis.ohio-state.edu/hypertext/faq/usenet/graphics/algorithms-faq/faq.html">http://www.cis.ohio-state.edu/hypertext/faq/usenet/graphics/algorithms-faq/faq.html</a>
+This form has the desired property of using only differences between
+coordinates.
+An added advantage when using integer arithmetic is that such forms
+avoid overflows in many more practical cases (e.g., simplex far from
+origin).
+
+Thus, my formula given in the Geometry Junkyard:
+
+     |(x1^2 + y1^2) 2y1 1|
+     |(x2^2 + y2^2) 2y2 1|   |(x2^2 + y2^2 - x1^2 - y1^2) (y2 - y1)|
+     |(x3^2 + y3^2) 2y3 1|   |(x3^2 + y3^2 - x1^2 - y1^2) (y3 - y1)|
+a = ---------------------- = ---------------------------------------
+        | 2x1  2y1  1 |           2 * | (x2 - x1)  (y2 - y1) |
+        | 2x2  2y2  1 |               | (x3 - x1)  (y3 - y1) |
+        | 2x3  2y3  1 |
+
+needs to be taken another step to achieve the desired property.
+The terms in the first column of the numerator should be re-written like
+this:
+
+(x2^2 + y2^2 - x1^2 - y1^2) = (x2 - x1)(x2 + x1) + (y2 - y1)(y2 + y1)
+
+(x3^2 + y3^2 - x1^2 - y1^2) = (x3 - x1)(x3 + x1) + (y3 - y1)(y3 + y1)
+
+The formulas for tets in 3-D in the Geometry Junkyard need similar
+treatment.
+
+-- 
+*******************************************
+William J. Flis        Director of Research
+Dyna East Corporation    3620 Horizon Drive
+King of Prussia, PA  19406-2647      U.S.A.
+(610)270-9900 x130        fax:(610)270-9744
+<a href="mailto:flis@indy.dynaeast.com">flis@indy.dynaeast.com</a>   or   <a href="mailto:flis@detk.com">flis@detk.com</a>
+<a href="http://www.dynaeast.com/~flis/FlisHome.html">http://www.dynaeast.com/~flis/FlisHome.html</a>
+*******************************************
+
+-------------
+The compgeom mailing lists: see
+<a href="http://netlib.bell-labs.com/netlib/compgeom/readme.html">http://netlib.bell-labs.com/netlib/compgeom/readme.html</a>
+or send mail to <a href="mailto:compgeom-request@research.bell-labs.com">compgeom-request@research.bell-labs.com</a> with the line:
+send readme
+</pre>
+</body></html>
