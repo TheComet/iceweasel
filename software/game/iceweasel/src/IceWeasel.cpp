@@ -9,8 +9,7 @@
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Graphics/Viewport.h>
-#include <Urho3D/IceWeaselMods/Gravity.h>
-#include <Urho3D/IceWeaselMods/GravityVector.h>
+#include <Urho3D/IceWeaselMods/GravityManager.h>
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
@@ -298,9 +297,9 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
 
         case DRAW_GRAVITY:
         {
-            Gravity* gravity = scene_->GetComponent<Gravity>();
+            GravityManager* gravity = scene_->GetComponent<GravityManager>();
             if(gravity)
-                gravity->DrawDebugGeometry(debugRenderer, depthTest);
+                gravity->DrawDebugGeometry(debugRenderer, depthTest, cameraMoveNode_->GetWorldPosition());
             break;
         }
     }
