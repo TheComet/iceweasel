@@ -13,7 +13,7 @@
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
 	<component type="DebugRenderer" id="2" />
-	<component type="Gravity" id="9">
+	<component type="GravityManager" id="9">
 		<attribute name="Global Gravity" value="9.81" />
 	</component>
 	<node id="2">

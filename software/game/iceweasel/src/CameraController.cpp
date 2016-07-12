@@ -2,7 +2,7 @@
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Input/Input.h>
-#include <Urho3D/IceWeaselMods/Gravity.h>
+#include <Urho3D/IceWeaselMods/GravityManager.h>
 #include <Urho3D/Math/Matrix2.h>
 #include <Urho3D/Math/Ray.h>
 #include <Urho3D/Physics/CollisionShape.h>
@@ -89,7 +89,7 @@ void CameraController::Start()
 {
     input_ = GetSubsystem<Input>();
     physicsWorld_ = GetScene()->GetComponent<PhysicsWorld>();
-    gravity_ = GetScene()->GetComponent<Gravity>();
+    gravity_ = GetScene()->GetComponent<GravityManager>();
 
     // Set initial rotation to current camera angle
     const Vector3& cameraRotationEuler = rotateNode_->GetRotation().EulerAngles();

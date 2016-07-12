@@ -14,9 +14,9 @@
 	<component type="Octree" id="1" />
 	<component type="DebugRenderer" id="2" />
 	<component type="PhysicsWorld" id="6">
-		<attribute name="Gravity" value="0 0 0" />
+		<attribute name="GravityManager" value="0 0 0" />
 	</component>
-	<component type="Gravity" id="171">
+	<component type="GravityManager" id="171">
 		<attribute name="Global Gravity" value="20" />
 	</component>
 	<node id="3">

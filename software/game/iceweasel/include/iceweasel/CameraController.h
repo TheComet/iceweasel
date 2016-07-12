@@ -3,7 +3,7 @@
 #include <Urho3D/Scene/LogicComponent.h>
 
 namespace Urho3D {
-    class Gravity;
+    class GravityManager;
     class Input;
     class Node;
     class PhysicsWorld;
@@ -56,7 +56,7 @@ private:
 
     Urho3D::SharedPtr<Urho3D::Input> input_;
     Urho3D::SharedPtr<Urho3D::PhysicsWorld> physicsWorld_;
-    Urho3D::SharedPtr<Urho3D::Gravity> gravity_;
+    Urho3D::SharedPtr<Urho3D::GravityManager> gravity_;
 
     Urho3D::Vector3 planeVelocity_;
     Urho3D::Quaternion gravityRotation_;
