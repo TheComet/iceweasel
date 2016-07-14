@@ -184,6 +184,7 @@ void IceWeasel::CreateScene()
 
     // load scene from XML
     scene_ = new Scene(context_);
+    //XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/GravityMeshTest.xml");
     XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/TestMap.xml");
     if(xmlScene)
         scene_->LoadXML(xmlScene->GetRoot());
