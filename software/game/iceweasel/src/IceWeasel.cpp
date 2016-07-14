@@ -23,6 +23,9 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/Window.h>
 
+#include <Urho3D/IceWeaselMods/GravityVector.h>
+#include <Urho3D/Math/Random.h>
+
 
 using namespace Urho3D;
 
@@ -188,6 +191,17 @@ void IceWeasel::CreateScene()
     XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/TestMap.xml");
     if(xmlScene)
         scene_->LoadXML(xmlScene->GetRoot());
+
+    // HACK Add a small random offset to all gravity vectors so the
+    // triangulation can avoid degenerate tetrahedrons.
+    PODVector<Node*> gravityVectorNodes;
+    scene_->GetChildrenWithComponent<GravityVector>(gravityVectorNodes, true);
+    // Don't forget to check this node's components as well
+    if(scene_->GetComponent<GravityVector>())
+        gravityVectorNodes.Push(scene_);
+    PODVector<Node*>::Iterator it = gravityVectorNodes.Begin();
+    for(; it != gravityVectorNodes.End(); ++it)
+        (*it)->SetPosition((*it)->GetPosition() + Vector3(Random()*2-1, Random()*2-1, Random()*2-1));
 }
 
 // ----------------------------------------------------------------------------
