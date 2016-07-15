@@ -192,6 +192,7 @@ void IceWeasel::CreateScene()
     if(xmlScene)
         scene_->LoadXML(xmlScene->GetRoot());
 
+    /*
     // HACK Add a small random offset to all gravity vectors so the
     // triangulation can avoid degenerate tetrahedrons.
     PODVector<Node*> gravityVectorNodes;
@@ -201,7 +202,7 @@ void IceWeasel::CreateScene()
         gravityVectorNodes.Push(scene_);
     PODVector<Node*>::Iterator it = gravityVectorNodes.Begin();
     for(; it != gravityVectorNodes.End(); ++it)
-        (*it)->SetPosition((*it)->GetPosition() + Vector3(Random()*2-1, Random()*2-1, Random()*2-1));
+        (*it)->SetPosition((*it)->GetPosition() + Vector3(Random()*2-1, Random()*2-1, Random()*2-1));*/
 }
 
 // ----------------------------------------------------------------------------

@@ -5,15 +5,17 @@
 	<attribute name="Smoothing Constant" value="50" />
 	<attribute name="Snap Threshold" value="5" />
 	<attribute name="Elapsed Time" value="1170.4" />
-	<attribute name="Next Replicated Node ID" value="294" />
-	<attribute name="Next Replicated Component ID" value="523" />
-	<attribute name="Next Local Node ID" value="16777244" />
-	<attribute name="Next Local Component ID" value="16777552" />
+	<attribute name="Next Replicated Node ID" value="190" />
+	<attribute name="Next Replicated Component ID" value="427" />
+	<attribute name="Next Local Node ID" value="16777239" />
+	<attribute name="Next Local Component ID" value="16777492" />
 	<attribute name="Variables" />
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
 	<component type="DebugRenderer" id="2" />
-	<component type="PhysicsWorld" id="6" />
+	<component type="PhysicsWorld" id="6">
+		<attribute name="GravityManager" value="0 0 0" />
+	</component>
 	<component type="GravityManager" id="171">
 		<attribute name="Global Gravity" value="20" />
 	</component>
@@ -1492,263 +1494,235 @@
 		<attribute name="Rotation" value="1 0 0 0" />
 		<attribute name="Scale" value="1 1 1" />
 		<attribute name="Variables" />
-		<node id="263">
+		<node id="71">
 			<attribute name="Is Enabled" value="true" />
-			<attribute name="Name" value="Ground 1" />
+			<attribute name="Name" value="" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="0 0 17.1165" />
-			<attribute name="Rotation" value="1 0 0 0" />
+			<attribute name="Position" value="14.1954 1.82422 20.1655" />
+			<attribute name="Rotation" value="0.707107 0.707107 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<node id="264">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="15.0121 0 37.5977" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="494" />
-			</node>
-			<node id="265">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-15.2784 0 37.5977" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="495" />
-			</node>
-			<node id="266">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="15.0121 0 -31.8931" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="496" />
-			</node>
-			<node id="267">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-15.2784 0 -31.8931" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="497" />
-			</node>
-			<node id="268">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="14.9769 0 27.4736" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="498" />
-			</node>
-			<node id="269">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="14.9769 0 -2.15216" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="499" />
-			</node>
-			<node id="271">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="13.7835 7.2036 37.5977" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="501" />
-			</node>
-			<node id="272">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-15.2784 8.54315 37.5977" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="502" />
-			</node>
-			<node id="273">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="13.7835 7.2036 -31.8931" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="503" />
-			</node>
-			<node id="274">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-15.2784 8.54315 -31.8931" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="504" />
-			</node>
-			<node id="275">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="13.7483 7.2036 27.4736" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="505" />
-			</node>
-			<node id="276">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="13.7483 7.2036 -2.15216" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="506" />
-			</node>
+			<component type="GravityVector" id="178" />
 		</node>
-		<node id="277">
+		<node id="72">
 			<attribute name="Is Enabled" value="true" />
-			<attribute name="Name" value="Ground 2" />
+			<attribute name="Name" value="" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="22.1075 22.3036 17.1165" />
-			<attribute name="Rotation" value="0.707107 0 0 0.707107" />
+			<attribute name="Position" value="12.3694 2.68957 45.5454" />
+			<attribute name="Rotation" value="0.707107 0.707107 0 0" />
 			<attribute name="Scale" value="1 1 1" />
 			<attribute name="Variables" />
-			<node id="278">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="15.0121 0 37.5977" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="507" />
-			</node>
-			<node id="279">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-15.2784 0 37.5977" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="508" />
-			</node>
-			<node id="282">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="14.9769 0 27.4736" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="511" />
-			</node>
-			<node id="283">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="14.9769 0 -2.15216" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="512" />
-			</node>
-			<node id="284">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="15.0121 8.54315 37.5977" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="513" />
-			</node>
-			<node id="285">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-13.8344 6.65068 37.5977" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="514" />
-			</node>
-			<node id="288">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="14.9769 8.54315 27.4736" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="517" />
-			</node>
-			<node id="289">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="14.9769 8.54315 -2.15216" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="518" />
-			</node>
-			<node id="290">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-15.0767 -5.91278e-05 -2.15216" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="519" />
-			</node>
-			<node id="291">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-13.6327 6.65059 -2.15216" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="520" />
-			</node>
-			<node id="292">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-15.1355 -0.000116348 27.4736" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="521" />
-			</node>
-			<node id="293">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-13.6915 6.65053 27.4736" />
-				<attribute name="Rotation" value="0.707107 0.707107 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="GravityVector" id="522" />
-			</node>
+			<component type="GravityVector" id="179" />
+		</node>
+		<node id="73">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="13.4978 2.64066 45.5454" />
+			<attribute name="Rotation" value="0.691148 0.691148 0.14938 0.14938" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="180" />
+		</node>
+		<node id="74">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="14.2937 3.43778 45.5454" />
+			<attribute name="Rotation" value="0.653282 0.653281 0.270598 0.270598" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="181" />
+		</node>
+		<node id="75">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="18.4059 7.84618 45.5454" />
+			<attribute name="Rotation" value="0.653282 0.653281 0.270598 0.270598" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="182" />
+		</node>
+		<node id="76">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="19.2317 8.18634 45.5454" />
+			<attribute name="Rotation" value="0.587939 0.587937 0.392847 0.392847" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="183" />
+		</node>
+		<node id="77">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="19.2599 9.05477 45.5454" />
+			<attribute name="Rotation" value="0.500001 0.499999 0.5 0.5" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="184" />
+		</node>
+		<node id="109">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="19.2599 9.13729 22.2202" />
+			<attribute name="Rotation" value="0.500001 0.499999 0.5 0.5" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="258" />
+		</node>
+		<node id="143">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="18.9428 34.975 45.5454" />
+			<attribute name="Rotation" value="0.5 0.5 0.5 0.5" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="335" />
+		</node>
+		<node id="144">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="19.2777 35.8029 45.5454" />
+			<attribute name="Rotation" value="0.392847 0.392847 0.587938 0.587938" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="336" />
+		</node>
+		<node id="145">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="18.6771 36.4308 45.5454" />
+			<attribute name="Rotation" value="0.270598 0.270598 0.653281 0.653281" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="337" />
+		</node>
+		<node id="146">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="19.2599 36.5111 22.2202" />
+			<attribute name="Rotation" value="0.5 0.5 0.5 0.5" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="338" />
+		</node>
+		<node id="147">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="14.2195 40.5283 45.5454" />
+			<attribute name="Rotation" value="0.270598 0.270598 0.653281 0.653281" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="339" />
+		</node>
+		<node id="148">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="13.8888 41.358 45.5454" />
+			<attribute name="Rotation" value="0.13795 0.13795 0.69352 0.69352" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="340" />
+		</node>
+		<node id="149">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="13.0207 41.3961 45.5454" />
+			<attribute name="Rotation" value="0.00403179 0.00403028 0.707095 0.707096" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="341" />
+		</node>
+		<node id="150">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="12.9382 41.397 22.2202" />
+			<attribute name="Rotation" value="0.00403179 0.00403028 0.707095 0.707096" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="342" />
+		</node>
+		<node id="183">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="29.8942 47.0201 20.1655" />
+			<attribute name="Rotation" value="0.707107 0.707107 0 0" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="420" />
+		</node>
+		<node id="184">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="29.638 47.3115 45.5454" />
+			<attribute name="Rotation" value="0.707107 0.707107 0 0" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="421" />
+		</node>
+		<node id="185">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="27.7674 46.9364 45.5454" />
+			<attribute name="Rotation" value="0.691148 0.691148 0.14938 0.14938" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="422" />
+		</node>
+		<node id="186">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="26.254 45.6894 45.5454" />
+			<attribute name="Rotation" value="0.653282 0.653281 0.270598 0.270598" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="423" />
+		</node>
+		<node id="187">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="20.2625 39.5948 44.5247" />
+			<attribute name="Rotation" value="0.653282 0.653281 0.270598 0.270598" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="424" />
+		</node>
+		<node id="188">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="19.2361 38.2601 44.5247" />
+			<attribute name="Rotation" value="0.587938 0.587938 0.392847 0.392847" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="425" />
+		</node>
+		<node id="189">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="18.9387 36.3067 44.5247" />
+			<attribute name="Rotation" value="0.5 0.5 0.5 0.5" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="GravityVector" id="426" />
 		</node>
 	</node>
 	<node id="90">
