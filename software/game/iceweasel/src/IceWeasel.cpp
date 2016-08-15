@@ -1,4 +1,5 @@
 #include "iceweasel/IceWeasel.h"
+#include "iceweasel/IceWeaselConfig.h"
 #include "iceweasel/CameraController.h"
 
 #include <Urho3D/AngelScript/Script.h>
@@ -56,8 +57,7 @@ void IceWeasel::Start()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
 
-    context_->RegisterSubsystem(new Script(context_));
-
+    RegisterSubsystems();
     CreateDebugHud();
     CreateUI();
     CreateScene();
@@ -74,6 +74,15 @@ void IceWeasel::Stop()
     cameraRotateNode_.Reset();
 
     scene_.Reset();
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::RegisterSubsystems()
+{
+    context_->RegisterSubsystem(new Script(context_));
+    context_->RegisterSubsystem(new IceWeaselConfig(context_));
+
+    GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
 }
 
 // ----------------------------------------------------------------------------
