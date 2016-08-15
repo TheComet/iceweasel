@@ -33,7 +33,7 @@ using namespace Urho3D;
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
     debugDrawMode_(DRAW_NONE),
-    cameraModeIsFreeCam_(true)
+    cameraModeIsFreeCam_(false)
 {
 }
 
@@ -62,8 +62,6 @@ void IceWeasel::Start()
     CreateUI();
     CreateScene();
     CreateCamera();
-
-    debugDrawMode_ = DRAW_GRAVITY;
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
@@ -145,7 +143,8 @@ void IceWeasel::CreateCamera()
     Renderer* renderer = GetSubsystem<Renderer>();
 
     // The camera is attached to a "rotate node", which is in turn attached to
-    // a "move" node.
+    // a "move" node. The camera controller takes the "move" node and assumes
+    // this setup was made.
     cameraMoveNode_ = scene_->CreateChild("Camera Move");
     cameraRotateNode_ = cameraMoveNode_->CreateChild("Camera Rotate");
     Camera* camera = cameraRotateNode_->CreateComponent<Camera>(Urho3D::LOCAL);
@@ -153,7 +152,7 @@ void IceWeasel::CreateCamera()
     cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f));
     cameraRotateNode_->SetPosition(Vector3::ZERO);
     cameraMoveNode_->AddComponent(
-        new CameraController(context_, cameraMoveNode_, cameraRotateNode_, CameraController::FREE),
+        new CameraController(context_, cameraMoveNode_, cameraRotateNode_, CameraController::FPS),
         0,
         Urho3D::LOCAL
     );

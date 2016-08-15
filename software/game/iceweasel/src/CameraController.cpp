@@ -71,6 +71,7 @@ void CameraController::SetMode(CameraController::Mode mode)
         body->SetAngularFactor(Vector3::ZERO);
         body->SetMass(playerParameters_.mass);
         body->SetFriction(0.0f);
+        body->SetUseGravity(false);
 
         // Need to listen to node collision events to reset gravity
         SubscribeToEvent(E_NODECOLLISION, URHO3D_HANDLER(CameraController, HandleNodeCollision));
@@ -160,16 +161,7 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
                               0, 1, 0,
                               Sin(angleY_), 0, Cos(angleY_)) * targetPlaneVelocity;
 
-    // Controls the player's Y velocity. The velocity is reset to 0.0f when
-    // E_NODECOLLISION occurs and the player is on the ground. Allow the player
-    // to jump by pressing space while the velocity is 0.0f.
-    if(input_->GetKeyPress(KEY_SPACE) && downVelocity_ == 0.0f)
-    {
-        downVelocity_ = playerParameters_.jumpForce;
-        // Give the player a slight speed boost so he moves faster than usual
-        // in the air.
-        planeVelocity_ *= playerParameters_.jumpSpeedBoostFactor;
-    }
+
 
     // TODO limit velocity on slopes?
 
@@ -193,10 +185,6 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     float gravityForce = gravity.Length();
     Quaternion gravityRotation(Vector3::DOWN, gravity);
     Vector3 velocity = gravityRotation.RotationMatrix() * Vector3(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
-
-    // TODO Fix sliding! This is ugly as shit. PhysicsWorld gravity is temporarily set to 0 until this is fixed
-    if(downVelocity_ != 0.0f)
-        velocity += gravity * timeStep;
 
     // Integrate velocity
     downVelocity_ -= gravityForce * timeStep;
@@ -288,6 +276,17 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
 
     // Restore collision mask
     body->SetCollisionMask(storeCollisionMask);
+
+    // Controls the player's Y velocity. The velocity is reset to 0.0f when
+    // E_NODECOLLISION occurs and the player is on the ground. Allow the player
+    // to jump by pressing space while the velocity is 0.0f.
+    if(input_->GetKeyPress(KEY_SPACE) && downVelocity_ == 0.0f)
+    {
+        downVelocity_ = playerParameters_.jumpForce;
+        // Give the player a slight speed boost so he moves faster than usual
+        // in the air.
+        planeVelocity_ *= playerParameters_.jumpSpeedBoostFactor;
+    }
 
     // Mark where the ray is being cast to
     DebugRenderer* r = GetScene()->GetComponent<DebugRenderer>();
