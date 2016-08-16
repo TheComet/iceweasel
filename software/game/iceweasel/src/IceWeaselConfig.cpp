@@ -44,6 +44,7 @@ void IceWeaselConfig::Reload()
 
     XMLElement root = xml_->GetRoot();
 
+    // Load player class parameters
     XMLElement player = root.GetChild("Player");
     data_.playerClass.Clear();
     for(; player; player = player.GetNext("Player"))
@@ -52,15 +53,29 @@ void IceWeaselConfig::Reload()
         playerClass.className = player.GetAttribute("Class");
 
         XMLElement body = player.GetChild("Body");
-        playerClass.body.width = body.GetFloat("Width");
+        playerClass.body.width  = body.GetFloat("Width");
         playerClass.body.height = body.GetFloat("Height");
-        playerClass.body.mass = body.GetFloat("Mass");
+        playerClass.body.mass   = body.GetFloat("Mass");
 
         XMLElement jump = player.GetChild("Jump");
         playerClass.jump.force = jump.GetFloat("Force");
         playerClass.jump.bunnyHopBoost = jump.GetFloat("BunnyHopBoost");
 
+        XMLElement speed = player.GetChild("Speed");
+        playerClass.speed.crawl = speed.GetFloat("Crawl");
+        playerClass.speed.walk  = speed.GetFloat("Walk");
+        playerClass.speed.run   = speed.GetFloat("Run");
+
         data_.playerClass.Push(playerClass);
+    }
+
+    // Load freecam parameters
+    XMLElement freeCam = root.GetChild("FreeCam");
+    {
+        XMLElement speed = freeCam.GetChild("Speed");
+        data_.freeCam.speed.normal     = speed.GetFloat("Normal");
+        data_.freeCam.speed.fast       = speed.GetFloat("Fast");
+        data_.freeCam.speed.smoothness = speed.GetFloat("Smoothness");
     }
 }
 

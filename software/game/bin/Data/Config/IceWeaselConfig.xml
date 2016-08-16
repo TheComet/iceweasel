@@ -2,8 +2,10 @@
 <IceWeasel>
     <Player Class="Generic">
         <Body Width="0.8" Height="1.8" Mass="80" />
-        <Jump Force="5.0" BunnyHopBoost="1.5" BunnyHopMaxSpeed="1" />
+        <Jump Force="5.0" BunnyHopBoost="1.5" />
+        <Speed Crawl="2.0" Walk="8.0" Run="15.0" />
     </Player>
-    <Player Class="FreeCam">
-    </Player>
+    <FreeCam>
+        <Speed Normal="0.3" Fast="1.5" Smoothness="5.0" />
+    </FreeCam>
 </IceWeasel>

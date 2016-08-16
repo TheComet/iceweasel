@@ -15,20 +15,24 @@ class IceWeaselConfig : public Urho3D::Object
 
 public:
 
-    struct Data
-    {
-        struct PlayerClass
-        {
+    struct Data {
+        struct PlayerClass {
             Urho3D::String className;
-            struct Body
-            {
+            struct Body {
                 float width, height, mass;
             } body;
-            struct Jump
-            {
+            struct Jump {
                 float force, bunnyHopBoost;
             } jump;
+            struct Speed {
+                float crawl, walk, run;
+            } speed;
         };
+        struct FreeCam {
+            struct Speed {
+                float normal, fast, smoothness;
+            } speed;
+        } freeCam;
         Urho3D::Vector<PlayerClass> playerClass;
     };
 

@@ -152,11 +152,22 @@ void CameraController::UpdateCameraRotation()
 void CameraController::UpdateFPSCameraMovement(float timeStep)
 {
     RigidBody* body = moveNode_->GetComponent<RigidBody>();
+    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
+    if(config.playerClass.Size() == 0)
+    {
+        // TODO refactor this into the player class structure and return a default structure
+        URHO3D_LOGERROR("[CameraController] Failed to read player class info from settings");
+        return;
+    }
+    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
+
     //TODO transform into local gravity planeVelocity_ = body->GetLinearVelocity();
 
     // Get input direction vector
-    float speed = 8.0f; // TODO read this from an XML config file
+    float speed = playerClass.speed.walk;
     Vector3 targetPlaneVelocity(Vector3::ZERO);
+    if(input_->GetKeyDown(KEY_SHIFT)) speed = playerClass.speed.run;
+    if(input_->GetKeyDown(KEY_CTRL))  speed = playerClass.speed.crawl;
     if(input_->GetKeyDown(KEY_W))     targetPlaneVelocity.z_ += 1;
     if(input_->GetKeyDown(KEY_S))     targetPlaneVelocity.z_ -= 1;
     if(input_->GetKeyDown(KEY_A))     targetPlaneVelocity.x_ += 1;
@@ -169,7 +180,16 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
                               0, 1, 0,
                               Sin(angleY_), 0, Cos(angleY_)) * targetPlaneVelocity;
 
-
+    // Controls the player's Y velocity. The velocity is reset to 0.0f when
+    // E_NODECOLLISION occurs and the player is on the ground. Allow the player
+    // to jump by pressing space while the velocity is 0.0f.
+    if(input_->GetKeyPress(KEY_SPACE) && downVelocity_ == 0.0f)
+    {
+        downVelocity_ = playerClass.jump.force;
+        // Give the player a slight speed boost so he moves faster than usual
+        // in the air.
+        planeVelocity_ *= playerClass.jump.bunnyHopBoost;
+    }
 
     // TODO limit velocity on slopes?
 
@@ -186,7 +206,6 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     float smoothness = 16.0f;
     if(downVelocity_ == 0.0f)
         planeVelocity_ += (targetPlaneVelocity - planeVelocity_) * timeStep * smoothness;
-
 
     // Get gravity and rotate our velocity vector according to the direction of gravity
     Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
@@ -208,11 +227,12 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
 // ----------------------------------------------------------------------------
 void CameraController::UpdateFreeCameraMovement(float timeStep)
 {
+    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
+
     // get input direction
-    float speed = 0.3f; // TODO Load these from an XML config file.
-    float smoothness = 4.0f;
+    float speed = config.freeCam.speed.normal;
     Vector3 targetPlaneVelocity(Vector3::ZERO);
-    if(input_->GetKeyDown(KEY_SHIFT)) speed *= 5; // speed boost
+    if(input_->GetKeyDown(KEY_SHIFT)) speed = config.freeCam.speed.fast;
     if(input_->GetKeyDown(KEY_W))     targetPlaneVelocity.z_ += 1;
     if(input_->GetKeyDown(KEY_S))     targetPlaneVelocity.z_ -= 1;
     if(input_->GetKeyDown(KEY_A))     targetPlaneVelocity.x_ += 1;
@@ -228,7 +248,7 @@ void CameraController::UpdateFreeCameraMovement(float timeStep)
                               Sin(angleY_), 0, Cos(angleY_)) * targetPlaneVelocity;
 
     // smoothly approach target direction
-    planeVelocity_ += (targetPlaneVelocity - planeVelocity_) * timeStep * smoothness;
+    planeVelocity_ += (targetPlaneVelocity - planeVelocity_) * timeStep * config.freeCam.speed.smoothness;
 
     // update camera position
     moveNode_->Translate(planeVelocity_, Urho3D::TS_WORLD);
@@ -293,17 +313,6 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
 
     // Restore collision mask
     body->SetCollisionMask(storeCollisionMask);
-
-    // Controls the player's Y velocity. The velocity is reset to 0.0f when
-    // E_NODECOLLISION occurs and the player is on the ground. Allow the player
-    // to jump by pressing space while the velocity is 0.0f.
-    if(input_->GetKeyPress(KEY_SPACE) && downVelocity_ == 0.0f)
-    {
-        downVelocity_ = playerClass.jump.force;
-        // Give the player a slight speed boost so he moves faster than usual
-        // in the air.
-        planeVelocity_ *= playerClass.jump.bunnyHopBoost;
-    }
 
     // Mark where the ray is being cast to
     DebugRenderer* r = GetScene()->GetComponent<DebugRenderer>();

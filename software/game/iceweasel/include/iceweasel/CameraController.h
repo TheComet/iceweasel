@@ -60,8 +60,8 @@ private:
 
     Urho3D::Vector3 planeVelocity_;
     Urho3D::Quaternion gravityRotation_;
-    float downVelocity_;
 
+    float downVelocity_;
     float angleX_;
     float angleY_;
 
