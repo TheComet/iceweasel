@@ -108,8 +108,6 @@ void CameraController::Start()
     // Creates collision shape and rigid body
     SetMode(mode_);
 
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(CameraController, HandleUpdate));
-
     // Debug text
     UI* ui = GetSubsystem<UI>();
     ResourceCache* cache = GetSubsystem<ResourceCache>();
@@ -130,6 +128,27 @@ void CameraController::Stop()
     // Debug text
     UI* ui = GetSubsystem<UI>();
     ui->GetRoot()->RemoveChild(gravityDebugText_);
+}
+
+// ----------------------------------------------------------------------------
+void CameraController::Update(float timeStep)
+{
+    if(gravity_)
+    {
+        Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
+        gravityDebugText_->SetText(String("Gravity: ") + String(gravity.x_) + "," + String(gravity.y_) + "," + String(gravity.z_));
+    }
+
+    UpdateCameraRotation();
+}
+
+// ----------------------------------------------------------------------------
+void CameraController::FixedUpdate(float timeStep)
+{
+    if(mode_ == FPS)
+        return UpdateFPSCameraMovement(timeStep);
+    if(mode_ == FREE)
+        return UpdateFreeCameraMovement(timeStep);
 }
 
 // ----------------------------------------------------------------------------
@@ -254,28 +273,6 @@ void CameraController::UpdateFreeCameraMovement(float timeStep)
     moveNode_->Translate(planeVelocity_, Urho3D::TS_WORLD);
 }
 
-// ----------------------------------------------------------------------------
-void CameraController::HandleUpdate(StringHash eventType, VariantMap& eventData)
-{
-    using namespace Update;
-    (void)eventType;
-
-    double timeStep = eventData[P_TIMESTEP].GetDouble();
-
-    if(gravity_)
-    {
-        Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
-        gravityDebugText_->SetText(String("Gravity: ") + String(gravity.x_) + "," + String(gravity.y_) + "," + String(gravity.z_));
-    }
-
-    UpdateCameraRotation();
-
-    if(mode_ == FPS)
-        return UpdateFPSCameraMovement(timeStep);
-    if(mode_ == FREE)
-        return UpdateFreeCameraMovement(timeStep);
-}
-
 #include <Urho3D/Graphics/DebugRenderer.h>
 
 // ----------------------------------------------------------------------------
@@ -313,9 +310,4 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
 
     // Restore collision mask
     body->SetCollisionMask(storeCollisionMask);
-
-    // Mark where the ray is being cast to
-    DebugRenderer* r = GetScene()->GetComponent<DebugRenderer>();
-    if(r)
-        r->AddSphere(Sphere(moveNode_->GetWorldPosition() + downDirection, 0.1), Color::RED);
 }

@@ -43,13 +43,14 @@ public:
 private:
     virtual void Start() override;
     virtual void Stop() override;
-
-    void HandleUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
-    void HandleNodeCollision(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    virtual void Update(float timeStep) override;
+    virtual void FixedUpdate(float timeStep) override;
 
     void UpdateCameraRotation();
     void UpdateFPSCameraMovement(float timeStep);
     void UpdateFreeCameraMovement(float timeStep);
+
+    void HandleNodeCollision(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
     Urho3D::SharedPtr<Urho3D::Node> moveNode_;
     Urho3D::SharedPtr<Urho3D::Node> rotateNode_;
