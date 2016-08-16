@@ -65,14 +65,6 @@ private:
     float angleX_;
     float angleY_;
 
-    struct {
-        float mass;
-        float height;
-        float width;
-        float jumpForce;
-        float jumpSpeedBoostFactor;
-    } playerParameters_;
-
     Mode mode_;
 
     Urho3D::SharedPtr<Urho3D::Text> gravityDebugText_;

@@ -21,10 +21,11 @@ public:
 
 private:
 
-    void CreateDebugHud();
+    void RegisterSubsystems();
     void CreateUI();
-    void CreateScene();
     void CreateCamera();
+    void CreateScene();
+    void CreateDebugHud();
 
     void SwitchCameraToFreeCam();
     void SwitchCameraToFPSCam();

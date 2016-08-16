@@ -1,8 +1,10 @@
 #include "iceweasel/CameraController.h"
+#include "iceweasel/IceWeaselConfig.h"
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/IceWeaselMods/GravityManager.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/Math/Matrix2.h>
 #include <Urho3D/Math/Ray.h>
 #include <Urho3D/Physics/CollisionShape.h>
@@ -42,9 +44,6 @@ CameraController::CameraController(Context* context,
     moveNode_(moveNode),
     rotateNode_(rotateNode),
     downVelocity_(0.0f),
-    playerParameters_({80.0f, 1.8f, 0.8f, 5.0f, 1.25f}), // weight, height, width, jump force, jump speed boost factor
-    // TODO Read these values from an XML file
-    // TODO Auto-reload XML file when it is edited
     mode_(mode)
 {
 }
@@ -52,6 +51,15 @@ CameraController::CameraController(Context* context,
 // ----------------------------------------------------------------------------
 void CameraController::SetMode(CameraController::Mode mode)
 {
+    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
+    if(config.playerClass.Size() == 0)
+    {
+        // TODO refactor this into the player class structure and return a default structure
+        URHO3D_LOGERROR("[CameraController] Failed to read player class info from settings");
+        return;
+    }
+    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
+
     // Clean up if switching from FPS mode
     if(mode_ == FPS)
     {
@@ -65,12 +73,13 @@ void CameraController::SetMode(CameraController::Mode mode)
         // Set up player collision shape and rigid body for FPS mode
         CollisionShape* colShape = moveNode_->CreateComponent<CollisionShape>();
         RigidBody* body = moveNode_->CreateComponent<RigidBody>();
-        colShape->SetCapsule(playerParameters_.width,
-                            playerParameters_.height,
-                            Vector3(0, -playerParameters_.height / 2, 0));
+        colShape->SetCapsule(playerClass.body.width,
+                             playerClass.body.height,
+                             Vector3(0, -playerClass.body.height / 2, 0));
         body->SetAngularFactor(Vector3::ZERO);
-        body->SetMass(playerParameters_.mass);
+        body->SetMass(playerClass.body.mass);
         body->SetFriction(0.0f);
+        body->SetUseGravity(false);
 
         // Need to listen to node collision events to reset gravity
         SubscribeToEvent(E_NODECOLLISION, URHO3D_HANDLER(CameraController, HandleNodeCollision));
@@ -160,16 +169,7 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
                               0, 1, 0,
                               Sin(angleY_), 0, Cos(angleY_)) * targetPlaneVelocity;
 
-    // Controls the player's Y velocity. The velocity is reset to 0.0f when
-    // E_NODECOLLISION occurs and the player is on the ground. Allow the player
-    // to jump by pressing space while the velocity is 0.0f.
-    if(input_->GetKeyPress(KEY_SPACE) && downVelocity_ == 0.0f)
-    {
-        downVelocity_ = playerParameters_.jumpForce;
-        // Give the player a slight speed boost so he moves faster than usual
-        // in the air.
-        planeVelocity_ *= playerParameters_.jumpSpeedBoostFactor;
-    }
+
 
     // TODO limit velocity on slopes?
 
@@ -193,10 +193,6 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     float gravityForce = gravity.Length();
     Quaternion gravityRotation(Vector3::DOWN, gravity);
     Vector3 velocity = gravityRotation.RotationMatrix() * Vector3(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
-
-    // TODO Fix sliding! This is ugly as shit. PhysicsWorld gravity is temporarily set to 0 until this is fixed
-    if(downVelocity_ != 0.0f)
-        velocity += gravity * timeStep;
 
     // Integrate velocity
     downVelocity_ -= gravityForce * timeStep;
@@ -269,6 +265,15 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
     (void)eventType;
     (void)eventData;
 
+    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
+    if(config.playerClass.Size() == 0)
+    {
+        // TODO refactor this into the player class structure and return a default structure
+        URHO3D_LOGERROR("[CameraController] Failed to read player class info from settings");
+        return;
+    }
+    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
+
     RigidBody* body = moveNode_->GetComponent<RigidBody>();
 
     // Temporarily disable collision checks for the player's rigid body, so
@@ -278,7 +283,7 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
 
         // Cast a ray down and check if we're on the ground
         PhysicsRaycastResult result;
-        float rayCastLength = playerParameters_.height * 1.05;
+        float rayCastLength = playerClass.body.height * 1.05;
         Vector3 downDirection = moveNode_->GetRotation() * Vector3::DOWN;
         Ray ray(moveNode_->GetWorldPosition(), downDirection);
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
@@ -288,6 +293,17 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
 
     // Restore collision mask
     body->SetCollisionMask(storeCollisionMask);
+
+    // Controls the player's Y velocity. The velocity is reset to 0.0f when
+    // E_NODECOLLISION occurs and the player is on the ground. Allow the player
+    // to jump by pressing space while the velocity is 0.0f.
+    if(input_->GetKeyPress(KEY_SPACE) && downVelocity_ == 0.0f)
+    {
+        downVelocity_ = playerClass.jump.force;
+        // Give the player a slight speed boost so he moves faster than usual
+        // in the air.
+        planeVelocity_ *= playerClass.jump.bunnyHopBoost;
+    }
 
     // Mark where the ray is being cast to
     DebugRenderer* r = GetScene()->GetComponent<DebugRenderer>();
