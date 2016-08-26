@@ -139,12 +139,18 @@ void CameraController::Update(float timeStep)
         gravityDebugText_->SetText(String("Gravity: ") + String(gravity.x_) + "," + String(gravity.y_) + "," + String(gravity.z_));
     }
 
+    if(input_->GetKeyPress(KEY_SPACE))
+        puts("key pressed in Update()");
+
     UpdateCameraRotation();
 }
 
 // ----------------------------------------------------------------------------
 void CameraController::FixedUpdate(float timeStep)
 {
+    if(input_->GetKeyPress(KEY_SPACE))
+        puts("key pressed in FixedUpdate()");
+
     if(mode_ == FPS)
         return UpdateFPSCameraMovement(timeStep);
     if(mode_ == FREE)
@@ -199,6 +205,12 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
                               0, 1, 0,
                               Sin(angleY_), 0, Cos(angleY_)) * targetPlaneVelocity;
 
+    // Get gravity and rotate target velocity vector according to the direction of gravity
+    Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
+    float gravityForce = gravity.Length();
+    Quaternion gravityRotation(Vector3::DOWN, gravity);
+    Vector3 velocity = gravityRotation.RotationMatrix() * Vector3(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
+
     // Controls the player's Y velocity. The velocity is reset to 0.0f when
     // E_NODECOLLISION occurs and the player is on the ground. Allow the player
     // to jump by pressing space while the velocity is 0.0f.
@@ -225,12 +237,6 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
     float smoothness = 16.0f;
     if(downVelocity_ == 0.0f)
         planeVelocity_ += (targetPlaneVelocity - planeVelocity_) * timeStep * smoothness;
-
-    // Get gravity and rotate our velocity vector according to the direction of gravity
-    Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
-    float gravityForce = gravity.Length();
-    Quaternion gravityRotation(Vector3::DOWN, gravity);
-    Vector3 velocity = gravityRotation.RotationMatrix() * Vector3(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
 
     // Integrate velocity
     downVelocity_ -= gravityForce * timeStep;
@@ -305,8 +311,8 @@ void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eve
         Ray ray(moveNode_->GetWorldPosition(), downDirection);
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
         if(result.distance_ < rayCastLength)
-            // Reset player's Y velocity
-            if(downVelocity_ <= 0.0f) downVelocity_ = 0.0f;
+            if(downVelocity_ <= 0.0f)
+                downVelocity_ = 0.0f;
 
     // Restore collision mask
     body->SetCollisionMask(storeCollisionMask);

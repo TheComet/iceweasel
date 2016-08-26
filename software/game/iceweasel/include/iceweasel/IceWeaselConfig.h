@@ -28,12 +28,12 @@ public:
                 float crawl, walk, run;
             } speed;
         };
+        Urho3D::Vector<PlayerClass> playerClass;
         struct FreeCam {
             struct Speed {
                 float normal, fast, smoothness;
             } speed;
         } freeCam;
-        Urho3D::Vector<PlayerClass> playerClass;
     };
 
     IceWeaselConfig(Urho3D::Context* context);
