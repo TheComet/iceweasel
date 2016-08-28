@@ -1,6 +1,7 @@
 #include "iceweasel/IceWeasel.h"
 #include "iceweasel/IceWeaselConfig.h"
 #include "iceweasel/CameraController.h"
+#include "iceweasel/Finger.h"
 
 #include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -164,6 +165,11 @@ void IceWeasel::CreateCamera()
         new CameraController(context_, cameraMoveNode_, cameraRotateNode_, CameraController::FPS),
         0,
         Urho3D::LOCAL
+    );
+    cameraMoveNode_->AddComponent(
+            new Finger(context_),
+            1,
+            Urho3D::LOCAL
     );
 
     // Give the camera a viewport
