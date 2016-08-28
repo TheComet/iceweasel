@@ -5,10 +5,10 @@
 	<attribute name="Smoothing Constant" value="50" />
 	<attribute name="Snap Threshold" value="5" />
 	<attribute name="Elapsed Time" value="1170.4" />
-	<attribute name="Next Replicated Node ID" value="192" />
-	<attribute name="Next Replicated Component ID" value="427" />
-	<attribute name="Next Local Node ID" value="16777240" />
-	<attribute name="Next Local Component ID" value="16777504" />
+	<attribute name="Next Replicated Node ID" value="193" />
+	<attribute name="Next Replicated Component ID" value="430" />
+	<attribute name="Next Local Node ID" value="16777241" />
+	<attribute name="Next Local Component ID" value="16777516" />
 	<attribute name="Variables" />
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
@@ -2926,6 +2926,26 @@
 			<component type="StaticModel" id="31">
 				<attribute name="Model" value="Model;Models/Box.mdl" />
 				<attribute name="Material" value="Material;" />
+			</component>
+		</node>
+		<node id="192">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="Huge Shit" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="11.0221 2.63985 4.13382" />
+			<attribute name="Rotation" value="0.999997 -4.02385e-05 -0.00239976 -3.18678e-05" />
+			<attribute name="Scale" value="4 4 4" />
+			<attribute name="Variables" />
+			<component type="CollisionShape" id="427" />
+			<component type="RigidBody" id="428">
+				<attribute name="Physics Rotation" value="0.999997 -2.18801e-05 -0.0024202 -7.77799e-05" />
+				<attribute name="Physics Position" value="11.0221 2.63985 4.13382" />
+				<attribute name="Mass" value="1200" />
+				<attribute name="Friction" value="1" />
+			</component>
+			<component type="StaticModel" id="429">
+				<attribute name="Model" value="Model;Models/Box.mdl" />
+				<attribute name="Material" value="Material;Materials/Stairs.xml" />
 			</component>
 		</node>
 	</node>

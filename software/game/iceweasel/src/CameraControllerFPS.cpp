@@ -44,15 +44,14 @@ void CameraControllerFPS::Start()
     CollisionShape* colShape = node_->CreateComponent<CollisionShape>();
     RigidBody* body = node_->CreateComponent<RigidBody>();
     colShape->SetCapsule(playerClass.body.width,
-                            playerClass.body.height,
-                            Vector3(0, -playerClass.body.height / 2, 0));
+                         playerClass.body.height,
+                         Vector3(0, -playerClass.body.height / 2, 0));
     body->SetAngularFactor(Vector3::ZERO);
     body->SetMass(playerClass.body.mass);
     body->SetFriction(0.0f);
     body->SetUseGravity(false);
 
     // Initial physics parameters
-    currentVelocity_ = Vector3::ZERO;
     downVelocity_ = 0.0f;
     node_->SetRotation(Quaternion::IDENTITY);
 
@@ -83,8 +82,6 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
     }
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
 
-    //TODO transform into local gravity planeVelocity_ = body->GetLinearVelocity();
-
     /*
      * Get input direction vector from WASD on keyboard and store in x and z
      * components of a target velocity vector.
@@ -111,7 +108,16 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
         Sin(cameraAngleY_), 0, Cos(cameraAngleY_)
     ) * localTargetPlaneVelocity;
 
-    currentVelocity_ = body->GetLinearVelocity();
+    /*
+     * Query gravity at player's 3D location, integrate local "down" velocity
+     * and rotate the local target velocity vector according to the direction
+     * of gravity before applying it to the body. Let bullet handle
+     * integration from there.
+     */
+    Vector3 gravity = gravityManager_->QueryGravity(node_->GetWorldPosition());
+    Quaternion gravityRotation(Vector3::DOWN, gravity);
+    Matrix3 velocityTransform = gravityRotation.RotationMatrix();
+    Vector3 currentLocalPlaneVelocity = velocityTransform.Inverse() * body->GetLinearVelocity();
 
     /*
      * Controls the player's Y velocity. The velocity is reset to 0.0f when
@@ -129,7 +135,7 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
             downVelocity_ = playerClass.jump.force;
             // Give the player a slight speed boost so he moves faster than usual
             // in the air.
-            currentVelocity_ *= playerClass.jump.bunnyHopBoost;
+            currentLocalPlaneVelocity *= playerClass.jump.bunnyHopBoost;
         }
     }
     if(jumpKeyPressed_ && input_->GetKeyDown(KEY_SPACE) == false)
@@ -143,23 +149,15 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
 
     // TODO Collision feedback needs to affect planeVelocity_ and downVelocity_
 
-    /*
-     * Query gravity at player's 3D location, integrate local "down" velocity
-     * and rotate the local target velocity vector according to the direction
-     * of gravity before applying it to the body. Let bullet handle
-     * integration from there.
-     */
-    Vector3 gravity = gravityManager_->QueryGravity(node_->GetWorldPosition());
-    downVelocity_ -= gravity.Length() * timeStep;
-    Quaternion gravityRotation(Vector3::DOWN, gravity);
-    Vector3 transformedVelocity = gravityRotation.RotationMatrix() * Vector3(localTargetPlaneVelocity.x_, downVelocity_, localTargetPlaneVelocity.z_);
-
     static const float smoothness = 16.0f;
-    currentVelocity_ += (transformedVelocity - currentVelocity_) * timeStep * smoothness;
+    if(downVelocity_ == 0.0f)
+        currentLocalPlaneVelocity += (localTargetPlaneVelocity - currentLocalPlaneVelocity) * timeStep * smoothness;
 
-    body->SetLinearVelocity(currentVelocity_);
+    // Integrate
+    downVelocity_ -= gravity.Length() * timeStep;
+    body->SetLinearVelocity(velocityTransform * Vector3(currentLocalPlaneVelocity.x_, downVelocity_, currentLocalPlaneVelocity.z_));
 
-    // Smoothly rotate camera to target rotation
+    // Smoothly rotate camera to target orientation
     static const float correctCameraAngleSpeed = 5.0f;
     currentRotation_ = currentRotation_.Nlerp(gravityRotation, timeStep * correctCameraAngleSpeed, true);
     node_->SetRotation(-currentRotation_);
@@ -196,7 +194,7 @@ void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& 
 
         // Cast a ray down and check if we're on the ground
         PhysicsRaycastResult result;
-        float rayCastLength = playerClass.body.height * 1.05;
+        float rayCastLength = playerClass.body.height * 1.1;
         Vector3 downDirection = node_->GetRotation() * Vector3::DOWN;
         Ray ray(node_->GetWorldPosition(), downDirection);
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);

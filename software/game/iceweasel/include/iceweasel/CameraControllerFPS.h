@@ -28,7 +28,6 @@ private:
     Urho3D::SharedPtr<Urho3D::GravityManager> gravityManager_;
     Urho3D::SharedPtr<Urho3D::Node> thisNode_;
 
-    Urho3D::Vector3 currentVelocity_;
     Urho3D::Quaternion currentRotation_;
     float downVelocity_;
     float cameraAngleY_;
