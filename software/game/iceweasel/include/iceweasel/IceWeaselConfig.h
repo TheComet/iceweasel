@@ -24,7 +24,11 @@ public:
         struct PlayerClass {
             Urho3D::String className;
             struct Body {
-                float width, height, mass;
+                float width;
+                float height;
+                float mass;
+                float crouchWidth;
+                float crouchHeight;
             } body;
             struct Jump {
                 float force, bunnyHopBoost;

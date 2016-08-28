@@ -6,6 +6,8 @@ namespace Urho3D {
     class Input;
     class PhysicsWorld;
     class GravityManager;
+    class RigidBody;
+    class CollisionShape;
 }
 
 class CameraControllerFPS : public Urho3D::LogicComponent
@@ -18,6 +20,7 @@ public:
 private:
     virtual void Start() override;
     virtual void Stop() override;
+    virtual void Update(float timeStep) override;
     virtual void FixedUpdate(float timeStep) override;
 
     void HandleCameraAngleChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
@@ -26,6 +29,9 @@ private:
     Urho3D::SharedPtr<Urho3D::Input> input_;
     Urho3D::SharedPtr<Urho3D::PhysicsWorld> physicsWorld_;
     Urho3D::SharedPtr<Urho3D::GravityManager> gravityManager_;
+    Urho3D::SharedPtr<Urho3D::RigidBody> body_;
+    Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeUpright_;
+    Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeCrouch_;
     Urho3D::SharedPtr<Urho3D::Node> thisNode_;
 
     Urho3D::Quaternion currentRotation_;

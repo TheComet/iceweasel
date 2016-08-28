@@ -40,16 +40,23 @@ void CameraControllerFPS::Start()
     }
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
 
-    // Set up player collision shape and rigid body for FPS mode
-    CollisionShape* colShape = node_->CreateComponent<CollisionShape>();
-    RigidBody* body = node_->CreateComponent<RigidBody>();
-    colShape->SetCapsule(playerClass.body.width,
-                         playerClass.body.height,
-                         Vector3(0, -playerClass.body.height / 2, 0));
-    body->SetAngularFactor(Vector3::ZERO);
-    body->SetMass(playerClass.body.mass);
-    body->SetFriction(0.0f);
-    body->SetUseGravity(false);
+    // Set up player collision shapes. One for standing and one for crouching
+    collisionShapeUpright_ = node_->CreateComponent<CollisionShape>();
+    collisionShapeUpright_->SetCapsule(playerClass.body.width,
+                                       playerClass.body.height,
+                                       Vector3(0, -playerClass.body.height / 2, 0));
+    collisionShapeCrouch_ = node_->CreateComponent<CollisionShape>();
+    collisionShapeCrouch_->SetCapsule(playerClass.body.crouchWidth,
+                                      playerClass.body.crouchHeight,
+                                      Vector3(0, -playerClass.body.crouchHeight / 2, 0));
+    collisionShapeCrouch_->SetEnabled(false);
+
+    // Set up rigid body. Disable angular rotation and disable world gravity
+    body_ = node_->CreateComponent<RigidBody>();
+    body_->SetAngularFactor(Vector3::ZERO);
+    body_->SetMass(playerClass.body.mass);
+    body_->SetFriction(0.0f);
+    body_->SetUseGravity(false);
 
     // Initial physics parameters
     downVelocity_ = 0.0f;
@@ -67,12 +74,28 @@ void CameraControllerFPS::Stop()
     // Clean up the components we added
     thisNode_->RemoveComponent<RigidBody>();
     thisNode_->RemoveComponent<CollisionShape>();
+    thisNode_->RemoveComponent<CollisionShape>();
+}
+
+void CameraControllerFPS::Update(float timeStep)
+{
+    (void)timeStep;
+
+    if(input_->GetKeyPress(KEY_CTRL))
+    {
+        collisionShapeCrouch_->SetEnabled(true);
+        collisionShapeUpright_->SetEnabled(false);
+    }
+    if(collisionShapeCrouch_->IsEnabled() && input_->GetKeyDown(KEY_CTRL) == false)
+    {
+        collisionShapeCrouch_->SetEnabled(false);
+        collisionShapeUpright_->SetEnabled(true);
+    }
 }
 
 // ----------------------------------------------------------------------------
 void CameraControllerFPS::FixedUpdate(float timeStep)
 {
-    RigidBody* body = node_->GetComponent<RigidBody>();
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
     if(config.playerClass.Size() == 0)
     {
@@ -109,15 +132,19 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
     ) * localTargetPlaneVelocity;
 
     /*
-     * Query gravity at player's 3D location, integrate local "down" velocity
-     * and rotate the local target velocity vector according to the direction
-     * of gravity before applying it to the body. Let bullet handle
-     * integration from there.
+     * Query gravity at player's 3D location and calculate the rotation matrix
+     * that would transform our local coordinate system into the gravity's
+     * coordinate system (such that "down" correlates with the direction of
+     * gravity).
      */
     Vector3 gravity = gravityManager_->QueryGravity(node_->GetWorldPosition());
     Quaternion gravityRotation(Vector3::DOWN, gravity);
     Matrix3 velocityTransform = gravityRotation.RotationMatrix();
-    Vector3 currentLocalPlaneVelocity = velocityTransform.Inverse() * body->GetLinearVelocity();
+
+    /*
+     * Transform the body's current velocity into our local coordinate system.
+     */
+    Vector3 currentLocalPlaneVelocity = velocityTransform.Inverse() * body_->GetLinearVelocity();
 
     /*
      * Controls the player's Y velocity. The velocity is reset to 0.0f when
@@ -149,13 +176,17 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
 
     // TODO Collision feedback needs to affect planeVelocity_ and downVelocity_
 
+    /*
+     * X/Z movement of the player is only possible when on the ground. If the
+     * player is in the air just maintain whatever velocity he currently has.
+     */
     static const float smoothness = 16.0f;
     if(downVelocity_ == 0.0f)
         currentLocalPlaneVelocity += (localTargetPlaneVelocity - currentLocalPlaneVelocity) * timeStep * smoothness;
 
-    // Integrate
+    // Integrate downwards velocity and apply velocity back to body.
     downVelocity_ -= gravity.Length() * timeStep;
-    body->SetLinearVelocity(velocityTransform * Vector3(currentLocalPlaneVelocity.x_, downVelocity_, currentLocalPlaneVelocity.z_));
+    body_->SetLinearVelocity(velocityTransform * Vector3(currentLocalPlaneVelocity.x_, downVelocity_, currentLocalPlaneVelocity.z_));
 
     // Smoothly rotate camera to target orientation
     static const float correctCameraAngleSpeed = 5.0f;
@@ -185,16 +216,18 @@ void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& 
     }
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
 
-    RigidBody* body = node_->GetComponent<RigidBody>();
-
     // Temporarily disable collision checks for the player's rigid body, so
     // raycasts don't collide with ourselves.
-    unsigned int storeCollisionMask = body->GetCollisionMask();
-    body->SetCollisionMask(0);
+    unsigned int storeCollisionMask = body_->GetCollisionMask();
+    body_->SetCollisionMask(0);
 
         // Cast a ray down and check if we're on the ground
+        static const float extendFactor = 1.05f;
+        float rayCastLength = playerClass.body.height * extendFactor;
+        if(collisionShapeCrouch_->IsEnabled())
+            rayCastLength = playerClass.body.crouchHeight * extendFactor;
+
         PhysicsRaycastResult result;
-        float rayCastLength = playerClass.body.height * 1.1;
         Vector3 downDirection = node_->GetRotation() * Vector3::DOWN;
         Ray ray(node_->GetWorldPosition(), downDirection);
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
@@ -203,5 +236,5 @@ void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& 
                 downVelocity_ = 0.0f;
 
     // Restore collision mask
-    body->SetCollisionMask(storeCollisionMask);
+    body_->SetCollisionMask(storeCollisionMask);
 }

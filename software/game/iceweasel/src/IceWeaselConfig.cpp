@@ -60,9 +60,11 @@ void IceWeaselConfig::Reload()
         playerClass.className = player.GetAttribute("Class");
 
         XMLElement body = player.GetChild("Body");
-        playerClass.body.width  = body.GetFloat("Width");
-        playerClass.body.height = body.GetFloat("Height");
-        playerClass.body.mass   = body.GetFloat("Mass");
+        playerClass.body.width        = body.GetFloat("Width");
+        playerClass.body.height       = body.GetFloat("Height");
+        playerClass.body.mass         = body.GetFloat("Mass");
+        playerClass.body.crouchWidth  = body.GetFloat("CrouchWidth");
+        playerClass.body.crouchHeight = body.GetFloat("CrouchHeight");
 
         XMLElement jump = player.GetChild("Jump");
         playerClass.jump.force = jump.GetFloat("Force");

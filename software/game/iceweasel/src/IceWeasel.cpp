@@ -148,8 +148,7 @@ void IceWeasel::CreateCamera()
     cameraRotateNode_ = cameraMoveNode_->CreateChild("Camera Rotate");
     Camera* camera = cameraRotateNode_->CreateComponent<Camera>(Urho3D::LOCAL);
     camera->SetFarClip(300.0f);
-    cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f));
-    cameraRotateNode_->SetPosition(Vector3::ZERO);
+    cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f)); // spawn location
     cameraRotateNode_->AddComponent(new CameraControllerRotation(context_), 0, Urho3D::LOCAL);
     SwitchCameraToFPSCam();
 
