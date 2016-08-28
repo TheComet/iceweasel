@@ -8,6 +8,7 @@
 #include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Math/Vector3.h>
+#include <Urho3D/Math/Quaternion.h>
 
 Finger::Finger(Urho3D::Context* context) :
         Urho3D::LogicComponent(context)
@@ -23,6 +24,10 @@ void Finger::Start()
             fingerNode_, 0
     );
 
+    Urho3D::Quaternion rotation = Urho3D::Quaternion();
+    rotation.FromAngleAxis(80, Urho3D::Vector3(0, 1, 0));
+    fingerNode_->SetTransform(Urho3D::Vector3(0.5, -0.5, 1.0), rotation, 1.2);
+
     Urho3D::ResourceCache* cache = GetSubsystem<Urho3D::ResourceCache>();
     model_ = cache->GetResource<Urho3D::Model>("Models/Hand_01.mdl");
     if (!model_)
@@ -31,8 +36,8 @@ void Finger::Start()
         return;
     }
 
-    Urho3D::StaticModel* object = fingerNode_->CreateComponent<Urho3D::StaticModel>();
-    object->SetModel(model_);
+    Urho3D::StaticModel* staticModel = fingerNode_->CreateComponent<Urho3D::StaticModel>();
+    staticModel->SetModel(model_);
 }
 
 void Finger::Stop()
