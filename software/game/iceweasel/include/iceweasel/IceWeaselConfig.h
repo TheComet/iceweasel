@@ -16,6 +16,11 @@ class IceWeaselConfig : public Urho3D::Object
 public:
 
     struct Data {
+        struct Input {
+            struct Mouse {
+                float sensitivity;
+            } mouse;
+        } input;
         struct PlayerClass {
             Urho3D::String className;
             struct Body {

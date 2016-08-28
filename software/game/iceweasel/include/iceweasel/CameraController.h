@@ -57,10 +57,10 @@ private:
 
     Urho3D::SharedPtr<Urho3D::Input> input_;
     Urho3D::SharedPtr<Urho3D::PhysicsWorld> physicsWorld_;
-    Urho3D::SharedPtr<Urho3D::GravityManager> gravity_;
+    Urho3D::SharedPtr<Urho3D::GravityManager> gravityManager_;
 
-    Urho3D::Vector3 planeVelocity_;
-    Urho3D::Quaternion gravityRotation_;
+    Urho3D::Vector3 currentVelocity_;
+    Urho3D::Quaternion currentRotation_;
 
     float downVelocity_;
     float angleX_;
@@ -69,4 +69,6 @@ private:
     Mode mode_;
 
     Urho3D::SharedPtr<Urho3D::Text> gravityDebugText_;
+
+    bool jumpKeyPressed_;
 };

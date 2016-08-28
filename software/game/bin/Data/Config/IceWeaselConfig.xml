@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <IceWeasel>
+    <Input>
+        <Mouse Sensitivity="0.2" />
+    </Input>
     <Player Class="Generic">
         <Body Width="0.8" Height="1.8" Mass="80" />
         <Jump Force="5.0" BunnyHopBoost="1.5" />

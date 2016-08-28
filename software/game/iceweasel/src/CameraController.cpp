@@ -44,7 +44,8 @@ CameraController::CameraController(Context* context,
     moveNode_(moveNode),
     rotateNode_(rotateNode),
     downVelocity_(0.0f),
-    mode_(mode)
+    mode_(mode),
+    jumpKeyPressed_(false)
 {
 }
 
@@ -86,7 +87,7 @@ void CameraController::SetMode(CameraController::Mode mode)
     }
 
     // Initial physics parameters
-    planeVelocity_ = Vector3::ZERO;
+    currentVelocity_ = Vector3::ZERO;
     downVelocity_ = 0.0f;
     moveNode_->SetRotation(Quaternion::IDENTITY);
 
@@ -98,7 +99,7 @@ void CameraController::Start()
 {
     input_ = GetSubsystem<Input>();
     physicsWorld_ = GetScene()->GetComponent<PhysicsWorld>();
-    gravity_ = GetScene()->GetComponent<GravityManager>();
+    gravityManager_ = GetScene()->GetComponent<GravityManager>();
 
     // Set initial rotation to current camera angle
     const Vector3& cameraRotationEuler = rotateNode_->GetRotation().EulerAngles();
@@ -133,14 +134,11 @@ void CameraController::Stop()
 // ----------------------------------------------------------------------------
 void CameraController::Update(float timeStep)
 {
-    if(gravity_)
+    if(gravityManager_)
     {
-        Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
+        Vector3 gravity = gravityManager_->QueryGravity(node_->GetWorldPosition());
         gravityDebugText_->SetText(String("Gravity: ") + String(gravity.x_) + "," + String(gravity.y_) + "," + String(gravity.z_));
     }
-
-    if(input_->GetKeyPress(KEY_SPACE))
-        puts("key pressed in Update()");
 
     UpdateCameraRotation();
 }
@@ -148,9 +146,6 @@ void CameraController::Update(float timeStep)
 // ----------------------------------------------------------------------------
 void CameraController::FixedUpdate(float timeStep)
 {
-    if(input_->GetKeyPress(KEY_SPACE))
-        puts("key pressed in FixedUpdate()");
-
     if(mode_ == FPS)
         return UpdateFPSCameraMovement(timeStep);
     if(mode_ == FREE)
@@ -161,7 +156,7 @@ void CameraController::FixedUpdate(float timeStep)
 void CameraController::UpdateCameraRotation()
 {
     // Calculate new camera angle according to mouse movement
-    float sensitivity = 0.2f;  // TODO load this from an XML config file.
+    float sensitivity = GetSubsystem<IceWeaselConfig>()->GetConfig().input.mouse.sensitivity;
     const IntVector2& mouseMove = input_->GetMouseMove();
 
     angleX_ = angleX_ + mouseMove.y_ * sensitivity;
@@ -188,39 +183,55 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
 
     //TODO transform into local gravity planeVelocity_ = body->GetLinearVelocity();
 
-    // Get input direction vector
+    /*
+     * Get input direction vector from WASD on keyboard and store in x and z
+     * components of a target velocity vector.
+     *
+     * Player speed is "walk" by default, "run" if control is pressed and
+     * "crawl" if shift is pressed (precedence on shift, you can't run and
+     * crawl).
+     */
     float speed = playerClass.speed.walk;
-    Vector3 targetPlaneVelocity(Vector3::ZERO);
+    Vector3 localTargetPlaneVelocity(Vector3::ZERO);
     if(input_->GetKeyDown(KEY_SHIFT)) speed = playerClass.speed.run;
     if(input_->GetKeyDown(KEY_CTRL))  speed = playerClass.speed.crawl;
-    if(input_->GetKeyDown(KEY_W))     targetPlaneVelocity.z_ += 1;
-    if(input_->GetKeyDown(KEY_S))     targetPlaneVelocity.z_ -= 1;
-    if(input_->GetKeyDown(KEY_A))     targetPlaneVelocity.x_ += 1;
-    if(input_->GetKeyDown(KEY_D))     targetPlaneVelocity.x_ -= 1;
-    if(targetPlaneVelocity.x_ != 0 || targetPlaneVelocity.z_ != 0)
-        targetPlaneVelocity = targetPlaneVelocity.Normalized() * speed;
+    if(input_->GetKeyDown(KEY_W))     localTargetPlaneVelocity.z_ += 1;
+    if(input_->GetKeyDown(KEY_S))     localTargetPlaneVelocity.z_ -= 1;
+    if(input_->GetKeyDown(KEY_A))     localTargetPlaneVelocity.x_ += 1;
+    if(input_->GetKeyDown(KEY_D))     localTargetPlaneVelocity.x_ -= 1;
+    if(localTargetPlaneVelocity.x_ != 0 || localTargetPlaneVelocity.z_ != 0)
+        localTargetPlaneVelocity = localTargetPlaneVelocity.Normalized() * speed;
 
     // Rotate input direction by camera angle using a 3D rotation matrix
-    targetPlaneVelocity = Matrix3(-Cos(angleY_), 0, Sin(angleY_),
-                              0, 1, 0,
-                              Sin(angleY_), 0, Cos(angleY_)) * targetPlaneVelocity;
+    localTargetPlaneVelocity = Matrix3(
+        -Cos(angleY_), 0, Sin(angleY_),
+        0, 1, 0,
+        Sin(angleY_), 0, Cos(angleY_)
+    ) * localTargetPlaneVelocity;
 
-    // Get gravity and rotate target velocity vector according to the direction of gravity
-    Vector3 gravity = gravity_->QueryGravity(node_->GetWorldPosition());
-    float gravityForce = gravity.Length();
-    Quaternion gravityRotation(Vector3::DOWN, gravity);
-    Vector3 velocity = gravityRotation.RotationMatrix() * Vector3(planeVelocity_.x_, downVelocity_, planeVelocity_.z_);
+    currentVelocity_ = body->GetLinearVelocity();
 
-    // Controls the player's Y velocity. The velocity is reset to 0.0f when
-    // E_NODECOLLISION occurs and the player is on the ground. Allow the player
-    // to jump by pressing space while the velocity is 0.0f.
-    if(input_->GetKeyPress(KEY_SPACE) && downVelocity_ == 0.0f)
+    /*
+     * Controls the player's Y velocity. The velocity is reset to 0.0f when
+     * E_NODECOLLISION occurs and the player is on the ground. Allow the player
+     * to jump by pressing space while the velocity is 0.0f.
+     *
+     * NOTE: We can't use GetKeyPress() in FixedUpdate() so we have to track
+     * the key press with a flag ourselves.
+     */
+    if(!jumpKeyPressed_ && input_->GetKeyDown(KEY_SPACE))
     {
-        downVelocity_ = playerClass.jump.force;
-        // Give the player a slight speed boost so he moves faster than usual
-        // in the air.
-        planeVelocity_ *= playerClass.jump.bunnyHopBoost;
+        jumpKeyPressed_ = true;
+        if(downVelocity_ == 0.0f)
+        {
+            downVelocity_ = playerClass.jump.force;
+            // Give the player a slight speed boost so he moves faster than usual
+            // in the air.
+            currentVelocity_ *= playerClass.jump.bunnyHopBoost;
+        }
     }
+    if(jumpKeyPressed_ && input_->GetKeyDown(KEY_SPACE) == false)
+        jumpKeyPressed_ = false;
 
     // TODO limit velocity on slopes?
 
@@ -230,23 +241,26 @@ void CameraController::UpdateFPSCameraMovement(float timeStep)
 
     // TODO Collision feedback needs to affect planeVelocity_ and downVelocity_
 
-    // TODO Limit bunny hopping speed.
+    /*
+     * Query gravity at player's 3D location, integrate local "down" velocity
+     * and rotate the local target velocity vector according to the direction
+     * of gravity before applying it to the body. Let bullet handle
+     * integration from there.
+     */
+    Vector3 gravity = gravityManager_->QueryGravity(node_->GetWorldPosition());
+    downVelocity_ -= gravity.Length() * timeStep;
+    Quaternion gravityRotation(Vector3::DOWN, gravity);
+    Vector3 transformedVelocity = gravityRotation.RotationMatrix() * Vector3(localTargetPlaneVelocity.x_, downVelocity_, localTargetPlaneVelocity.z_);
 
-    // smoothly approach target direction if we're on the ground. Otherwise
-    // just maintain whatever plane velocity we had previously.
-    float smoothness = 16.0f;
-    if(downVelocity_ == 0.0f)
-        planeVelocity_ += (targetPlaneVelocity - planeVelocity_) * timeStep * smoothness;
+    static const float smoothness = 16.0f;
+    currentVelocity_ += (transformedVelocity - currentVelocity_) * timeStep * smoothness;
 
-    // Integrate velocity
-    downVelocity_ -= gravityForce * timeStep;
-
-    // update camera position
-    body->SetLinearVelocity(velocity);
+    body->SetLinearVelocity(currentVelocity_);
 
     // Smoothly rotate camera to target rotation
-    gravityRotation_ = gravityRotation_.Nlerp(gravityRotation, Min(1.0f, 8.0f * timeStep), true);
-    moveNode_->SetRotation(-gravityRotation_);
+    static const float correctCameraAngleSpeed = 5.0f;
+    currentRotation_ = currentRotation_.Nlerp(gravityRotation, timeStep * correctCameraAngleSpeed, true);
+    moveNode_->SetRotation(-currentRotation_);
 }
 
 // ----------------------------------------------------------------------------
@@ -273,13 +287,11 @@ void CameraController::UpdateFreeCameraMovement(float timeStep)
                               Sin(angleY_), 0, Cos(angleY_)) * targetPlaneVelocity;
 
     // smoothly approach target direction
-    planeVelocity_ += (targetPlaneVelocity - planeVelocity_) * timeStep * config.freeCam.speed.smoothness;
+    currentVelocity_ += (targetPlaneVelocity - currentVelocity_) * timeStep * config.freeCam.speed.smoothness;
 
     // update camera position
-    moveNode_->Translate(planeVelocity_, Urho3D::TS_WORLD);
+    moveNode_->Translate(currentVelocity_, Urho3D::TS_WORLD);
 }
-
-#include <Urho3D/Graphics/DebugRenderer.h>
 
 // ----------------------------------------------------------------------------
 void CameraController::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
