@@ -166,7 +166,7 @@ void IceWeasel::CreateCamera()
         0,
         Urho3D::LOCAL
     );
-    cameraMoveNode_->AddComponent(
+    cameraRotateNode_->AddComponent(
             new Finger(context_),
             1,
             Urho3D::LOCAL
