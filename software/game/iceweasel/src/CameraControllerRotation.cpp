@@ -35,15 +35,11 @@ void CameraControllerRotation::Start()
     const Vector3& cameraRotationEuler = node_->GetRotation().EulerAngles();
     angleX_ = Wrap(cameraRotationEuler.x_);
     angleY_ = Wrap(cameraRotationEuler.y_);
-
-    currentHeight_ = config.playerClass[0].body.height;
 }
 
 // ----------------------------------------------------------------------------
 void CameraControllerRotation::Update(float timeStep)
 {
-    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
-
     // Calculate new camera angle according to mouse movement
     float sensitivity = GetSubsystem<IceWeaselConfig>()->GetConfig().input.mouse.sensitivity;
     const IntVector2& mouseMove = input_->GetMouseMove();
@@ -65,13 +61,4 @@ void CameraControllerRotation::Update(float timeStep)
         eventData[P_ANGLEY] = angleY_;
         SendEvent(E_CAMERAANGLECHANGED, eventData);
     }
-
-    // Change height offset if crouching
-    float targetHeight = config.playerClass[0].body.height;
-    if(input_->GetKeyDown(KEY_CTRL))
-        targetHeight = config.playerClass[0].body.crouchHeight;
-
-    currentHeight_ += (targetHeight - currentHeight_) *
-            Min(1.0f, config.playerClass[0].speed.crouchTransitionSpeed * timeStep);
-    node_->SetPosition(Vector3(0, currentHeight_, 0));
 }

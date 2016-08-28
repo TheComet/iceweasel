@@ -5,10 +5,10 @@
 	<attribute name="Smoothing Constant" value="50" />
 	<attribute name="Snap Threshold" value="5" />
 	<attribute name="Elapsed Time" value="1170.4" />
-	<attribute name="Next Replicated Node ID" value="193" />
-	<attribute name="Next Replicated Component ID" value="430" />
-	<attribute name="Next Local Node ID" value="16777241" />
-	<attribute name="Next Local Component ID" value="16777516" />
+	<attribute name="Next Replicated Node ID" value="200" />
+	<attribute name="Next Replicated Component ID" value="447" />
+	<attribute name="Next Local Node ID" value="16777242" />
+	<attribute name="Next Local Component ID" value="16777528" />
 	<attribute name="Variables" />
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
@@ -2832,6 +2832,97 @@
 				</component>
 			</node>
 		</node>
+		<node id="195">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="Tunnel" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="2.21369 0 8.49971" />
+			<attribute name="Rotation" value="0.819152 0 0.573576 0" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<node id="196">
+				<attribute name="Is Enabled" value="true" />
+				<attribute name="Name" value="" />
+				<attribute name="Tags" />
+				<attribute name="Position" value="0.269717 1.78219 -1.84233" />
+				<attribute name="Rotation" value="0.701586 0.712585 0 0" />
+				<attribute name="Scale" value="5 1.29212 1" />
+				<attribute name="Variables" />
+				<component type="StaticModel" id="436">
+					<attribute name="Model" value="Model;Models/StonePillar3.mdl" />
+					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
+				</component>
+				<component type="CollisionShape" id="445">
+					<attribute name="Shape Type" value="ConvexHull" />
+					<attribute name="Model" value="Model;Models/StonePillar3.mdl" />
+				</component>
+				<component type="RigidBody" id="446">
+					<attribute name="Physics Rotation" value="0.574705 0.583715 0.402413 -0.408722" />
+					<attribute name="Physics Position" value="0.574714 1.78219 7.61614" />
+				</component>
+			</node>
+			<node id="197">
+				<attribute name="Is Enabled" value="true" />
+				<attribute name="Name" value="Pillar" />
+				<attribute name="Tags" />
+				<attribute name="Position" value="0.366801 0 1.44117" />
+				<attribute name="Rotation" value="0.999976 0 -0.00686446 0" />
+				<attribute name="Scale" value="5 0.38 1" />
+				<attribute name="Variables" />
+				<component type="StaticModel" id="437">
+					<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
+					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
+				</component>
+				<component type="ScriptInstance" id="438">
+					<attribute name="Delayed Method Calls" value="0" />
+					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
+					<attribute name="Class Name" value="RotateNode" />
+				</component>
+				<component type="CollisionShape" id="439">
+					<attribute name="Shape Type" value="ConvexHull" />
+					<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
+				</component>
+				<component type="RigidBody" id="440">
+					<attribute name="Physics Rotation" value="0.82307 0 0.56794 0" />
+					<attribute name="Physics Position" value="3.6934 0 8.64794" />
+				</component>
+			</node>
+			<node id="198">
+				<attribute name="Is Enabled" value="true" />
+				<attribute name="Name" value="Pillar" />
+				<attribute name="Tags" />
+				<attribute name="Position" value="0.218363 0 -0.497715" />
+				<attribute name="Rotation" value="0.714828 0 0.6993 0" />
+				<attribute name="Scale" value="0.999997 0.408149 5" />
+				<attribute name="Variables" />
+				<component type="StaticModel" id="441">
+					<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
+					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
+				</component>
+				<component type="ScriptInstance" id="442">
+					<attribute name="Delayed Method Calls" value="0" />
+					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
+					<attribute name="Class Name" value="RotateNode" />
+				</component>
+				<component type="CollisionShape" id="443">
+					<attribute name="Shape Type" value="ConvexHull" />
+					<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
+				</component>
+				<component type="RigidBody" id="444">
+					<attribute name="Physics Rotation" value="0.184451 0 0.982842 0" />
+					<attribute name="Physics Position" value="1.82068 0 8.12429" />
+				</component>
+			</node>
+			<node id="199">
+				<attribute name="Is Enabled" value="true" />
+				<attribute name="Name" value="" />
+				<attribute name="Tags" />
+				<attribute name="Position" value="0.3668 1.42139 1.44117" />
+				<attribute name="Rotation" value="0.999976 0 -0.00686446 0" />
+				<attribute name="Scale" value="5 0.38 1" />
+				<attribute name="Variables" />
+			</node>
+		</node>
 	</node>
 	<node id="165">
 		<attribute name="Is Enabled" value="true" />
@@ -2970,7 +3061,7 @@
 				<attribute name="Material" value="Material;" />
 			</component>
 		</node>
-		<node id="192">
+		<node id="194">
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="Huge Shit" />
 			<attribute name="Tags" />
@@ -2978,14 +3069,14 @@
 			<attribute name="Rotation" value="0.999997 -4.02385e-05 -0.00239976 -3.18678e-05" />
 			<attribute name="Scale" value="4 4 4" />
 			<attribute name="Variables" />
-			<component type="CollisionShape" id="427" />
-			<component type="RigidBody" id="428">
+			<component type="CollisionShape" id="433" />
+			<component type="RigidBody" id="434">
 				<attribute name="Physics Rotation" value="0.999997 -2.18801e-05 -0.0024202 -7.77799e-05" />
 				<attribute name="Physics Position" value="11.0221 2.63985 4.13382" />
 				<attribute name="Mass" value="1200" />
 				<attribute name="Friction" value="1" />
 			</component>
-			<component type="StaticModel" id="429">
+			<component type="StaticModel" id="435">
 				<attribute name="Model" value="Model;Models/Box.mdl" />
 				<attribute name="Material" value="Material;Materials/Stairs.xml" />
 			</component>

@@ -23,6 +23,12 @@ private:
     virtual void Update(float timeStep) override;
     virtual void FixedUpdate(float timeStep) override;
 
+    void PatchSceneGraph();
+    void UnpatchSceneGraph();
+    void CreateComponents();
+    void DestroyComponents();
+    bool CanStandUp() const;
+
     void HandleCameraAngleChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleNodeCollision(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
@@ -32,7 +38,8 @@ private:
     Urho3D::SharedPtr<Urho3D::RigidBody> body_;
     Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeUpright_;
     Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeCrouch_;
-    Urho3D::SharedPtr<Urho3D::Node> thisNode_;
+    Urho3D::SharedPtr<Urho3D::Node> moveNode_;
+    Urho3D::SharedPtr<Urho3D::Node> heightOffsetNode_;
 
     Urho3D::Quaternion currentRotation_;
     float downVelocity_;

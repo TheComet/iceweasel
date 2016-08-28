@@ -60,6 +60,8 @@ void IceWeasel::Start()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
 
+    //GetSubsystem<Input>()->SetMouseVisible(true);
+
     RegisterSubsystems();
     CreateDebugHud();
     CreateUI();
@@ -152,11 +154,7 @@ void IceWeasel::CreateCamera()
     cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f)); // spawn location
     cameraRotateNode_->AddComponent(new CameraControllerRotation(context_), 0, Urho3D::LOCAL);
     SwitchCameraToFPSCam();
-    cameraRotateNode_->AddComponent(
-            new Finger(context_),
-            1,
-            Urho3D::LOCAL
-    );
+    cameraRotateNode_->AddComponent(new Finger(context_), 0, Urho3D::LOCAL);
 
     // Give the camera a viewport
     Viewport* viewport = new Viewport(context_, scene_, camera);

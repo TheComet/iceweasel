@@ -18,6 +18,8 @@ void CameraControllerFree::Start()
 {
     input_ = GetSubsystem<Input>();
 
+    node_->SetRotation(Quaternion::IDENTITY);
+
     // WASD depends on the current camera Y angle
     SubscribeToEvent(E_CAMERAANGLECHANGED, URHO3D_HANDLER(CameraControllerFree, HandleCameraAngleChanged));
 }
