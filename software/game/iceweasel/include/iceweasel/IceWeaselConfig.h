@@ -34,7 +34,10 @@ public:
                 float force, bunnyHopBoost;
             } jump;
             struct Speed {
-                float crawl, walk, run;
+                float crouch;
+                float crouchTransitionSpeed;
+                float walk;
+                float run;
             } speed;
         };
         Urho3D::Vector<PlayerClass> playerClass;

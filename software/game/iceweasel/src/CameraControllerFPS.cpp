@@ -44,11 +44,11 @@ void CameraControllerFPS::Start()
     collisionShapeUpright_ = node_->CreateComponent<CollisionShape>();
     collisionShapeUpright_->SetCapsule(playerClass.body.width,
                                        playerClass.body.height,
-                                       Vector3(0, -playerClass.body.height / 2, 0));
+                                       Vector3(0, playerClass.body.height / 2, 0));
     collisionShapeCrouch_ = node_->CreateComponent<CollisionShape>();
     collisionShapeCrouch_->SetCapsule(playerClass.body.crouchWidth,
                                       playerClass.body.crouchHeight,
-                                      Vector3(0, -playerClass.body.crouchHeight / 2, 0));
+                                      Vector3(0, playerClass.body.crouchHeight / 2, 0));
     collisionShapeCrouch_->SetEnabled(false);
 
     // Set up rigid body. Disable angular rotation and disable world gravity
@@ -77,6 +77,7 @@ void CameraControllerFPS::Stop()
     thisNode_->RemoveComponent<CollisionShape>();
 }
 
+// ----------------------------------------------------------------------------
 void CameraControllerFPS::Update(float timeStep)
 {
     (void)timeStep;
@@ -116,7 +117,7 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
     float speed = playerClass.speed.walk;
     Vector3 localTargetPlaneVelocity(Vector3::ZERO);
     if(input_->GetKeyDown(KEY_SHIFT)) speed = playerClass.speed.run;
-    if(input_->GetKeyDown(KEY_CTRL))  speed = playerClass.speed.crawl;
+    if(input_->GetKeyDown(KEY_CTRL))  speed = playerClass.speed.crouch;
     if(input_->GetKeyDown(KEY_W))     localTargetPlaneVelocity.z_ += 1;
     if(input_->GetKeyDown(KEY_S))     localTargetPlaneVelocity.z_ -= 1;
     if(input_->GetKeyDown(KEY_A))     localTargetPlaneVelocity.x_ += 1;
@@ -174,8 +175,6 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
 
     // TODO Add a "lifter" collision sphere to handle steps or other sharp edges.
 
-    // TODO Collision feedback needs to affect planeVelocity_ and downVelocity_
-
     /*
      * X/Z movement of the player is only possible when on the ground. If the
      * player is in the air just maintain whatever velocity he currently has.
@@ -221,15 +220,19 @@ void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& 
     unsigned int storeCollisionMask = body_->GetCollisionMask();
     body_->SetCollisionMask(0);
 
-        // Cast a ray down and check if we're on the ground
-        static const float extendFactor = 1.05f;
-        float rayCastLength = playerClass.body.height * extendFactor;
+        float rayCastLength = playerClass.body.height;
         if(collisionShapeCrouch_->IsEnabled())
-            rayCastLength = playerClass.body.crouchHeight * extendFactor;
-
-        PhysicsRaycastResult result;
+            rayCastLength = playerClass.body.crouchHeight;
         Vector3 downDirection = node_->GetRotation() * Vector3::DOWN;
-        Ray ray(node_->GetWorldPosition(), downDirection);
+        Vector3 rayOrigin(node_->GetWorldPosition() + -downDirection * rayCastLength);
+
+        // Cast slightly beyond
+        static const float extendFactor = 1.1f;
+        rayCastLength *= extendFactor;
+
+        // Cast a ray down and check if we're on the ground
+        PhysicsRaycastResult result;
+        Ray ray(rayOrigin, downDirection);
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
         if(result.distance_ < rayCastLength)
             if(downVelocity_ <= 0.0f)

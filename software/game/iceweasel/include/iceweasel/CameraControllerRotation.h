@@ -23,4 +23,5 @@ private:
 
     float angleX_;
     float angleY_;
+    float currentHeight_;
 };

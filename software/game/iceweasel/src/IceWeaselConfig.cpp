@@ -71,9 +71,10 @@ void IceWeaselConfig::Reload()
         playerClass.jump.bunnyHopBoost = jump.GetFloat("BunnyHopBoost");
 
         XMLElement speed = player.GetChild("Speed");
-        playerClass.speed.crawl = speed.GetFloat("Crawl");
-        playerClass.speed.walk  = speed.GetFloat("Walk");
-        playerClass.speed.run   = speed.GetFloat("Run");
+        playerClass.speed.crouch                = speed.GetFloat("Crouch");
+        playerClass.speed.crouchTransitionSpeed = speed.GetFloat("CrouchTransitionSpeed");
+        playerClass.speed.walk                  = speed.GetFloat("Walk");
+        playerClass.speed.run                   = speed.GetFloat("Run");
 
         data_.playerClass.Push(playerClass);
     }
