@@ -3,6 +3,7 @@
 #include "iceweasel/CameraControllerRotation.h"
 #include "iceweasel/CameraControllerFPS.h"
 #include "iceweasel/CameraControllerFree.h"
+#include "iceweasel/Finger.h"
 
 #include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -151,6 +152,11 @@ void IceWeasel::CreateCamera()
     cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f)); // spawn location
     cameraRotateNode_->AddComponent(new CameraControllerRotation(context_), 0, Urho3D::LOCAL);
     SwitchCameraToFPSCam();
+    cameraRotateNode_->AddComponent(
+            new Finger(context_),
+            1,
+            Urho3D::LOCAL
+    );
 
     // Give the camera a viewport
     Viewport* viewport = new Viewport(context_, scene_, camera);
