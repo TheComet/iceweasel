@@ -1,6 +1,8 @@
 #include "iceweasel/IceWeasel.h"
 #include "iceweasel/IceWeaselConfig.h"
-#include "iceweasel/CameraController.h"
+#include "iceweasel/CameraControllerRotation.h"
+#include "iceweasel/CameraControllerFPS.h"
+#include "iceweasel/CameraControllerFree.h"
 
 #include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -91,22 +93,8 @@ void IceWeasel::CreateUI()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     UI* ui = GetSubsystem<UI>();
     UIElement* root = ui->GetRoot();
-
-#ifdef DEBUG
-    instructionText_ = root->CreateChild<Text>();
-    instructionText_->SetText(
-        "Use WASD and mouse to move, Space/CTRL to move up/down in freecam mode\n"
-        "Press 1 to toggle debug geometry\n"
-        "Press 2 to toggle profiling information\n"
-        "Press 5 to toggle camera modes\n"
-        "Press 0 to toggle this text"
-    );
-    instructionText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 15);
-    instructionText_->SetTextAlignment(HA_CENTER);
-    instructionText_->SetHorizontalAlignment(HA_CENTER);
-    instructionText_->SetVerticalAlignment(VA_CENTER);
-    instructionText_->SetPosition(0, -root->GetHeight() / 4);
-#endif
+    (void)cache;
+    (void)root;
 /*
     XMLFile* xmlDefaultStyle = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
     root->SetDefaultStyle(xmlDefaultStyle);
@@ -151,20 +139,19 @@ void IceWeasel::CreateCamera()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     Renderer* renderer = GetSubsystem<Renderer>();
 
-    // The camera is attached to a "rotate node", which is in turn attached to
-    // a "move" node. The camera controller takes the "move" node and assumes
-    // this setup was made.
+    /*
+     * The camera is attached to a "rotate node", which is in turn attached to
+     * a "move" node. The rotation controller is separate from the movement
+     * controller.
+     */
     cameraMoveNode_ = scene_->CreateChild("Camera Move");
     cameraRotateNode_ = cameraMoveNode_->CreateChild("Camera Rotate");
     Camera* camera = cameraRotateNode_->CreateComponent<Camera>(Urho3D::LOCAL);
     camera->SetFarClip(300.0f);
     cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f));
     cameraRotateNode_->SetPosition(Vector3::ZERO);
-    cameraMoveNode_->AddComponent(
-        new CameraController(context_, cameraMoveNode_, cameraRotateNode_, CameraController::FPS),
-        0,
-        Urho3D::LOCAL
-    );
+    cameraRotateNode_->AddComponent(new CameraControllerRotation(context_), 0, Urho3D::LOCAL);
+    SwitchCameraToFPSCam();
 
     // Give the camera a viewport
     Viewport* viewport = new Viewport(context_, scene_, camera);
@@ -227,15 +214,15 @@ void IceWeasel::CreateDebugHud()
 // ----------------------------------------------------------------------------
 void IceWeasel::SwitchCameraToFreeCam()
 {
-    CameraController* controller = cameraMoveNode_->GetComponent<CameraController>();
-    controller->SetMode(CameraController::FREE);
+    cameraMoveNode_->RemoveComponent<CameraControllerFPS>();
+    cameraMoveNode_->AddComponent(new CameraControllerFree(context_), 0, Urho3D::LOCAL);
 }
 
 // ----------------------------------------------------------------------------
 void IceWeasel::SwitchCameraToFPSCam()
 {
-    CameraController* controller = cameraMoveNode_->GetComponent<CameraController>();
-    controller->SetMode(CameraController::FPS);
+    cameraMoveNode_->RemoveComponent<CameraControllerFree>();
+    cameraMoveNode_->AddComponent(new CameraControllerFPS(context_), 0, Urho3D::LOCAL);
 }
 
 // ----------------------------------------------------------------------------
@@ -285,10 +272,6 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     // Toggle mouse visibility (for debugging)
     if(key == KEY_9)
         GetSubsystem<Input>()->SetMouseVisible(!GetSubsystem<Input>()->IsMouseVisible());
-
-    // toggle instruction text
-    if(key == KEY_0)
-        instructionText_->SetVisible(!instructionText_->IsVisible());
 #endif
 }
 

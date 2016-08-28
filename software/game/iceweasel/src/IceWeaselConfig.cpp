@@ -44,6 +44,13 @@ void IceWeaselConfig::Reload()
 
     XMLElement root = xml_->GetRoot();
 
+    // Load input settings
+    XMLElement input = root.GetChild("Input");
+    {
+        XMLElement mouse = input.GetChild("Mouse");
+        data_.input.mouse.sensitivity = mouse.GetFloat("Sensitivity");
+    }
+
     // Load player class parameters
     XMLElement player = root.GetChild("Player");
     data_.playerClass.Clear();

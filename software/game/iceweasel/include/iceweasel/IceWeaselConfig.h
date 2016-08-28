@@ -16,6 +16,11 @@ class IceWeaselConfig : public Urho3D::Object
 public:
 
     struct Data {
+        struct Input {
+            struct Mouse {
+                float sensitivity;
+            } mouse;
+        } input;
         struct PlayerClass {
             Urho3D::String className;
             struct Body {
@@ -28,12 +33,12 @@ public:
                 float crawl, walk, run;
             } speed;
         };
+        Urho3D::Vector<PlayerClass> playerClass;
         struct FreeCam {
             struct Speed {
                 float normal, fast, smoothness;
             } speed;
         } freeCam;
-        Urho3D::Vector<PlayerClass> playerClass;
     };
 
     IceWeaselConfig(Urho3D::Context* context);
