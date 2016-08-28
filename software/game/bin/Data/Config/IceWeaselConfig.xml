@@ -4,7 +4,7 @@
         <Mouse Sensitivity="0.2" />
     </Input>
     <Player Class="Generic">
-        <Body Width="1.4" Height="1.8" Mass="80" CrouchWidth="0.75" CrouchHeight="0.8" />
+        <Body Width="1.3" Height="1.8" Mass="80" CrouchWidth="0.75" CrouchHeight="0.8" />
         <Jump Force="5.0" BunnyHopBoost="1.5" />
         <Speed Crouch="2.0" CrouchTransitionSpeed="10.0" Walk="8.0" Run="15.0" />
     </Player>

@@ -75,13 +75,13 @@ void CameraControllerFPS::Update(float timeStep)
     }
 
     // Change height offset if crouching
-    float targetHeight = config.playerClass[0].body.height;
+    float targetHeight = config.playerClass(0).body.height;
     if(collisionShapeCrouch_->IsEnabled())
-        targetHeight = config.playerClass[0].body.crouchHeight;
+        targetHeight = config.playerClass(0).body.crouchHeight;
 
     float currentHeight = heightOffsetNode_->GetPosition().y_;
     currentHeight += (targetHeight - currentHeight) *
-            Min(1.0f, config.playerClass[0].speed.crouchTransitionSpeed * timeStep);
+            Min(1.0f, config.playerClass(0).speed.crouchTransitionSpeed * timeStep);
     heightOffsetNode_->SetPosition(Vector3(0, currentHeight, 0));
 }
 
@@ -89,13 +89,7 @@ void CameraControllerFPS::Update(float timeStep)
 void CameraControllerFPS::FixedUpdate(float timeStep)
 {
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
-    if(config.playerClass.Size() == 0)
-    {
-        // TODO refactor this into the player class structure and return a default structure
-        URHO3D_LOGERROR("[CameraController] Failed to read player class info from settings");
-        return;
-    }
-    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
+    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
 
     /*
      * Get input direction vector from WASD on keyboard and store in x and z
@@ -206,7 +200,7 @@ void CameraControllerFPS::PatchSceneGraph()
     moveNode_->SetPosition(node_->GetPosition());
     heightOffsetNode_ = node_;
     heightOffsetNode_->SetParent(moveNode_);
-    heightOffsetNode_->SetPosition(Vector3(0, config.playerClass[0].body.height, 0));
+    heightOffsetNode_->SetPosition(Vector3(0, config.playerClass(0).body.height, 0));
 }
 
 // ----------------------------------------------------------------------------
@@ -224,19 +218,19 @@ void CameraControllerFPS::CreateComponents()
 
     // Set up player collision shapes. One for standing and one for crouching
     collisionShapeUpright_ = moveNode_->CreateComponent<CollisionShape>();
-    collisionShapeUpright_->SetCapsule(config.playerClass[0].body.width,
-                                       config.playerClass[0].body.height,
-                                       Vector3(0, config.playerClass[0].body.height / 2, 0));
+    collisionShapeUpright_->SetCapsule(config.playerClass(0).body.width,
+                                       config.playerClass(0).body.height,
+                                       Vector3(0, config.playerClass(0).body.height / 2, 0));
     collisionShapeCrouch_ = moveNode_->CreateComponent<CollisionShape>();
-    collisionShapeCrouch_->SetCapsule(config.playerClass[0].body.crouchWidth,
-                                      config.playerClass[0].body.crouchHeight,
-                                      Vector3(0, config.playerClass[0].body.crouchHeight / 2, 0));
+    collisionShapeCrouch_->SetCapsule(config.playerClass(0).body.crouchWidth,
+                                      config.playerClass(0).body.crouchHeight,
+                                      Vector3(0, config.playerClass(0).body.crouchHeight / 2, 0));
     collisionShapeCrouch_->SetEnabled(false);
 
     // Set up rigid body. Disable angular rotation and disable world gravity
     body_ = moveNode_->CreateComponent<RigidBody>();
     body_->SetAngularFactor(Vector3::ZERO);
-    body_->SetMass(config.playerClass[0].body.mass);
+    body_->SetMass(config.playerClass(0).body.mass);
     body_->SetFriction(0.0f);
     body_->SetUseGravity(false);
 }
@@ -256,13 +250,7 @@ bool CameraControllerFPS::CanStandUp() const
     bool canStandUp = true;
 
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
-    if(config.playerClass.Size() == 0)
-    {
-        // TODO refactor this into the player class structure and return a default structure
-        URHO3D_LOGERROR("[CameraController] Failed to read player class info from settings");
-        return false;
-    }
-    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
+    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
 
     /*
      * Temporarily disable collision checks for the player's rigid body, so
@@ -295,13 +283,7 @@ void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& 
     (void)eventData;
 
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
-    if(config.playerClass.Size() == 0)
-    {
-        // TODO refactor this into the player class structure and return a default structure
-        URHO3D_LOGERROR("[CameraController] Failed to read player class info from settings");
-        return;
-    }
-    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass[0];
+    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
 
     // Temporarily disable collision checks for the player's rigid body, so
     // raycasts don't collide with ourselves.

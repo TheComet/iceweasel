@@ -40,7 +40,8 @@ public:
                 float run;
             } speed;
         };
-        Urho3D::Vector<PlayerClass> playerClass;
+        Urho3D::Vector<PlayerClass> playerClassContainer;
+        const PlayerClass& playerClass(unsigned index) const;
         struct FreeCam {
             struct Speed {
                 float normal, fast, smoothness;

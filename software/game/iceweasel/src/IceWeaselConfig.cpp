@@ -9,6 +9,24 @@ using namespace Urho3D;
 
 
 // ----------------------------------------------------------------------------
+const IceWeaselConfig::Data::PlayerClass& IceWeaselConfig::Data::playerClass(unsigned int index) const
+{
+    static const Data::PlayerClass defaultPlayerClass = {
+        "",
+        {1, 1, 1, 1, 1},
+        {1, 1},
+        {1, 1, 1, 1}
+    };
+    if(playerClassContainer.Size() <= index)
+    {
+        URHO3D_LOGERRORF("[IceWeaselConfig] Failed to read player class info \"%d\" from settings", index);
+        return defaultPlayerClass;
+    }
+    return playerClassContainer.At(index);
+}
+
+
+// ----------------------------------------------------------------------------
 IceWeaselConfig::IceWeaselConfig(Context* context) :
     Object(context)
 {
@@ -53,7 +71,7 @@ void IceWeaselConfig::Reload()
 
     // Load player class parameters
     XMLElement player = root.GetChild("Player");
-    data_.playerClass.Clear();
+    data_.playerClassContainer.Clear();
     for(; player; player = player.GetNext("Player"))
     {
         Data::PlayerClass playerClass;
@@ -76,7 +94,7 @@ void IceWeaselConfig::Reload()
         playerClass.speed.walk                  = speed.GetFloat("Walk");
         playerClass.speed.run                   = speed.GetFloat("Run");
 
-        data_.playerClass.Push(playerClass);
+        data_.playerClassContainer.Push(playerClass);
     }
 
     // Load freecam parameters
