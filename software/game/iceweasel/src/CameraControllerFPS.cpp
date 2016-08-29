@@ -100,24 +100,24 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
      * crawl).
      */
     float speed = playerClass.speed.walk;
-    Vector3 localTargetPlaneVelocity(Vector3::ZERO);
+    Vector3 targetLocalPlaneVelocity(Vector3::ZERO);
     if(input_->GetKeyDown(KEY_SHIFT))
         speed = playerClass.speed.run;
     if(input_->GetKeyDown(KEY_CTRL) || collisionShapeCrouch_->IsEnabled())
         speed = playerClass.speed.crouch;
-    if(input_->GetKeyDown(KEY_W))     localTargetPlaneVelocity.z_ += 1;
-    if(input_->GetKeyDown(KEY_S))     localTargetPlaneVelocity.z_ -= 1;
-    if(input_->GetKeyDown(KEY_A))     localTargetPlaneVelocity.x_ += 1;
-    if(input_->GetKeyDown(KEY_D))     localTargetPlaneVelocity.x_ -= 1;
-    if(localTargetPlaneVelocity.x_ != 0 || localTargetPlaneVelocity.z_ != 0)
-        localTargetPlaneVelocity = localTargetPlaneVelocity.Normalized() * speed;
+    if(input_->GetKeyDown(KEY_W))     targetLocalPlaneVelocity.z_ += 1;
+    if(input_->GetKeyDown(KEY_S))     targetLocalPlaneVelocity.z_ -= 1;
+    if(input_->GetKeyDown(KEY_A))     targetLocalPlaneVelocity.x_ += 1;
+    if(input_->GetKeyDown(KEY_D))     targetLocalPlaneVelocity.x_ -= 1;
+    if(targetLocalPlaneVelocity.x_ != 0 || targetLocalPlaneVelocity.z_ != 0)
+        targetLocalPlaneVelocity = targetLocalPlaneVelocity.Normalized() * speed;
 
     // Rotate input direction by camera angle using a 3D rotation matrix
-    localTargetPlaneVelocity = Matrix3(
+    targetLocalPlaneVelocity = Matrix3(
         -Cos(cameraAngleY_), 0, Sin(cameraAngleY_),
         0, 1, 0,
         Sin(cameraAngleY_), 0, Cos(cameraAngleY_)
-    ) * localTargetPlaneVelocity;
+    ) * targetLocalPlaneVelocity;
 
     /*
      * Query gravity at player's 3D location and calculate the rotation matrix
@@ -164,11 +164,15 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
 
     /*
      * X/Z movement of the player is only possible when on the ground. If the
-     * player is in the air just maintain whatever velocity he currently has.
+     * player is in the air just maintain whatever velocity he currently has,
+     * but also add the target velocity on top of that so the player can
+     * slightly control his movement in the air.
      */
     static const float smoothness = 16.0f;
     if(downVelocity_ == 0.0f)
-        currentLocalPlaneVelocity += (localTargetPlaneVelocity - currentLocalPlaneVelocity) * timeStep * smoothness;
+        currentLocalPlaneVelocity += (targetLocalPlaneVelocity - currentLocalPlaneVelocity) * timeStep * smoothness;
+    else
+        currentLocalPlaneVelocity += targetLocalPlaneVelocity * timeStep;
 
     // Integrate downwards velocity and apply velocity back to body.
     downVelocity_ -= gravity.Length() * timeStep;
