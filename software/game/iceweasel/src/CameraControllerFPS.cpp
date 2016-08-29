@@ -290,6 +290,7 @@ void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& 
     unsigned int storeCollisionMask = body_->GetCollisionMask();
     body_->SetCollisionMask(0);
 
+        // Ray length depends on whether player is standing or crouching
         float rayCastLength = playerClass.body.height;
         if(collisionShapeCrouch_->IsEnabled())
             rayCastLength = playerClass.body.crouchHeight;
@@ -306,6 +307,13 @@ void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& 
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
         if(result.distance_ < rayCastLength)
             if(downVelocity_ <= 0.0f)
+                downVelocity_ = 0.0f;
+
+        // Cast a ray up and check if we're hitting anything with our head
+        ray = Ray(moveNode_->GetWorldPosition(), -downDirection);
+        physicsWorld_->RaycastSingle(result, ray, rayCastLength);
+        if(result.distance_ < rayCastLength)
+            if(downVelocity_ >= 0.0f)
                 downVelocity_ = 0.0f;
 
     // Restore collision mask
