@@ -1,0 +1,56 @@
+<element>
+    <!-- User-defined actions -->
+    <action source="Button_LocalGame" target="LocalGame" type="Click" />
+    <action source="Button_JoinServer" target="JoinServer" type="Click" />
+    <action source="Button_Options" target="Options" type="Click" />
+    <action source="Button_Quit" target="Quit" type="Click" />
+
+    <element type="Window">
+        <attribute name="Position" value="100 100" />
+        <attribute name="Size" value="300 250" />
+        <attribute name="Min Size" value="300 200" />
+        <attribute name="Layout Mode" value="Vertical" />
+        <attribute name="Layout Spacing" value="20" />
+        <attribute name="Layout Border" value="20 20 20 20" />
+
+        <!-- Start a local game -->
+        <element type="Button">
+            <attribute name="Layout Mode" value="Horizontal" />
+            <element type="Text">
+                <attribute name="Text" value="Local Game" />
+                <attribute name="Text Alignment" value="Center" />
+            </element>
+        </element>
+
+        <!-- Join a server -->
+        <element type="Button">
+            <attribute name="Name" value="Button_JoinServer" />
+            <attribute name="Layout Mode" value="Horizontal" />
+            <element type="Text">
+                <attribute name="Text" value="Join Server" />
+                <attribute name="Text Alignment" value="Center" />
+            </element>
+        </element>
+
+        <!-- Open the options menu -->
+        <element type="Button">
+            <attribute name="Name" value="Button_Options" />
+            <attribute name="Layout Mode" value="Horizontal" />
+            <element type="Text">
+                <attribute name="Text" value="Options" />
+                <attribute name="Text Alignment" value="Center" />
+            </element>
+        </element>
+
+        <!-- Quit the game -->
+        <element type="Button">
+            <attribute name="Name" value="Button_Quit" />
+            <attribute name="Layout Mode" value="Horizontal" />
+            <element type="Text">
+                <attribute name="Text" value="Quit" />
+                <attribute name="Text Alignment" value="Center" />
+            </element>
+        </element>
+
+    </element>
+</element>

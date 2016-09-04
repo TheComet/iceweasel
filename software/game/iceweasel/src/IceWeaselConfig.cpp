@@ -1,4 +1,5 @@
 #include "iceweasel/IceWeaselConfig.h"
+#include "iceweasel/IceWeaselConfigEvents.h"
 
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Resource/ResourceCache.h>
@@ -50,10 +51,6 @@ void IceWeaselConfig::LoadXML(XMLFile* xml)
 // ----------------------------------------------------------------------------
 void IceWeaselConfig::Reload()
 {
-
-    // TODO Is it necessary to get the XML file from the cache every time?
-    // what if we just hold our own reference to it? Does it still reload?
-
     if(!xml_)
     {
         URHO3D_LOGERROR("[IceWeaselSettings] Failed to load XML file");
@@ -105,6 +102,8 @@ void IceWeaselConfig::Reload()
         data_.freeCam.speed.fast       = speed.GetFloat("Fast");
         data_.freeCam.speed.smoothness = speed.GetFloat("Smoothness");
     }
+
+    SendEvent(E_CONFIGRELOADED, GetEventDataMap());
 }
 
 // ----------------------------------------------------------------------------
@@ -118,7 +117,6 @@ void IceWeaselConfig::HandleFileChanged(StringHash eventType, VariantMap& eventD
 {
     using namespace FileChanged;
     (void)eventType;
-
 
     if(xml_ && xml_->GetName() == eventData[P_RESOURCENAME].GetString())
     {

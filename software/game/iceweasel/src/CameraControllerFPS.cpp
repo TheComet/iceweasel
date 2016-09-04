@@ -1,6 +1,7 @@
 #include "iceweasel/CameraControllerFPS.h"
 #include "iceweasel/CameraControllerEvents.h"
 #include "iceweasel/IceWeaselConfig.h"
+#include "iceweasel/IceWeaselConfigEvents.h"
 
 #include <Urho3D/IceWeaselMods/GravityManager.h>
 #include <Urho3D/Input/Input.h>
@@ -37,13 +38,14 @@ void CameraControllerFPS::Start()
     CreateComponents();
 
     // Initial physics parameters
-    downVelocity_ = 0.0f;
     moveNode_->SetRotation(Quaternion::IDENTITY);
 
     // Need to listen to node collision events to reset gravity
     SubscribeToEvent(E_NODECOLLISION, URHO3D_HANDLER(CameraControllerFPS, HandleNodeCollision));
     // WASD depends on the current camera Y angle
     SubscribeToEvent(E_CAMERAANGLECHANGED, URHO3D_HANDLER(CameraControllerFPS, HandleCameraAngleChanged));
+    // Update physics collision shapes and rigid body parameters
+    SubscribeToEvent(E_CONFIGRELOADED, URHO3D_HANDLER(CameraControllerFPS, HandleConfigReloaded));
 }
 
 // ----------------------------------------------------------------------------
@@ -185,7 +187,7 @@ void CameraControllerFPS::FixedUpdate(float timeStep)
 }
 
 // ----------------------------------------------------------------------------
-void CameraControllerFPS::HandleCameraAngleChanged(StringHash eventType, VariantMap& eventData)
+void CameraControllerFPS::HandleCameraAngleChanged(StringHash /*eventType*/, VariantMap& eventData)
 {
     cameraAngleY_ = eventData[CameraAngleChanged::P_ANGLEY].GetFloat();
 }
@@ -218,25 +220,18 @@ void CameraControllerFPS::UnpatchSceneGraph()
 // ----------------------------------------------------------------------------
 void CameraControllerFPS::CreateComponents()
 {
-    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
-
     // Set up player collision shapes. One for standing and one for crouching
     collisionShapeUpright_ = moveNode_->CreateComponent<CollisionShape>();
-    collisionShapeUpright_->SetCapsule(config.playerClass(0).body.width,
-                                       config.playerClass(0).body.height,
-                                       Vector3(0, config.playerClass(0).body.height / 2, 0));
     collisionShapeCrouch_ = moveNode_->CreateComponent<CollisionShape>();
-    collisionShapeCrouch_->SetCapsule(config.playerClass(0).body.crouchWidth,
-                                      config.playerClass(0).body.crouchHeight,
-                                      Vector3(0, config.playerClass(0).body.crouchHeight / 2, 0));
     collisionShapeCrouch_->SetEnabled(false);
 
     // Set up rigid body. Disable angular rotation and disable world gravity
     body_ = moveNode_->CreateComponent<RigidBody>();
     body_->SetAngularFactor(Vector3::ZERO);
-    body_->SetMass(config.playerClass(0).body.mass);
     body_->SetFriction(0.0f);
     body_->SetUseGravity(false);
+
+    ConfigurePhysicsParameters();
 }
 
 // ----------------------------------------------------------------------------
@@ -278,13 +273,10 @@ bool CameraControllerFPS::CanStandUp() const
     return canStandUp;
 }
 
-
 // ----------------------------------------------------------------------------
-void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
+void CameraControllerFPS::HandleNodeCollision(StringHash /*eventType*/, VariantMap& /*eventData*/)
 {
     using namespace NodeCollision;
-    (void)eventType;
-    (void)eventData;
 
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
@@ -322,4 +314,30 @@ void CameraControllerFPS::HandleNodeCollision(StringHash eventType, VariantMap& 
 
     // Restore collision mask
     body_->SetCollisionMask(storeCollisionMask);
+}
+
+// ----------------------------------------------------------------------------
+void CameraControllerFPS::HandleConfigReloaded(StringHash /*eventType*/, VariantMap& /*eventData*/)
+{
+    ConfigurePhysicsParameters();
+}
+
+// ----------------------------------------------------------------------------
+void CameraControllerFPS::ConfigurePhysicsParameters()
+{
+    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
+
+    // Update collision shapes
+    collisionShapeUpright_->SetCapsule(config.playerClass(0).body.width,
+                                       config.playerClass(0).body.height,
+                                       Vector3(0, config.playerClass(0).body.height / 2, 0));
+    collisionShapeCrouch_->SetCapsule(config.playerClass(0).body.crouchWidth,
+                                      config.playerClass(0).body.crouchHeight,
+                                      Vector3(0, config.playerClass(0).body.crouchHeight / 2, 0));
+
+    // Update rigid body
+    body_->SetMass(config.playerClass(0).body.mass);
+
+    // Initial physics parameters
+    downVelocity_ = 0.0f;
 }

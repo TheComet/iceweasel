@@ -31,6 +31,8 @@ private:
 
     void HandleCameraAngleChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleNodeCollision(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleConfigReloaded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void ConfigurePhysicsParameters();
 
     Urho3D::SharedPtr<Urho3D::Input> input_;
     Urho3D::SharedPtr<Urho3D::PhysicsWorld> physicsWorld_;

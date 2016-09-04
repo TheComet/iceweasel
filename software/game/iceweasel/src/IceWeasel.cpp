@@ -4,6 +4,7 @@
 #include "iceweasel/CameraControllerFPS.h"
 #include "iceweasel/CameraControllerFree.h"
 #include "iceweasel/Finger.h"
+#include "iceweasel/MainMenu.h"
 
 #include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -64,7 +65,7 @@ void IceWeasel::Start()
 
     RegisterSubsystems();
     CreateDebugHud();
-    CreateUI();
+    //CreateUI();
     CreateScene();
     CreateCamera();
 
@@ -93,14 +94,10 @@ void IceWeasel::RegisterSubsystems()
 // ----------------------------------------------------------------------------
 void IceWeasel::CreateUI()
 {
-    ResourceCache* cache = GetSubsystem<ResourceCache>();
-    UI* ui = GetSubsystem<UI>();
-    UIElement* root = ui->GetRoot();
-    (void)cache;
-    (void)root;
+    GetSubsystem<UI>()->GetRoot()->AddChild(new MainMenu(context_));
 /*
-    XMLFile* xmlDefaultStyle = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
-    root->SetDefaultStyle(xmlDefaultStyle);
+    XMLFile* xmlDefaultStyle = GetSubsystem<ResourceCache>()->GetResource<XMLFile>("UI/DefaultStyle.xml");
+    GetSubsystem<UI>()->GetRoot()->SetDefaultStyle(xmlDefaultStyle);
 
     Window* window = new Window(context_);
     window->SetMinWidth(384);
@@ -124,7 +121,7 @@ void IceWeasel::CreateUI()
     Text* buttonText = new Text(context_);
     buttonText->SetText("button");
 
-    root->AddChild(window);
+    GetSubsystem<UI>()->GetRoot()->AddChild(window);
     window->AddChild(button);
     window->AddChild(titleBar);
     titleBar->AddChild(windowTitle);
