@@ -35,7 +35,14 @@ void MainMenu::Reload()
     if(!xml_)
         return;
 
-    LoadXML(xml_->GetRoot());
+    String elementXMLFile = xml_->GetRoot().GetAttribute("file");
+    xmlElements_ = GetSubsystem<ResourceCache>()->GetResource<XMLFile>(elementXMLFile);
+    if(!xmlElements_)
+    {
+        URHO3D_LOGERRORF("Failed to load XML \"%s\"", elementXMLFile.CString());
+        return;
+    }
+    LoadXML(xmlElements_->GetRoot());
 
     /*
      * Update our layout so the UI elements defined in the layout are able to
@@ -109,7 +116,9 @@ void MainMenu::HandleFileChanged(StringHash eventType, VariantMap& eventData)
     using namespace FileChanged;
     (void)eventType;
 
-    if(xml_ && xml_->GetName() == eventData[P_RESOURCENAME].GetString())
+    String resourceName = eventData[P_RESOURCENAME].GetString();
+    if(xml_         && xml_->GetName()         == resourceName ||
+       xmlElements_ && xmlElements_->GetName() == resourceName)
     {
         URHO3D_LOGINFOF("[MainMenu] Reloading %s", xml_->GetName().CString());
         Reload();

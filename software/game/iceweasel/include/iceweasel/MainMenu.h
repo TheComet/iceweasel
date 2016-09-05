@@ -30,5 +30,6 @@ private:
     void Action_Options();
     void Action_JoinServer();
 
-    Urho3D::XMLFile* xml_;
+    Urho3D::SharedPtr<Urho3D::XMLFile> xml_;
+    Urho3D::SharedPtr<Urho3D::XMLFile> xmlElements_;
 };

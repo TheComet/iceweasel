@@ -65,9 +65,9 @@ void IceWeasel::Start()
 
     RegisterSubsystems();
     CreateDebugHud();
-    //CreateUI();
-    CreateScene();
-    CreateCamera();
+    CreateUI();
+    //CreateScene();
+    //CreateCamera();
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));

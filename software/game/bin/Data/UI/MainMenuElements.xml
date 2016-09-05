@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<element>
+	<attribute name="Position" value="100 100" />
+	<attribute name="Size" value="356 250" />
+	<element type="Window">
+		<attribute name="Size" value="350 250" />
+		<attribute name="Layout Mode" value="Vertical" />
+		<attribute name="Layout Spacing" value="20" />
+		<attribute name="Layout Border" value="20 20 20 20" />
+		<element type="Button">
+			<attribute name="Layout Mode" value="Horizontal" />
+			<element type="Text">
+				<attribute name="Vert Alignment" value="Center" />
+				<attribute name="Top Left Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Top Right Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Bottom Left Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Bottom Right Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Text" value="Local Game" />
+				<attribute name="Text Alignment" value="Center" />
+			</element>
+		</element>
+		<element type="Button">
+			<attribute name="Name" value="Button_JoinServer" />
+			<attribute name="Layout Mode" value="Horizontal" />
+			<element type="Text">
+				<attribute name="Vert Alignment" value="Center" />
+				<attribute name="Top Left Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Top Right Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Bottom Left Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Bottom Right Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Text" value="Join Server" />
+				<attribute name="Text Alignment" value="Center" />
+			</element>
+		</element>
+		<element type="Button">
+			<attribute name="Name" value="Button_Options" />
+			<attribute name="Layout Mode" value="Horizontal" />
+			<element type="Text">
+				<attribute name="Vert Alignment" value="Center" />
+				<attribute name="Top Left Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Top Right Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Bottom Left Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Bottom Right Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Text" value="Options" />
+				<attribute name="Text Alignment" value="Center" />
+			</element>
+		</element>
+		<element type="Button">
+			<attribute name="Name" value="Button_Quit" />
+			<attribute name="Layout Mode" value="Horizontal" />
+			<element type="Text">
+				<attribute name="Vert Alignment" value="Center" />
+				<attribute name="Top Left Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Top Right Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Bottom Left Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Bottom Right Color" value="0.85 0.85 0.85 1" />
+				<attribute name="Text" value="Quit" />
+				<attribute name="Text Alignment" value="Center" />
+			</element>
+		</element>
+	</element>
+</element>
