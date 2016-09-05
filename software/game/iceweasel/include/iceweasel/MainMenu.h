@@ -26,9 +26,10 @@ private:
     ActionMap actionMap_;
 
     static ActionFunc HashToMemberFunctionPointer(Urho3D::StringHash hash);
-    void Action_Quit();
-    void Action_Options();
+    void Action_LocalGame();
     void Action_JoinServer();
+    void Action_Options();
+    void Action_Quit();
 
     Urho3D::SharedPtr<Urho3D::XMLFile> xml_;
     Urho3D::SharedPtr<Urho3D::XMLFile> xmlElements_;

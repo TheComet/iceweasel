@@ -148,15 +148,23 @@ void MainMenu::HandleClick(StringHash eventType, VariantMap& eventData)
 // ----------------------------------------------------------------------------
 MainMenu::ActionFunc MainMenu::HashToMemberFunctionPointer(Urho3D::StringHash hash)
 {
+    static const Urho3D::StringHash ACTION_LOCAL_GAME ("LocalGame");
     static const Urho3D::StringHash ACTION_JOIN_SERVER("JoinServer");
     static const Urho3D::StringHash ACTION_OPTIONS    ("Options");
     static const Urho3D::StringHash ACTION_QUIT       ("Quit");
 
+    if(hash == ACTION_LOCAL_GAME)  return &MainMenu::Action_LocalGame;
     if(hash == ACTION_JOIN_SERVER) return &MainMenu::Action_JoinServer;
     if(hash == ACTION_OPTIONS)     return &MainMenu::Action_Options;
     if(hash == ACTION_QUIT)        return &MainMenu::Action_Quit;
 
     return NULL;
+}
+
+// ----------------------------------------------------------------------------
+void MainMenu::Action_LocalGame()
+{
+
 }
 
 // ----------------------------------------------------------------------------
