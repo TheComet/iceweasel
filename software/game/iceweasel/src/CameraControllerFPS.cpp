@@ -246,6 +246,12 @@ void CameraControllerFPS::DestroyComponents()
 // ----------------------------------------------------------------------------
 bool CameraControllerFPS::CanStandUp() const
 {
+    /*
+     * This is called when the player is crouching, but the user has let go of
+     * the crouch button. The player should only be able to stand up again if
+     * there are no obstacles in the way.
+     */
+
     bool canStandUp = true;
 
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
@@ -258,10 +264,12 @@ bool CameraControllerFPS::CanStandUp() const
     unsigned storeCollisionMask = body_->GetCollisionMask();
     body_->SetCollisionMask(0);
 
+        // Cast a ray that is as long as the player's standing height
         float rayCastLength = playerClass.body.height;
         Vector3 upDirection = moveNode_->GetRotation() * Vector3::UP;
         Vector3 rayOrigin = moveNode_->GetWorldPosition();
 
+        // Cast upwards. If it hits anything then we can't stand up.
         PhysicsRaycastResult result;
         Ray ray(rayOrigin, upDirection);
         physicsWorld_->RaycastSingle(result, ray, rayCastLength);
@@ -276,13 +284,24 @@ bool CameraControllerFPS::CanStandUp() const
 // ----------------------------------------------------------------------------
 void CameraControllerFPS::HandleNodeCollision(StringHash /*eventType*/, VariantMap& /*eventData*/)
 {
+    /*
+     * The point of this event handler is to reset the player's downVelocity to
+     * 0.0f if the player hits anything along the axis of the "down velocity
+     * vector" (so either the ground or the roof). This axis changes depending
+     * on the current gravity vector.
+     *
+     * Other code relies on downVelocity_ == 0.0f (such as initiating a jump).
+     */
+
     using namespace NodeCollision;
 
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
 
-    // Temporarily disable collision checks for the player's rigid body, so
-    // raycasts don't collide with ourselves.
+    /*
+     * Temporarily disable collision checks for the player's rigid body, so
+     * raycasts don't collide with ourselves.
+     * */
     unsigned int storeCollisionMask = body_->GetCollisionMask();
     body_->SetCollisionMask(0);
 
