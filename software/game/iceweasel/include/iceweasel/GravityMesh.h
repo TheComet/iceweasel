@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../IceWeaselMods/GravityMeshBuilder.h"
-#include "../IceWeaselMods/GravityTetrahedron.h"
+#include "iceweasel/GravityMeshBuilder.h"
+#include "iceweasel/GravityTetrahedron.h"
 
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Container/Ptr.h>
@@ -15,6 +15,8 @@ class GravityVector;
 class GravityMesh : public Urho3D::RefCounted
 {
 public:
+    GravityMesh();
+
     /*!
      * @brief Creates the gravity mesh from a shared vertex mesh (provided by
      * GravityMeshBuilder).
@@ -49,5 +51,3 @@ private:
     // TODO consider just using GravityMeshBuilder::SharedTetrahedralMesh directly
     Urho3D::Vector<GravityTetrahedron> tetrahedrons_;
 };
-
-} // namespace Urho3D

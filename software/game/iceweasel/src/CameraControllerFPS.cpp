@@ -2,8 +2,8 @@
 #include "iceweasel/CameraControllerEvents.h"
 #include "iceweasel/IceWeaselConfig.h"
 #include "iceweasel/IceWeaselConfigEvents.h"
+#include "iceweasel/GravityManager.h"
 
-#include <Urho3D/IceWeaselMods/GravityManager.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Math/Ray.h>

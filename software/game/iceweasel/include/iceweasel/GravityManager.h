@@ -24,15 +24,14 @@
 
 #include "../Scene/Component.h"
 
-namespace Urho3D
-{
+namespace Urho3D {
+    class Context;
+    class DebugRenderer;
+}
 
-class Context;
-class DebugRenderer;
 class GravityVector;
 class GravityHull;
 class GravityMesh;
-
 
 /*!
  * @brief Provides an interface to query the scene for gravitational data.
@@ -47,9 +46,9 @@ class GravityMesh;
  * force (defined by this class) and a resulting interpolated vector from
  * nearby gravity probes.
  */
-class URHO3D_API GravityManager : public Component
+class URHO3D_API GravityManager : public Urho3D::Component
 {
-    URHO3D_OBJECT(GravityManager, Component)
+    URHO3D_OBJECT(GravityManager, Urho3D::Component)
 
 public:
 
@@ -63,7 +62,7 @@ public:
     /*!
      * @brief Creates a new gravity component.
      */
-    GravityManager(Context* context);
+    GravityManager(Urho3D::Context* context);
 
     /*!
      * @brief Destructs the gravity component.
@@ -73,7 +72,7 @@ public:
     /*!
      * @brief Registers this class as an object factory.
      */
-    static void RegisterObject(Context* context);
+    static void RegisterObject(Urho3D::Context* context);
 
     /*!
      * @brief This is the global gravitational force. It is multiplied with the
@@ -95,40 +94,38 @@ public:
      * @param[in] worldLocation A 3D location in world space.
      * @return Returns the gravitational force at the specified location.
      */
-    Vector3 QueryGravity(Vector3 worldLocation);
+    Urho3D::Vector3 QueryGravity(Urho3D::Vector3 worldLocation);
 
-    virtual void DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector3 pos);
+    virtual void DrawDebugGeometry(Urho3D::DebugRenderer* debug, bool depthTest, Urho3D::Vector3 pos);
 
 private:
     void RebuildTetrahedralMesh();
 
     /// Triggers a new search for all gravity probe nodes and rebuilds the tetrahedral mesh
-    virtual void OnSceneSet(Scene* scene);
+    virtual void OnSceneSet(Urho3D::Scene* scene);
 
     /*!
      * @brief Searches for all gravity probe nodes that are located beneath the
      * specified node and caches them. The specified node is not checked.
      */
-    void AddGravityVectorsRecursively(Node* node);
+    void AddGravityVectorsRecursively(Urho3D::Node* node);
 
     /*!
      * @brief Searches for all gravity probe nodes that are located on and
      * beneath the specified node.
      */
-    void RemoveGravityVectorsRecursively(Node* node);
+    void RemoveGravityVectorsRecursively(Urho3D::Node* node);
 
-    void HandleComponentAdded(StringHash eventType, VariantMap& eventData);
-    void HandleComponentRemoved(StringHash eventType, VariantMap& eventData);
-    void HandleNodeAdded(StringHash eventType, VariantMap& eventData);
-    void HandleNodeRemoved(StringHash eventType, VariantMap& eventData);
+    void HandleComponentAdded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleComponentRemoved(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleNodeAdded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleNodeRemoved(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    PODVector<GravityVector*> gravityVectors_;
-    SharedPtr<GravityMesh> gravityMesh_;
-    SharedPtr<GravityHull> gravityHull_;
+    Urho3D::PODVector<GravityVector*> gravityVectors_;
+    Urho3D::SharedPtr<GravityMesh> gravityMesh_;
+    Urho3D::SharedPtr<GravityHull> gravityHull_;
 
     float gravity_;
 
     Strategy strategy_;
 };
-
-} // namespace Urho3D

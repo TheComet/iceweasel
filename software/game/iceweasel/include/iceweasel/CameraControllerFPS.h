@@ -5,10 +5,11 @@
 namespace Urho3D {
     class Input;
     class PhysicsWorld;
-    class GravityManager;
     class RigidBody;
     class CollisionShape;
 }
+
+class GravityManager;
 
 class CameraControllerFPS : public Urho3D::LogicComponent
 {
@@ -36,7 +37,7 @@ private:
 
     Urho3D::SharedPtr<Urho3D::Input> input_;
     Urho3D::SharedPtr<Urho3D::PhysicsWorld> physicsWorld_;
-    Urho3D::SharedPtr<Urho3D::GravityManager> gravityManager_;
+    Urho3D::SharedPtr<GravityManager> gravityManager_;
     Urho3D::SharedPtr<Urho3D::RigidBody> body_;
     Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeUpright_;
     Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeCrouch_;

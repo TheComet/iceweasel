@@ -1,36 +1,34 @@
 #pragma once
 
-#include "../Container/Ptr.h"
-#include "../IceWeaselMods/GravityMeshBuilder.h"
-#include "../IceWeaselMods/GravityTriangle.h"
-#include "../IceWeaselMods/GravityEdge.h"
+#include "iceweasel/GravityMeshBuilder.h"
+#include "iceweasel/GravityTriangle.h"
+#include "iceweasel/GravityEdge.h"
+
+#include <Urho3D/Container/Ptr.h>
+
+namespace Urho3D {
+    class DebugRenderer;
+}
 
 
-namespace Urho3D
-{
-
-class DebugRenderer;
-
-
-class GravityHull : public RefCounted
+class GravityHull : public Urho3D::RefCounted
 {
 public:
-    GravityHull() {}
+    GravityHull();
+
     GravityHull(const GravityMeshBuilder::Polyhedron& polyhedron);
 
     void SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron);
 
-    bool Query(Vector3* gravity, const Vector3& position);
+    bool Query(Urho3D::Vector3* gravity, const Urho3D::Vector3& position);
 
-    void DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector3 pos) const;
+    void DrawDebugGeometry(Urho3D::DebugRenderer* debug, bool depthTest, Urho3D::Vector3 pos) const;
 
 private:
-    Vector3 centre_;
-    Vector<GravityTriangle> triangles_;
-    Vector<GravityEdge> edges_;
-    Vector<GravityPoint> points_;
+    Urho3D::Vector3 centre_;
+    Urho3D::Vector<GravityTriangle> triangles_;
+    Urho3D::Vector<GravityEdge> edges_;
+    Urho3D::Vector<GravityPoint> points_;
 
-    Vector3 lastIntersection_;
+    Urho3D::Vector3 lastIntersection_;
 };
-
-} // namespace Urho3D

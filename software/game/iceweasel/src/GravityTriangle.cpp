@@ -28,13 +28,13 @@ const GravityPoint& GravityTriangle::GetVertex(unsigned char vertexID)
 }
 
 // ----------------------------------------------------------------------------
-const Vector3& GravityTriangle::getNormal() const
+const Vector3& GravityTriangle::GetNormal() const
 {
     return normal_;
 }
 
 // ----------------------------------------------------------------------------
-void GravityTriangle::flipNormal()
+void GravityTriangle::FlipNormal()
 {
     normal_ *= -1;
 }

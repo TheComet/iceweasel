@@ -21,9 +21,10 @@
 //
 
 #include <Urho3D/Core/Context.h>
+#include "iceweasel/GravityVector.h"
+#include "iceweasel/IceWeasel.h"
+
 #include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/IceWeaselMods/IceWeasel.h>
-#include <Urho3D/IceWeaselMods/GravityVector.h>
 #include <Urho3D/Scene/Node.h>
 
 using namespace Urho3D;
@@ -43,7 +44,7 @@ GravityVector::~GravityVector()
 // ----------------------------------------------------------------------------
 void GravityVector::RegisterObject(Context* context)
 {
-    context->RegisterFactory<GravityVector>(ICEWEASELMODS_CATEGORY);
+    context->RegisterFactory<GravityVector>(ICEWEASEL_CATEGORY);
 }
 
 // ----------------------------------------------------------------------------

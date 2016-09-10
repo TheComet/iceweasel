@@ -1,10 +1,9 @@
-#include "../IceWeaselMods/GravityEdge.h"
-#include "../Graphics/DebugRenderer.h"
-#include "../Math/Matrix2.h"
+#include "iceweasel/GravityEdge.h"
 
+#include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Math/Matrix2.h>
 
-namespace Urho3D
-{
+using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
 GravityEdge::GravityEdge(const GravityPoint& p0,
@@ -21,6 +20,63 @@ GravityEdge::GravityEdge(const GravityPoint& p0,
     Matrix4 et = CalculateEdgeProjectionMatrix();
     transform_ = bt * et;
                  ;
+}
+
+// ----------------------------------------------------------------------------
+void GravityEdge::FlipBoundaryCheck()
+{
+    Vector3 tmp = boundaryNormal_[0];
+    boundaryNormal_[0] = boundaryNormal_[1];
+    boundaryNormal_[1] = tmp;
+}
+
+// ----------------------------------------------------------------------------
+bool GravityEdge::PointLiesInside(Vector2 bary) const
+{
+    return (
+        bary.x_ >= 0.0f &&
+        bary.y_ >= 0.0f
+    );
+}
+
+// ----------------------------------------------------------------------------
+bool GravityEdge::ProjectionAngleIsInBounds(const Vector3& cartesianTransform,
+                                            const Vector3& position) const
+{
+    Vector3 check = cartesianTransform - position;
+    Vector3 cross = boundaryNormal_[0].CrossProduct(check);
+
+    if(cross.DotProduct(check.CrossProduct(boundaryNormal_[1])) > 0 &&
+        (vertex_[1].position_ - vertex_[0].position_).DotProduct(cross) > 0)
+        return true;
+
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+Vector2 GravityEdge::ProjectAndTransformToBarycentric(const Vector3& cartesian) const
+{
+    Vector4 result = transform_ * Vector4(cartesian, 1.0f);
+    return Vector2(result.x_, result.y_);
+}
+
+// ----------------------------------------------------------------------------
+Vector3 GravityEdge::TransformToCartesian(const Vector2& barycentric) const
+{
+    return barycentric.x_ * vertex_[0].position_ +
+            barycentric.y_ * vertex_[1].position_;
+}
+
+// ----------------------------------------------------------------------------
+Vector3 GravityEdge::InterpolateGravity(const Vector2& barycentric) const
+{
+    return (
+        vertex_[0].direction_ * barycentric.x_ +
+        vertex_[1].direction_ * barycentric.y_
+    ).Normalized() * (
+        vertex_[0].forceFactor_ * barycentric.x_ +
+        vertex_[1].forceFactor_ * barycentric.y_
+    );
 }
 
 // ----------------------------------------------------------------------------
@@ -101,5 +157,3 @@ void GravityEdge::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const 
     debug->AddLine(vertex_[1].position_, vertex_[1].position_ + boundaryNormal_[0], Color::CYAN, depthTest);
     debug->AddLine(vertex_[1].position_, vertex_[1].position_ + boundaryNormal_[1], Color::CYAN, depthTest);
 }
-
-} // namespace Urho3D

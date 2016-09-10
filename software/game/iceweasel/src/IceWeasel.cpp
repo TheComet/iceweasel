@@ -1,9 +1,12 @@
 #include "iceweasel/IceWeasel.h"
 #include "iceweasel/IceWeaselConfig.h"
+
 #include "iceweasel/CameraControllerRotation.h"
 #include "iceweasel/CameraControllerFPS.h"
 #include "iceweasel/CameraControllerFree.h"
 #include "iceweasel/Finger.h"
+#include "iceweasel/GravityManager.h"
+#include "iceweasel/GravityVector.h"
 #include "iceweasel/MainMenu.h"
 
 #include <Urho3D/AngelScript/Script.h>
@@ -14,9 +17,9 @@
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Graphics/Viewport.h>
-#include <Urho3D/IceWeaselMods/GravityManager.h>
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Input/Input.h>
+#include <Urho3D/Math/Random.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/RigidBody.h>
@@ -28,11 +31,16 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/Window.h>
 
-#include <Urho3D/IceWeaselMods/GravityVector.h>
-#include <Urho3D/Math/Random.h>
-
-
 using namespace Urho3D;
+
+const char* ICEWEASEL_CATEGORY = "IceWeasel Mods";
+
+// ----------------------------------------------------------------------------
+void RegisterIceWeaselMods(Urho3D::Context* context)
+{
+    GravityManager::RegisterObject(context);
+    GravityVector::RegisterObject(context);
+}
 
 // ----------------------------------------------------------------------------
 IceWeasel::IceWeasel(Context* context) :
@@ -61,13 +69,13 @@ void IceWeasel::Start()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
 
-    //GetSubsystem<Input>()->SetMouseVisible(true);
+    GetSubsystem<Input>()->SetMouseVisible(true);
 
     RegisterSubsystems();
     CreateDebugHud();
-    CreateUI();
-    //CreateScene();
-    //CreateCamera();
+    //CreateUI();
+    CreateScene();
+    CreateCamera();
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
@@ -85,6 +93,8 @@ void IceWeasel::Stop()
 // ----------------------------------------------------------------------------
 void IceWeasel::RegisterSubsystems()
 {
+    RegisterIceWeaselMods(context_);
+
     context_->RegisterSubsystem(new Script(context_));
     context_->RegisterSubsystem(new IceWeaselConfig(context_));
 

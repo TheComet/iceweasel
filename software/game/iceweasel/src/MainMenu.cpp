@@ -117,8 +117,8 @@ void MainMenu::HandleFileChanged(StringHash eventType, VariantMap& eventData)
     (void)eventType;
 
     String resourceName = eventData[P_RESOURCENAME].GetString();
-    if(xml_         && xml_->GetName()         == resourceName ||
-       xmlElements_ && xmlElements_->GetName() == resourceName)
+    if((xml_         && xml_->GetName()         == resourceName) ||
+       (xmlElements_ && xmlElements_->GetName() == resourceName))
     {
         URHO3D_LOGINFOF("[MainMenu] Reloading %s", xml_->GetName().CString());
         Reload();

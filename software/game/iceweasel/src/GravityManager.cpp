@@ -1,37 +1,14 @@
-//
-// Copyright (c) 2008-2016 the Urho3D project.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
+#include "iceweasel/GravityManager.h"
+#include "iceweasel/GravityVector.h"
+#include "iceweasel/IceWeasel.h"
+#include "iceweasel/GravityHull.h"
+#include "iceweasel/GravityMesh.h"
 
-#include "../Core/Context.h"
-#include "../IceWeaselMods/GravityManager.h"
-#include "../IceWeaselMods/GravityVector.h"
-#include "../IceWeaselMods/IceWeasel.h"
-#include "../IceWeaselMods/GravityHull.h"
-#include "../IceWeaselMods/GravityMesh.h"
-#include "../Scene/SceneEvents.h"
-#include "../Scene/Node.h"
+#include <Urho3D/Core/Context.h>
+#include <Urho3D/Scene/SceneEvents.h>
+#include <Urho3D/Scene/Node.h>
 
-namespace Urho3D
-{
-
+using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
 GravityManager::GravityManager(Context* context)
@@ -55,7 +32,7 @@ GravityManager::~GravityManager()
 // ----------------------------------------------------------------------------
 void GravityManager::RegisterObject(Context* context)
 {
-    context->RegisterFactory<GravityManager>(ICEWEASELMODS_CATEGORY);
+    context->RegisterFactory<GravityManager>(ICEWEASEL_CATEGORY);
 
     URHO3D_ACCESSOR_ATTRIBUTE("Global Gravity", GetGlobalGravity, SetGlobalGravity, float, 9.81, AM_DEFAULT);
 }
@@ -262,5 +239,3 @@ void GravityManager::HandleNodeRemoved(StringHash eventType, VariantMap& eventDa
     RemoveGravityVectorsRecursively(removedNode);
     RebuildTetrahedralMesh();
 }
-
-} // namespace Urho3D

@@ -1,17 +1,18 @@
-#include "../IceWeaselMods/GravityMesh.h"
-#include "../IceWeaselMods/GravityMeshBuilder.h"
-#include "../IceWeaselMods/Math.h"
-#include "../IceWeaselMods/GravityVector.h"
+#include "iceweasel/GravityMesh.h"
+#include "iceweasel/GravityMeshBuilder.h"
+#include "iceweasel/Math.h"
+#include "iceweasel/GravityVector.h"
 
-#include "../Container/Ptr.h"
-#include "../Graphics/DebugRenderer.h"
-#include "../Math/BoundingBox.h"
+#include <Urho3D/Container/Ptr.h>
+#include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Math/BoundingBox.h>
 
+using namespace Urho3D;
 
-
-namespace Urho3D
+// ----------------------------------------------------------------------------
+GravityMesh::GravityMesh()
 {
-
+}
 
 // ----------------------------------------------------------------------------
 GravityMesh::GravityMesh(const GravityMeshBuilder::SharedTetrahedralMesh& sharedVertexMesh)
@@ -74,5 +75,3 @@ void GravityMesh::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector
 
     //assert(count < 2); // Detects overlapping tetrahedrons (should never happen)
 }
-
-} // namespace Urho3D

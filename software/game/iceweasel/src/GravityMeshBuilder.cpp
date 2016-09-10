@@ -4,6 +4,8 @@
 
 #include <Urho3D/Math/BoundingBox.h>
 
+using namespace Urho3D;
+
 // ============================================================================
 GravityMeshBuilder::
 Vertex::Vertex(const Vector3& position,

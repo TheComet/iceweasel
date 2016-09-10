@@ -2,13 +2,20 @@
 
 #include <Urho3D/Engine/Application.h>
 
-
 namespace Urho3D {
     class Node;
     class Scene;
     class Text;
     class TetrahedralMesh;
 }
+
+/// Defines the category under which iceweasel specific components can be found in the editor.
+extern const char* ICEWEASEL_CATEGORY;
+
+/*!
+ * Registers all Ice Weasel modifications.
+ */
+void RegisterIceWeaselMods(Urho3D::Context* context);
 
 
 class IceWeasel : public Urho3D::Application

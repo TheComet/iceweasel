@@ -83,5 +83,3 @@ public:
         return v0 + numerator / denominator;
     }
 };
-
-} // namespace Urho3D

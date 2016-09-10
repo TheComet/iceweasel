@@ -37,7 +37,7 @@ public:
      * @brief Returns true if the specified barycentric coordinate lies inside
      * the triangle.
      */
-    bool PointLiesInside(const Vector3& bary) const;
+    bool PointLiesInside(const Urho3D::Vector3& bary) const;
 
     Urho3D::Vector3 Intersect(const Urho3D::Vector3& origin, const Urho3D::Vector3& direction) const;
 

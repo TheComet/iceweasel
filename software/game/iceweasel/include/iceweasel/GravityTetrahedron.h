@@ -9,7 +9,6 @@
 namespace Urho3D {
     class Color;
     class DebugRenderer;
-    class GravityPoint;
 }
 
 class GravityTetrahedron
@@ -31,7 +30,7 @@ public:
      * @brief Returns true if the specified barycentric coordinate lies inside
      * the tetrahedron.
      */
-    bool PointLiesInside(const Vector4& bary) const;
+    bool PointLiesInside(const Urho3D::Vector4& bary) const;
 
     /*!
      * @brief Transforms the specified point from a cartesian coordinate system
@@ -57,5 +56,3 @@ private:
 
     Urho3D::Matrix4 transform_;
 };
-
-} // namespace Urho3D

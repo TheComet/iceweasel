@@ -5,6 +5,7 @@
 class GravityPoint
 {
 public:
+    GravityPoint() : forceFactor_(0) {}
     GravityPoint(const Urho3D::Vector3& vertex, const Urho3D::Vector3& direction, float forceFactor);
 
     Urho3D::Vector3 position_;

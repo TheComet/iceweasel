@@ -1,12 +1,14 @@
-#include "../Graphics/DebugRenderer.h"
-#include "../IceWeaselMods/GravityHull.h"
-#include "../Math/Vector3.h"
+#include "iceweasel/GravityHull.h"
 
-#include <stdio.h>
+#include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Math/Vector3.h>
 
+using namespace Urho3D;
 
-namespace Urho3D
+// ----------------------------------------------------------------------------
+GravityHull::GravityHull()
 {
+}
 
 // ----------------------------------------------------------------------------
 GravityHull::GravityHull(const GravityMeshBuilder::Polyhedron& polyhedron)
@@ -239,5 +241,3 @@ void GravityHull::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector
 
     debug->AddSphere(Sphere(lastIntersection_, 1.0f), Color::RED, depthTest);
 }
-
-} // namespace Urho3D

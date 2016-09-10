@@ -1,9 +1,9 @@
-#include "../IceWeaselMods/GravityTetrahedron.h"
-#include "../IceWeaselMods/GravityPoint.h"
-#include "../IceWeaselMods/Math.h"
+#include "iceweasel/GravityTetrahedron.h"
+#include "iceweasel/GravityPoint.h"
+#include "iceweasel/Math.h"
 
-#include "../Graphics/DebugRenderer.h"
-#include "../Math/Matrix2.h"
+#include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Math/Matrix2.h>
 
 using namespace Urho3D;
 

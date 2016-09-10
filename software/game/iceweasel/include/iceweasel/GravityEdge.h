@@ -1,17 +1,16 @@
 #pragma once
 
-#include "../Math/Vector3.h"
-#include "../Math/Vector4.h"
-#include "../Math/Matrix4.h"
-#include "../IceWeaselMods/GravityPoint.h"
+#include "iceweasel/GravityPoint.h"
+
+#include <Urho3D/Math/Vector3.h>
+#include <Urho3D/Math/Vector4.h>
+#include <Urho3D/Math/Matrix4.h>
 
 
-namespace Urho3D
-{
-
-class Color;
-class DebugRenderer;
-
+namespace Urho3D {
+    class Color;
+    class DebugRenderer;
+}
 
 class GravityEdge
 {
@@ -24,36 +23,19 @@ public:
      */
     GravityEdge(const GravityPoint& p0,
                 const GravityPoint& p1,
-                const Vector3& boundaryNormal0,
-                const Vector3& boundaryNormal1);
+                const Urho3D::Vector3& boundaryNormal0,
+                const Urho3D::Vector3& boundaryNormal1);
 
-    void FlipBoundaryCheck()
-    {
-        Vector3 tmp = boundaryNormal_[0];
-        boundaryNormal_[0] = boundaryNormal_[1];
-        boundaryNormal_[1] = tmp;
-    }
+    void FlipBoundaryCheck();
 
     /*!
      * @brief Returns true if the specified barycentric coordinate lies inside
      * the triangle.
      */
-    bool PointLiesInside(Vector2 bary) const
-    {
-        return (
-            bary.x_ >= 0.0f &&
-            bary.y_ >= 0.0f
-        );
-    }
+    bool PointLiesInside(Urho3D::Vector2 bary) const;
 
-    bool ProjectionAngleIsInBounds(const Vector3& cartesianTransform, const Vector3& position) const
-    {
-        Vector3 check = cartesianTransform - position;
-        Vector3 cross = boundaryNormal_[0].CrossProduct(check);
-        if(cross.DotProduct(check.CrossProduct(boundaryNormal_[1])) > 0 && (vertex_[1].position_ - vertex_[0].position_).DotProduct(cross) > 0)
-            return true;
-        return false;
-    }
+    bool ProjectionAngleIsInBounds(const Urho3D::Vector3& cartesianTransform,
+                                   const Urho3D::Vector3& position) const;
 
     /*!
      * @brief Transforms the specified point from a cartesian coordinate system
@@ -62,39 +44,21 @@ public:
      * This is useful for checking if point lies inside the tetrahedron, or for
      * interpolating values.
      */
-    Vector2 ProjectAndTransformToBarycentric(const Vector3& cartesian) const
-    {
-        Vector4 result = transform_ * Vector4(cartesian, 1.0f);
-        return Vector2(result.x_, result.y_);
-    }
+    Urho3D::Vector2 ProjectAndTransformToBarycentric(const Urho3D::Vector3& cartesian) const;
 
-    Vector3 TransformToCartesian(const Vector2& barycentric) const
-    {
-        return barycentric.x_ * vertex_[0].position_ +
-               barycentric.y_ * vertex_[1].position_;
-    }
+    Urho3D::Vector3 TransformToCartesian(const Urho3D::Vector2& barycentric) const;
 
-    Vector3 InterpolateGravity(const Vector2& barycentric) const
-    {
-        return (
-            vertex_[0].direction_ * barycentric.x_ +
-            vertex_[1].direction_ * barycentric.y_
-        ).Normalized() * (
-            vertex_[0].forceFactor_ * barycentric.x_ +
-            vertex_[1].forceFactor_ * barycentric.y_
-        );
-    }
+    Urho3D::Vector3 InterpolateGravity(const Urho3D::Vector2& barycentric) const;
 
-    void DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color) const;
+    void DrawDebugGeometry(Urho3D::DebugRenderer* debug, bool depthTest,
+                           const Urho3D::Color& color) const;
 
 private:
-    Matrix4 CalculateEdgeProjectionMatrix() const;
-    Matrix4 CalculateBarycentricTransformationMatrix() const;
+    Urho3D::Matrix4 CalculateEdgeProjectionMatrix() const;
+    Urho3D::Matrix4 CalculateBarycentricTransformationMatrix() const;
 
     GravityPoint vertex_[2];
-    Vector3 boundaryNormal_[2];
+    Urho3D::Vector3 boundaryNormal_[2];
 
-    Matrix4 transform_;
+    Urho3D::Matrix4 transform_;
 };
-
-} // namespace Urho3D

@@ -5,9 +5,7 @@
 #include <Urho3D/Math/Vector3.h>
 
 
-namespace Urho3D {
-    class GravityVector;
-}
+class GravityVector;
 
 struct GravityMeshBuilder
 {
@@ -15,15 +13,15 @@ struct GravityMeshBuilder
      * @brief Reference counted vertex. Holds position, (gravitational)
      * direction, and (gravitational) force factor as attributes.
      */
-    class Vertex : public RefCounted
+    class Vertex : public Urho3D::RefCounted
     {
     public:
-        Vertex(const Vector3& position,
-               const Vector3& direction=Vector3::ZERO,
+        Vertex(const Urho3D::Vector3& position,
+               const Urho3D::Vector3& direction=Urho3D::Vector3::ZERO,
                float forceFactor=0.0f);
 
-        Vector3 position_;
-        Vector3 direction_;
+        Urho3D::Vector3 position_;
+        Urho3D::Vector3 direction_;
         float forceFactor_;
     };
 
@@ -31,25 +29,25 @@ struct GravityMeshBuilder
      * @brief Construct a tetrahedron by using existing Vertex objects. Allows
      * for multiple tetrahedrons to share the same vertices.
      */
-    class SharedVertexTetrahedron : public RefCounted
+    class SharedVertexTetrahedron : public Urho3D::RefCounted
     {
     public:
         SharedVertexTetrahedron() {}
         SharedVertexTetrahedron(Vertex* v1, Vertex* v2, Vertex* v3, Vertex* v4);
 
-        SharedPtr<Vertex> v_[4];
-        Vector3 circumscibedSphereCenter_;
+        Urho3D::SharedPtr<Vertex> v_[4];
+        Urho3D::Vector3 circumscibedSphereCenter_;
     };
 
     /// Data type used to represent a mesh of tetrahedrons who's vertices can be referenced more than once.
-    typedef Vector<SharedPtr<SharedVertexTetrahedron> > SharedTetrahedralMesh;
+    typedef Urho3D::Vector<Urho3D::SharedPtr<SharedVertexTetrahedron> > SharedTetrahedralMesh;
     /// Data type to represent a number of triangles. There will always be a multiple of 3 vertices.
-    typedef PODVector<Vertex*> Polyhedron;
+    typedef Urho3D::PODVector<Vertex*> Polyhedron;
 
     /*!
      * @brief Takes a list of gravity vector components and creates a triangulated mesh.
      */
-    void Build(const PODVector<GravityVector*>& gravityVectors);
+    void Build(const Urho3D::PODVector<GravityVector*>& gravityVectors);
 
     /*!
      * @brief After building, the resulting mesh can be retrieved with this.
@@ -66,7 +64,7 @@ private:
      * stored in this list.
      * @param[in] point The 3D point to test for.
      */
-    void FindBadTetrahedrons(SharedTetrahedralMesh* badTetrahedrons, Vector3 point) const;
+    void FindBadTetrahedrons(SharedTetrahedralMesh* badTetrahedrons, Urho3D::Vector3 point) const;
 
     /*!
      * @brief Creates a list of triangles are the hull of the specified list of
@@ -99,7 +97,7 @@ private:
      * @brief Cleans up the triangulation result such that no more connections
      * exist to the original super tetrahedron.
      */
-    void CleanUp(SharedPtr<SharedVertexTetrahedron> superTetrahedron);
+    void CleanUp(Urho3D::SharedPtr<SharedVertexTetrahedron> superTetrahedron);
 
     SharedTetrahedralMesh triangulationResult_;
     Polyhedron hull_;
