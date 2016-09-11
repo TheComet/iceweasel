@@ -7,6 +7,7 @@
 #include "iceweasel/Finger.h"
 #include "iceweasel/GravityManager.h"
 #include "iceweasel/GravityVector.h"
+#include "iceweasel/InGameEditor.h"
 #include "iceweasel/MenuScreens.h"
 
 #include <Urho3D/AngelScript/Script.h>
@@ -19,6 +20,7 @@
 #include <Urho3D/Graphics/Viewport.h>
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Input/Input.h>
+#include <Urho3D/LuaScript/LuaScript.h>
 #include <Urho3D/Math/Random.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/CollisionShape.h>
@@ -152,7 +154,9 @@ void IceWeasel::RegisterSubsystems()
     RegisterIceWeaselMods(context_);
 
     context_->RegisterSubsystem(new Script(context_));
+    context_->RegisterSubsystem(new LuaScript(context_));
     context_->RegisterSubsystem(new IceWeaselConfig(context_));
+    context_->RegisterSubsystem(new InGameEditor(context_));
 
     GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
 }
@@ -255,10 +259,13 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     using namespace KeyDown;
     (void)eventType;
 
-    // Check for pressing ESC
+    // Pressing ESC opens the editor
     int key = eventData[P_KEY].GetInt();
     if(key == KEY_ESCAPE)
-        engine_->Exit();
+    {
+        InGameEditor* editor = GetSubsystem<InGameEditor>();
+        editor->OpenEditor(scene_);
+    }
 
     // Toggle debug geometry
 #ifdef DEBUG
