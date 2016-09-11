@@ -7,7 +7,7 @@
 #include "iceweasel/Finger.h"
 #include "iceweasel/GravityManager.h"
 #include "iceweasel/GravityVector.h"
-#include "iceweasel/MainMenu.h"
+#include "iceweasel/MenuScreens.h"
 
 #include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -46,7 +46,66 @@ void RegisterIceWeaselMods(Urho3D::Context* context)
 IceWeasel::IceWeasel(Context* context) :
     Application(context),
     debugDrawMode_(DRAW_NONE),
+    gameState_(EMPTY),
     cameraModeIsFreeCam_(false)
+{
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::SwitchState(GameState state)
+{
+    if(gameState_ == state)
+        return;
+
+    CleanupState();
+
+    switch(state)
+    {
+        case MAIN_MENU: StartState_MainMenu();   break;
+        case GAME:      StartState_Game();       break;
+    }
+
+    gameState_ = state;
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::CleanupState()
+{
+    switch(gameState_)
+    {
+        case MAIN_MENU: CleanupState_MainMenu(); break;
+        case GAME:      CleanupState_Game();     break;
+    }
+
+    gameState_ = EMPTY;
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::StartState_MainMenu()
+{
+    mainMenu_ = new MenuScreens(context_);
+    mainMenu_->LoadMenu("UI/MainMenu.xml");
+    GetSubsystem<UI>()->GetRoot()->AddChild(mainMenu_);
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::CleanupState_MainMenu()
+{
+    GetSubsystem<UI>()->GetRoot()->RemoveChild(mainMenu_);
+    mainMenu_.Reset();
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::StartState_Game()
+{
+    CreateScene();
+    CreateCamera();
+
+    //GetSubsystem<Input>()->SetMouseVisible(true);
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::CleanupState_Game()
 {
 }
 
@@ -69,13 +128,10 @@ void IceWeasel::Start()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
 
-    GetSubsystem<Input>()->SetMouseVisible(true);
-
     RegisterSubsystems();
     CreateDebugHud();
-    //CreateUI();
-    CreateScene();
-    CreateCamera();
+
+    SwitchState(GAME);
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
@@ -99,48 +155,6 @@ void IceWeasel::RegisterSubsystems()
     context_->RegisterSubsystem(new IceWeaselConfig(context_));
 
     GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
-}
-
-// ----------------------------------------------------------------------------
-void IceWeasel::CreateUI()
-{
-    GetSubsystem<UI>()->GetRoot()->AddChild(new MainMenu(context_));
-/*
-    XMLFile* xmlDefaultStyle = GetSubsystem<ResourceCache>()->GetResource<XMLFile>("UI/DefaultStyle.xml");
-    GetSubsystem<UI>()->GetRoot()->SetDefaultStyle(xmlDefaultStyle);
-
-    Window* window = new Window(context_);
-    window->SetMinWidth(384);
-    window->SetMinHeight(100);
-    window->SetPosition(8, 8);
-    window->SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
-    window->SetName("Window");
-
-    UIElement* titleBar = new UIElement(context_);
-    titleBar->SetMinSize(0, 24);
-    titleBar->SetVerticalAlignment(VA_TOP);
-    titleBar->SetLayoutMode(LM_HORIZONTAL);
-
-    Text* windowTitle = new Text(context_);
-    windowTitle->SetName("WindowTitle");
-    windowTitle->SetText("This is a test!");
-
-    Button* button = new Button(context_);
-    button->SetName("TestButton");
-
-    Text* buttonText = new Text(context_);
-    buttonText->SetText("button");
-
-    GetSubsystem<UI>()->GetRoot()->AddChild(window);
-    window->AddChild(button);
-    window->AddChild(titleBar);
-    titleBar->AddChild(windowTitle);
-    button->AddChild(buttonText);
-
-    window->SetStyleAuto();
-    button->SetStyleAuto();
-    windowTitle->SetStyleAuto();
-    buttonText->SetStyleAuto();*/
 }
 
 // ----------------------------------------------------------------------------

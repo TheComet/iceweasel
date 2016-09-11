@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
-<menu file="UI/MainMenuElements.xml">
-    <!-- User-defined actions -->
-    <action source="Button_LocalGame" target="LocalGame" type="Click" />
-    <action source="Button_JoinServer" target="JoinServer" type="Click" />
-    <action source="Button_Options" target="Options" type="Click" />
-    <action source="Button_Quit" target="Quit" type="Click" />
-</menu>
+<menus initial="MainMenu" >
+    <menu file="UI/MainMenu_Top.xml" name="MainMenu">
+        <!-- User-defined actions -->
+        <action source="Button_LocalGame" target="LoadLocalGame" />
+        <action source="Button_JoinServer" target="JoinServer" />
+        <action source="Button_Options" target="Options" />
+        <action source="Button_Quit" target="Quit" />
+    </menu>
+    <menu file="UI/MainMenu_LoadLocalGame.xml" name="LoadLocalGame">
+        <action source="Button_Back" target="MainMenu" />
+    </menu>
+</menus>

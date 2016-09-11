@@ -8,6 +8,7 @@
 		<attribute name="Layout Spacing" value="20" />
 		<attribute name="Layout Border" value="20 20 20 20" />
 		<element type="Button">
+            <attribute name="Name" value="Button_LocalGame" />
 			<attribute name="Layout Mode" value="Horizontal" />
 			<element type="Text">
 				<attribute name="Vert Alignment" value="Center" />

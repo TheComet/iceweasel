@@ -9,6 +9,8 @@ namespace Urho3D {
     class TetrahedralMesh;
 }
 
+class MenuScreens;
+
 /// Defines the category under which iceweasel specific components can be found in the editor.
 extern const char* ICEWEASEL_CATEGORY;
 
@@ -21,15 +23,30 @@ void RegisterIceWeaselMods(Urho3D::Context* context);
 class IceWeasel : public Urho3D::Application
 {
 public:
+    enum GameState
+    {
+        EMPTY = 0,
+        MAIN_MENU,
+        GAME
+    };
+
     IceWeasel(Urho3D::Context* context);
+
+    void SwitchState(GameState state);
+
     virtual void Setup() override;
     virtual void Start() override;
     virtual void Stop() override;
 
 private:
 
+    void CleanupState();
+    void StartState_MainMenu();
+    void CleanupState_MainMenu();
+    void StartState_Game();
+    void CleanupState_Game();
+
     void RegisterSubsystems();
-    void CreateUI();
     void CreateCamera();
     void CreateScene();
     void CreateDebugHud();
@@ -44,13 +61,16 @@ private:
     Urho3D::SharedPtr<Urho3D::Node> cameraMoveNode_;
     Urho3D::SharedPtr<Urho3D::Node> cameraRotateNode_;
     Urho3D::SharedPtr<Urho3D::DebugHud> debugHud_;
+    Urho3D::SharedPtr<MenuScreens> mainMenu_;
 
-    enum DebugDrawMode {
+    enum DebugDrawMode
+    {
         DRAW_NONE,
         DRAW_PHYSICS,
         DRAW_GRAVITY
     };
 
     DebugDrawMode debugDrawMode_;
+    GameState gameState_;
     bool cameraModeIsFreeCam_;
 };
