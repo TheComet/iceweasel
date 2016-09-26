@@ -1,10 +1,8 @@
 #include "iceweasel/IceWeasel.h"
 #include "iceweasel/IceWeaselConfig.h"
 
-#include "iceweasel/CameraControllerRotation.h"
-#include "iceweasel/CameraControllerFPS.h"
+#include "iceweasel/PlayerController.h"
 #include "iceweasel/CameraControllerFree.h"
-#include "iceweasel/Finger.h"
 #include "iceweasel/GravityManager.h"
 #include "iceweasel/GravityVector.h"
 #include "iceweasel/InGameEditor.h"
@@ -172,14 +170,15 @@ void IceWeasel::CreateCamera()
      * a "move" node. The rotation controller is separate from the movement
      * controller.
      */
-    cameraMoveNode_ = scene_->CreateChild("Camera Move");
-    cameraRotateNode_ = cameraMoveNode_->CreateChild("Camera Rotate");
-    Camera* camera = cameraRotateNode_->CreateComponent<Camera>(Urho3D::LOCAL);
+    cameraMoveNode_   = scene_->CreateChild("Camera Move");
+    cameraOffsetNode_ = cameraMoveNode_->CreateChild("Camera Offset");
+    cameraRotateNode_ = cameraOffsetNode_->CreateChild("Camera Rotate");
+    Camera* camera = cameraRotateNode_->CreateComponent<Camera>(LOCAL);
     camera->SetFarClip(300.0f);
-    cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, -0.0f)); // spawn location
-    cameraRotateNode_->AddComponent(new CameraControllerRotation(context_), 0, Urho3D::LOCAL);
+
+    // spawn location
+    cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, 0.0f));
     SwitchCameraToFPSCam();
-    cameraRotateNode_->AddComponent(new Finger(context_), 0, Urho3D::LOCAL);
 
     // Give the camera a viewport
     Viewport* viewport = new Viewport(context_, scene_, camera);
@@ -242,15 +241,15 @@ void IceWeasel::CreateDebugHud()
 // ----------------------------------------------------------------------------
 void IceWeasel::SwitchCameraToFreeCam()
 {
-    cameraMoveNode_->RemoveComponent<CameraControllerFPS>();
-    cameraMoveNode_->AddComponent(new CameraControllerFree(context_), 0, Urho3D::LOCAL);
+    cameraMoveNode_->RemoveComponent<PlayerController>();
+    cameraMoveNode_->AddComponent(new CameraControllerFree(context_), 0, LOCAL);
 }
 
 // ----------------------------------------------------------------------------
 void IceWeasel::SwitchCameraToFPSCam()
 {
     cameraMoveNode_->RemoveComponent<CameraControllerFree>();
-    cameraMoveNode_->AddComponent(new CameraControllerFPS(context_), 0, Urho3D::LOCAL);
+    cameraMoveNode_->AddComponent(new PlayerController(context_, cameraMoveNode_, cameraOffsetNode_, cameraRotateNode_), 0, LOCAL);
 }
 
 // ----------------------------------------------------------------------------
@@ -264,7 +263,11 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     if(key == KEY_ESCAPE)
     {
         InGameEditor* editor = GetSubsystem<InGameEditor>();
-        editor->OpenEditor(scene_);
+        if(editor)
+        {
+            if(editor->IsOpen() == false)
+                editor->OpenEditor(scene_);
+        }
     }
 
     // Toggle debug geometry

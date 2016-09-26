@@ -11,29 +11,32 @@ namespace Urho3D {
 
 class GravityManager;
 
-class CameraControllerFPS : public Urho3D::LogicComponent
+class MovementController : public Urho3D::LogicComponent
 {
-    URHO3D_OBJECT(CameraControllerFPS, Urho3D::LogicComponent)
+    URHO3D_OBJECT(MovementController, Urho3D::LogicComponent)
 
 public:
-    CameraControllerFPS(Urho3D::Context* context);
+    MovementController(Urho3D::Context* context, Urho3D::Node* moveNode, Urho3D::Node* offsetNode);
 
-private:
+    void setRespawnDistance(float distance);
+
+protected:
     virtual void Start() override;
     virtual void Stop() override;
     virtual void Update(float timeStep) override;
     virtual void FixedUpdate(float timeStep) override;
 
-    void PatchSceneGraph();
-    void UnpatchSceneGraph();
     void CreateComponents();
     void DestroyComponents();
     bool CanStandUp() const;
+    bool IsCrouching() const;
 
+private:
     void HandleCameraAngleChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleNodeCollision(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleConfigReloaded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
-    void ConfigurePhysicsParameters();
+    void UpdatePhysicsSettings();
+    void SetInitialPhysicsParameters();
 
     Urho3D::SharedPtr<Urho3D::Input> input_;
     Urho3D::SharedPtr<Urho3D::PhysicsWorld> physicsWorld_;
@@ -42,10 +45,11 @@ private:
     Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeUpright_;
     Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeCrouch_;
     Urho3D::SharedPtr<Urho3D::Node> moveNode_;
-    Urho3D::SharedPtr<Urho3D::Node> heightOffsetNode_;
+    Urho3D::SharedPtr<Urho3D::Node> offsetNode_;
 
     Urho3D::Quaternion currentRotation_;
     float downVelocity_;
     float cameraAngleY_;
+    float respawnDistance_;
     bool jumpKeyPressed_;
 };

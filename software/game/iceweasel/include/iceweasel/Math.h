@@ -8,6 +8,11 @@ class Math
 public:
 
     /*!
+     * @brief Wraps the specified angle so it is within the interval [-180 180]
+     */
+    static float Wrap180(float angle);
+
+    /*!
      * @brief Projects a point onto the plane defined by a non-degenerate
      * triangle and checks if that point is within the triangle's boundaries.
      * @param[out] pointOnTriangle The 3D location of the projected point onto

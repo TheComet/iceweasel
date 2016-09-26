@@ -74,7 +74,7 @@ void FirstFrame()
     // Create root UI element where all 'editable' UI elements would be parented to
     CreateRootUIElement();
     // Load the initial scene if provided
-    ParseArguments();
+    // ParseArguments();   iceweasel, don't delete scene
     // Switch to real frame handler after initialization
     SubscribeToEvent("Update", "HandleUpdate");
     SubscribeToEvent("ReloadFinished", "HandleReloadFinished");

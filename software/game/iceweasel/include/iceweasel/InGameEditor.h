@@ -18,6 +18,8 @@ public:
 
     void OpenEditor(Urho3D::Scene* scene);
     void CloseEditor();
+    void ToggleEditor(Urho3D::Scene* scene);
+    bool IsOpen();
 
 private:
     void HandleScriptReloadStarted(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
@@ -25,4 +27,5 @@ private:
     void HandleScriptReloadFailed(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
     Urho3D::SharedPtr<Urho3D::ScriptFile> scriptFile_;
+    Urho3D::SharedPtr<Urho3D::Scene> scene_;
 };

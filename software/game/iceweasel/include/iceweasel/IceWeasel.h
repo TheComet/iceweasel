@@ -59,6 +59,7 @@ private:
 
     Urho3D::SharedPtr<Urho3D::Scene> scene_;
     Urho3D::SharedPtr<Urho3D::Node> cameraMoveNode_;
+    Urho3D::SharedPtr<Urho3D::Node> cameraOffsetNode_;
     Urho3D::SharedPtr<Urho3D::Node> cameraRotateNode_;
     Urho3D::SharedPtr<Urho3D::DebugHud> debugHud_;
     Urho3D::SharedPtr<MenuScreens> mainMenu_;

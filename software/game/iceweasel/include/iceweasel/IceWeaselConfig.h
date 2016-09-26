@@ -39,6 +39,13 @@ public:
                 float walk;
                 float run;
             } speed;
+            struct Turn {
+                float speed;
+            } turn;
+            struct Lean {
+                float speed;
+                float amount;
+            } lean;
         };
         Urho3D::Vector<PlayerClass> playerClassContainer;
         const PlayerClass& playerClass(unsigned index) const;
