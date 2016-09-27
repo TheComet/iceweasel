@@ -41,8 +41,11 @@ void PlayerController::Start()
     CreateComponents();
 
     ResourceCache* cache = GetSubsystem<ResourceCache>();
-    XMLFile* modelNodeXML = cache->GetResource<XMLFile>("Models/Kangaroo.xml");
+
     modelNode_ = moveNode_->CreateChild("Player");
+    XMLFile* modelNodeXML = cache->GetResource<XMLFile>("Models/Binky.xml");
+    if(!modelNodeXML)
+        return;
     modelNode_->LoadXML(modelNodeXML->GetRoot());
     AnimatedModel* aniModel = modelNode_->GetComponent<AnimatedModel>();
     if(aniModel)
