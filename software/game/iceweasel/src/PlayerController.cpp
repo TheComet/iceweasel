@@ -1,4 +1,5 @@
 #include "iceweasel/PlayerController.h"
+#include "iceweasel/PlayerAnimationStatesController.h"
 #include "iceweasel/CameraControllerRotation.h"
 #include "iceweasel/CameraControllerEvents.h"
 #include "iceweasel/MovementController.h"
@@ -40,17 +41,22 @@ void PlayerController::Start()
 {
     CreateComponents();
 
-    ResourceCache* cache = GetSubsystem<ResourceCache>();
-
+    // Needs to always exist
     modelNode_ = moveNode_->CreateChild("Player");
+
+    /*
+     * The player is created in the editor and saved (with animation states)
+     * as a node. Load it into the model node.
+     */
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
     XMLFile* modelNodeXML = cache->GetResource<XMLFile>("Models/Binky.xml");
     if(!modelNodeXML)
         return;
     modelNode_->LoadXML(modelNodeXML->GetRoot());
-    AnimatedModel* aniModel = modelNode_->GetComponent<AnimatedModel>();
-    if(aniModel)
-        for(unsigned i = 0; i != NUM_ANIMATIONS; ++i)
-            animation_[i] = aniModel->GetAnimationState(i);
+
+    // Let the animation controller component set the different animation state
+    // weights
+    modelNode_->AddComponent(new PlayerAnimationStatesController(context_), 0, LOCAL);
 
     // Initial camera offset
     cameraOffset_.SetTarget(-4);
@@ -99,8 +105,8 @@ void PlayerController::Update(float timeStep)
 
     // X and Z rotate model depending on acceleration
     acceleration_.SetTarget((
-            Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_) -
-            Vector2(newLocalVelocity_.x_, newLocalVelocity_.z_)
+            Vector2(oldLocalVelocity_.x_, oldLocalVelocity_.z_) -
+            Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_)
         ) / Max(M_EPSILON, timeStep) * config.playerClass(0).lean.amount);
     acceleration_.Advance(timeStep * config.playerClass(0).lean.speed);
 
@@ -114,27 +120,12 @@ void PlayerController::Update(float timeStep)
 
     modelNode_->SetRotation(modelNode_->GetRotation().Nlerp(targetRotation, Min(1.0f, config.playerClass(0).turn.speed * timeStep), true));
 
-    currentLocalVelocity_ = newLocalVelocity_;
-
-    /*
-     * Handle animation states.
-     */
-    animationWalkFactor_.SetTarget(Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_).LengthSquared() /
-            (config.playerClass(0).speed.walk * config.playerClass(0).speed.walk));
-    animationWalkFactor_.Advance(timeStep * 12.0f);
-    if(animation_[WALK_FAST])
-        animation_[WALK_FAST]->SetWeight(animationWalkFactor_.value_);
-    if(animation_[IDLE])
-        animation_[IDLE]->SetWeight(1.0f - animationWalkFactor_.value_);
-
-    for(unsigned i = 0; i != NUM_ANIMATIONS; ++i)
-        if(animation_[i])
-            animation_[i]->AddTime(timeStep);
+    oldLocalVelocity_ = currentLocalVelocity_;
 }
 
 // ----------------------------------------------------------------------------
 void PlayerController::HandleLocalMovementVelocityChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
     using namespace LocalMovementVelocityChanged;
-    newLocalVelocity_ = eventData[P_LOCALMOVEMENTVELOCITY].GetVector3();
+    currentLocalVelocity_ = eventData[P_LOCALMOVEMENTVELOCITY].GetVector3();
 }

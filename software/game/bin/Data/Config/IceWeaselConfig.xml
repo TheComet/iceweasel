@@ -11,6 +11,14 @@
         <Speed Crouch="2.0" Walk="8.0" Run="15.0" JounceSpeed="5.0" AccelerateSpeed="16.0" CrouchTransitionSpeed="10.0" />
         <Turn Speed="12.0" />
         <Lean Amount="0.6" Speed="9.0" />
+        <Animations DefaultTransitionSpeed="12.0" >
+            <Idle Speed="1.2" />
+            <Walk Speed="1.5" />
+            <Run Speed="1.5" />
+            <Sprint Speed="1.7" />
+            <Crouch Speed="1.2" />
+            <CrouchWalk Speed="2.0" />
+        </Animations>
     </Player>
 
     <FreeCam>

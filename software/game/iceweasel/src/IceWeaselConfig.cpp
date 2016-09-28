@@ -100,6 +100,22 @@ void IceWeaselConfig::Reload()
         playerClass.lean.amount                 = lean.GetFloat("Amount");
         playerClass.lean.speed                  = lean.GetFloat("Speed");
 
+        XMLElement animations = player.GetChild("Animations");
+        static const char* animationKeys[] = {
+            "Idle", "Walk", "Run", "Sprint", "Crouch", "CrouchWalk"
+        };
+        for(unsigned i = 0; i != NUM_ANIMATIONS; ++i)
+        {
+            playerClass.animations[i].speed = animations.GetChild(animationKeys[i]).GetFloat("Speed");
+            playerClass.animations[i].transitionSpeed = animations.GetChild(animationKeys[i]).GetFloat("TransitionSpeed");
+
+            if(playerClass.animations[i].speed == 0.0f)
+                playerClass.animations[i].speed = 1.0f;
+
+            if(playerClass.animations[i].transitionSpeed == 0.0f)
+                playerClass.animations[i].transitionSpeed = animations.GetFloat("DefaultTransitionSpeed");
+        }
+
         data_.playerClassContainer.Push(playerClass);
     }
 

@@ -21,17 +21,6 @@ class PlayerController : public Urho3D::LogicComponent
         FREE_CAM
     };
 
-    enum Animation
-    {
-        IDLE,
-        WALK_SLOW,
-        WALK_FAST,
-        RUN,
-
-
-        NUM_ANIMATIONS
-    };
-
 public:
     PlayerController(Urho3D::Context* context, Urho3D::Node* moveNode, Urho3D::Node* offsetNode, Urho3D::Node* rotateNode);
 
@@ -52,15 +41,13 @@ private:
     Urho3D::SharedPtr<Urho3D::Node> offsetNode_;
     Urho3D::SharedPtr<Urho3D::Node> rotateNode_;
     Urho3D::SharedPtr<Urho3D::Node> modelNode_;
-    Urho3D::SharedPtr<Urho3D::AnimationState> animation_[NUM_ANIMATIONS];
 
     Urho3D::Vector3 currentLocalVelocity_;
-    Urho3D::Vector3 newLocalVelocity_;
+    Urho3D::Vector3 oldLocalVelocity_;
 
     float currentYAngle_;
     ExponentialCurve<Urho3D::Vector2> acceleration_;
     ExponentialCurve<float> cameraOffset_;
-    ExponentialCurve<float> animationWalkFactor_;
 
     Mode mode_;
 };

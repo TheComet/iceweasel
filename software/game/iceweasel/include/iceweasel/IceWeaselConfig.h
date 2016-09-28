@@ -15,6 +15,18 @@ class IceWeaselConfig : public Urho3D::Object
 
 public:
 
+    enum Animation
+    {
+        IDLE,
+        WALK,
+        RUN,
+        SPRINT,
+        CROUCH,
+        CROUCH_WALK,
+
+        NUM_ANIMATIONS
+    };
+
     struct Data {
         struct Input {
             struct Mouse {
@@ -48,6 +60,10 @@ public:
                 float amount;
                 float speed;
             } lean;
+            struct Animations {
+                float speed;
+                float transitionSpeed;
+            } animations[NUM_ANIMATIONS];
         };
         Urho3D::Vector<PlayerClass> playerClassContainer;
         const PlayerClass& playerClass(unsigned index) const;

@@ -73,6 +73,11 @@ void MovementController::Update(float timeStep)
     {
         collisionShapeCrouch_->SetEnabled(true);
         collisionShapeUpright_->SetEnabled(false);
+
+        using namespace CrouchStateChanged;
+        VariantMap& eventData = GetEventDataMap();
+        eventData[P_CROUCHING] = true;
+        SendEvent(E_CROUCHSTATECHANGED, eventData);
     }
     if(IsCrouching() && input_->GetKeyDown(KEY_CTRL) == false)
     {
@@ -80,6 +85,11 @@ void MovementController::Update(float timeStep)
         {
             collisionShapeCrouch_->SetEnabled(false);
             collisionShapeUpright_->SetEnabled(true);
+
+            using namespace CrouchStateChanged;
+            VariantMap& eventData = GetEventDataMap();
+            eventData[P_CROUCHING] = false;
+            SendEvent(E_CROUCHSTATECHANGED, eventData);
         }
     }
 
