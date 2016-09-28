@@ -98,22 +98,28 @@ void PlayerController::Update(float timeStep)
     rotateNode_->SetPosition(Vector3(0, 0, cameraOffset_.Advance(timeStep * cameraSmooth)));
 
     // X and Z rotate model depending on acceleration
-    Vector2 targetAcceleration = (
-        Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_) -
-        Vector2(newLocalVelocity_.x_, newLocalVelocity_.z_)) / Max(M_EPSILON, timeStep);
-    targetAcceleration *= config.playerClass(0).lean.amount;
-    currentAcceleration_ = (targetAcceleration - currentAcceleration_) * Min(1.0f, config.playerClass(0).lean.speed * timeStep);
+    acceleration_.SetTarget((
+            Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_) -
+            Vector2(newLocalVelocity_.x_, newLocalVelocity_.z_)
+        ) / Max(M_EPSILON, timeStep) * config.playerClass(0).lean.amount);
+    acceleration_.Advance(timeStep * config.playerClass(0).lean.speed);
 
-    Quaternion targetRotation = Quaternion(currentAcceleration_.x_, Vector3::FORWARD);
-    targetRotation = targetRotation * Quaternion(currentAcceleration_.y_, Vector3::LEFT);
+    Quaternion targetRotation = Quaternion(acceleration_.value_.x_, Vector3::FORWARD);
+    targetRotation = targetRotation * Quaternion(acceleration_.value_.y_, Vector3::LEFT);
 
     // Y rotate model in local space towards the direction it is moving
     float newAngle = Atan2(currentLocalVelocity_.x_, currentLocalVelocity_.z_);
-    if(Abs(currentLocalVelocity_.x_) + Abs(currentLocalVelocity_.z_) > M_EPSILON)
+    if(Abs(currentLocalVelocity_.x_) + Abs(currentLocalVelocity_.z_) > M_EPSILON*10)
         targetRotation = targetRotation * Quaternion(newAngle, Vector3::UP);
 
     modelNode_->SetRotation(modelNode_->GetRotation().Nlerp(targetRotation, Min(1.0f, config.playerClass(0).turn.speed * timeStep), true));
 
+    currentLocalVelocity_ = newLocalVelocity_;
+
+    /*
+     * Handle animation states.
+     */
+/*
     animationWalkFactor_.SetTarget(Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_).LengthSquared() /
             (config.playerClass(0).speed.walk * config.playerClass(0).speed.walk));
     animationWalkFactor_.Advance(timeStep * 12.0f);
@@ -124,9 +130,8 @@ void PlayerController::Update(float timeStep)
 
     for(unsigned i = 0; i != NUM_ANIMATIONS; ++i)
         if(animation_[i])
-            animation_[i]->AddTime(timeStep);
+            animation_[i]->AddTime(timeStep);*/
 
-    currentLocalVelocity_ = newLocalVelocity_;
 
 }
 

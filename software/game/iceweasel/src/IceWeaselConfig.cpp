@@ -87,16 +87,18 @@ void IceWeaselConfig::Reload()
 
         XMLElement speed = player.GetChild("Speed");
         playerClass.speed.crouch                = speed.GetFloat("Crouch");
-        playerClass.speed.crouchTransitionSpeed = speed.GetFloat("CrouchTransitionSpeed");
         playerClass.speed.walk                  = speed.GetFloat("Walk");
         playerClass.speed.run                   = speed.GetFloat("Run");
+        playerClass.speed.crouchTransitionSpeed = speed.GetFloat("CrouchTransitionSpeed");
+        playerClass.speed.jounceSpeed           = speed.GetFloat("JounceSpeed");
+        playerClass.speed.accelerateSpeed       = speed.GetFloat("AccelerateSpeed");
 
         XMLElement turn = player.GetChild("Turn");
         playerClass.turn.speed                  = turn.GetFloat("Speed");
 
         XMLElement lean = player.GetChild("Lean");
-        playerClass.lean.speed                  = lean.GetFloat("Speed");
         playerClass.lean.amount                 = lean.GetFloat("Amount");
+        playerClass.lean.speed                  = lean.GetFloat("Speed");
 
         data_.playerClassContainer.Push(playerClass);
     }

@@ -35,16 +35,18 @@ public:
             } jump;
             struct Speed {
                 float crouch;
-                float crouchTransitionSpeed;
                 float walk;
                 float run;
+                float crouchTransitionSpeed;
+                float jounceSpeed;
+                float accelerateSpeed;
             } speed;
             struct Turn {
                 float speed;
             } turn;
             struct Lean {
-                float speed;
                 float amount;
+                float speed;
             } lean;
         };
         Urho3D::Vector<PlayerClass> playerClassContainer;

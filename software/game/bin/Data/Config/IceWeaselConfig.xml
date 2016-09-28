@@ -8,9 +8,9 @@
     <Player Class="Generic">
         <Body Width="1.3" Height="1.8" Mass="80" CrouchWidth="0.75" CrouchHeight="0.8" />
         <Jump Force="7.0" BunnyHopBoost="1.25" />
-        <Speed Crouch="2.0" Walk="8.0" Run="15.0" CrouchTransitionSpeed="10.0" />
-        <Turn Speed="8.0" />
-        <Lean Speed="5.0" Amount="5.0" />
+        <Speed Crouch="2.0" Walk="8.0" Run="15.0" JounceSpeed="5.0" AccelerateSpeed="16.0" CrouchTransitionSpeed="10.0" />
+        <Turn Speed="12.0" />
+        <Lean Amount="0.6" Speed="9.0" />
     </Player>
 
     <FreeCam>

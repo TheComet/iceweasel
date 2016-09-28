@@ -61,8 +61,9 @@ void IceWeasel::SwitchState(GameState state)
 
     switch(state)
     {
-        case MAIN_MENU: StartState_MainMenu();   break;
-        case GAME:      StartState_Game();       break;
+        case EMPTY     : break;
+        case MAIN_MENU : StartState_MainMenu();   break;
+        case GAME      : StartState_Game();       break;
     }
 
     gameState_ = state;
@@ -73,8 +74,9 @@ void IceWeasel::CleanupState()
 {
     switch(gameState_)
     {
-        case MAIN_MENU: CleanupState_MainMenu(); break;
-        case GAME:      CleanupState_Game();     break;
+        case EMPTY     : break;
+        case MAIN_MENU : CleanupState_MainMenu(); break;
+        case GAME      : CleanupState_Game();     break;
     }
 
     gameState_ = EMPTY;

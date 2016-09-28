@@ -36,8 +36,6 @@ void MovementController::setRespawnDistance(float distance)
 // ----------------------------------------------------------------------------
 void MovementController::Start()
 {
-    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
-
     // Cache frequently used subsystems/scene components
     input_ = GetSubsystem<Input>();
     gravityManager_ = GetScene()->GetComponent<GravityManager>();
@@ -110,32 +108,54 @@ void MovementController::FixedUpdate(float timeStep)
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
 
     /*
+     * Some notes on the following code.
+     *  + Through experimenting I have found the best method of controlling a
+     *    physics body is to modify its current linear velocity. There are
+     *    other implementations that act on its acceleration instead, but those
+     *    seem to be less stable and harder to control.
+     *
+     *  + The directional input (e.g. WASD) is assumed to be jerk/jounce (i.e.
+     *    the fourth derivative of location). This is integrated once using a
+     *    negative exponential function to get acceleration, which in turn is
+     *    integrated a second time and added to the current linear velocity of
+     *    the physics body. The reasons for this double-integration approach
+     *    are:
+     *      - The X/Z rotation code for tilting the player in the direction of
+     *        acceleration is a lot smoother this way.
+     *      - It's a little more realistic.
+     */
+
+    /*
      * Get input direction vector from WASD on keyboard and store in x and z
-     * components of a target velocity vector.
+     * components. This vector is normalized.
      *
      * Player speed is "walk" by default, "run" if control is pressed and
      * "crawl" if shift is pressed (precedence on shift, you can't run and
      * crawl).
      */
     float speed = playerClass.speed.walk;
-    Vector3 targetLocalPlaneVelocity(Vector3::ZERO);
+    Vector3 jounce(Vector3::ZERO);
     if(input_->GetKeyDown(KEY_SHIFT))
         speed = playerClass.speed.run;
     if(input_->GetKeyDown(KEY_CTRL) || IsCrouching())
         speed = playerClass.speed.crouch;
-    if(input_->GetKeyDown(KEY_W))     targetLocalPlaneVelocity.z_ += 1;
-    if(input_->GetKeyDown(KEY_S))     targetLocalPlaneVelocity.z_ -= 1;
-    if(input_->GetKeyDown(KEY_A))     targetLocalPlaneVelocity.x_ += 1;
-    if(input_->GetKeyDown(KEY_D))     targetLocalPlaneVelocity.x_ -= 1;
-    if(targetLocalPlaneVelocity.x_ != 0 || targetLocalPlaneVelocity.z_ != 0)
-        targetLocalPlaneVelocity = targetLocalPlaneVelocity.Normalized() * speed;
+    if(input_->GetKeyDown(KEY_W))     jounce.z_ += 1;
+    if(input_->GetKeyDown(KEY_S))     jounce.z_ -= 1;
+    if(input_->GetKeyDown(KEY_A))     jounce.x_ += 1;
+    if(input_->GetKeyDown(KEY_D))     jounce.x_ -= 1;
+    if(jounce.x_ != 0 || jounce.z_ != 0)
+        jounce = jounce.Normalized();
 
     // Rotate input direction by camera angle using a 3D rotation matrix
-    targetLocalPlaneVelocity = Matrix3(
+    jounce = Matrix3(
         -Cos(cameraAngleY_), 0, Sin(cameraAngleY_),
         0, 1, 0,
         Sin(cameraAngleY_), 0, Cos(cameraAngleY_)
-    ) * targetLocalPlaneVelocity;
+    ) * jounce;
+
+    // Approach acceleration smoothly using the input vector.
+    localPlaneAcceleration_.SetTarget(jounce * speed);
+    localPlaneAcceleration_.Advance(timeStep * playerClass.speed.jounceSpeed);
 
     /*
      * Query gravity at player's 3D location and calculate the rotation matrix
@@ -150,13 +170,8 @@ void MovementController::FixedUpdate(float timeStep)
     /*
      * Transform the body's current velocity into our local coordinate system.
      */
-    Vector3 currentLocalPlaneVelocity = velocityTransform.Inverse() * body_->GetLinearVelocity();
-    {
-        using namespace LocalMovementVelocityChanged;
-        VariantMap& eventData = GetEventDataMap();
-        eventData[P_LOCALMOVEMENTVELOCITY] = currentLocalPlaneVelocity;
-        SendEvent(E_LOCALMOVEMENTVELOCITYCHANGED, eventData);
-    }
+    ExponentialCurve<Vector3> localPlaneVelocity(
+        velocityTransform.Inverse() * body_->GetLinearVelocity(), Vector3::ZERO);
 
     /*
      * Controls the player's Y velocity. The velocity is reset to 0.0f when
@@ -174,7 +189,7 @@ void MovementController::FixedUpdate(float timeStep)
             downVelocity_ = playerClass.jump.force;
             // Give the player a slight speed boost so he moves faster than usual
             // in the air.
-            currentLocalPlaneVelocity *= playerClass.jump.bunnyHopBoost;
+            localPlaneVelocity.value_ *= playerClass.jump.bunnyHopBoost;
         }
     }
     if(jumpKeyPressed_ && input_->GetKeyDown(KEY_SPACE) == false)
@@ -192,17 +207,28 @@ void MovementController::FixedUpdate(float timeStep)
      * but also add the target velocity on top of that so the player can
      * slightly control his movement in the air.
      */
-    static const float smoothness = 16.0f;
+    localPlaneVelocity.SetTarget(localPlaneAcceleration_.value_);
     if(downVelocity_ == 0.0f)
-        currentLocalPlaneVelocity += (targetLocalPlaneVelocity - currentLocalPlaneVelocity) * timeStep * smoothness;
+        localPlaneVelocity.Advance(timeStep * playerClass.speed.accelerateSpeed);
     else
-        currentLocalPlaneVelocity += targetLocalPlaneVelocity * timeStep;
+        localPlaneVelocity.Advance(timeStep);
 
-    Vector3 localVelocity = Vector3(currentLocalPlaneVelocity.x_, downVelocity_, currentLocalPlaneVelocity.z_);
+    {
+        using namespace LocalMovementVelocityChanged;
+        VariantMap& eventData = GetEventDataMap();
+        eventData[P_LOCALMOVEMENTVELOCITY] = localPlaneVelocity.value_;
+        SendEvent(E_LOCALMOVEMENTVELOCITYCHANGED, eventData);
+    }
 
     // Integrate downwards velocity and apply velocity back to body.
     downVelocity_ -= gravity.Length() * timeStep;
-    body_->SetLinearVelocity(velocityTransform * localVelocity);
+    body_->SetLinearVelocity(velocityTransform *
+            Vector3(
+                localPlaneVelocity.value_.x_,
+                downVelocity_,
+                localPlaneVelocity.value_.z_
+            )
+    );
 
     // Smoothly rotate to target orientation
     static const float correctCameraAngleSpeed = 5.0f;

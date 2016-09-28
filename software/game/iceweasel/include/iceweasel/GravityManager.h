@@ -96,7 +96,7 @@ public:
      */
     Urho3D::Vector3 QueryGravity(Urho3D::Vector3 worldLocation);
 
-    virtual void DrawDebugGeometry(Urho3D::DebugRenderer* debug, bool depthTest, Urho3D::Vector3 pos);
+    void DrawDebugGeometry(Urho3D::DebugRenderer* debug, bool depthTest, Urho3D::Vector3 pos);
 
 private:
     void RebuildTetrahedralMesh();

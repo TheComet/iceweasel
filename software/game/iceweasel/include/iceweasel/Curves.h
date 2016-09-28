@@ -1,25 +1,43 @@
 #pragma once
 
-class ICurve
+#include "iceweasel/Curves.hxx"
+#include <Urho3D/Math/MathDefs.h>
+
+using namespace Urho3D;
+
+// ----------------------------------------------------------------------------
+template <class T>
+ICurve<T>::ICurve(T initialValue) :
+    value_(initialValue)
 {
-public:
-    ICurve(float initialValue);
-    virtual float Advance(float step) = 0;
-    float GetValue() const;
+}
 
-protected:
-    float value_;
-};
-
-class ExponentialCurve : public ICurve
+// ============================================================================
+template <class T>
+ExponentialCurve<T>::ExponentialCurve() :
+    ICurve<T>(T())
 {
-public:
-    ExponentialCurve();
-    ExponentialCurve(float initialValue, float targetValue);
+}
 
-    void SetTarget(float targetValue);
-    virtual float Advance(float step);
+// ----------------------------------------------------------------------------
+template <class T>
+ExponentialCurve<T>::ExponentialCurve(T initialValue, T targetValue) :
+    ICurve<T>(initialValue),
+    targetValue_(targetValue)
+{
+}
 
-private:
-    float targetValue_;
-};
+// ----------------------------------------------------------------------------
+template <class T>
+void ExponentialCurve<T>::SetTarget(T targetValue)
+{
+    targetValue_ = targetValue;
+}
+
+// ----------------------------------------------------------------------------
+template <class T>
+T ExponentialCurve<T>::Advance(float step)
+{
+    this->value_ += (targetValue_ - this->value_) * Min(1.0f, step);
+    return this->value_;
+}

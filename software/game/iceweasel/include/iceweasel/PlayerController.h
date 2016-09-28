@@ -57,11 +57,10 @@ private:
     Urho3D::Vector3 currentLocalVelocity_;
     Urho3D::Vector3 newLocalVelocity_;
 
-    Urho3D::Vector2 currentAcceleration_;
-
     float currentYAngle_;
-    ExponentialCurve cameraOffset_;
-    ExponentialCurve animationWalkFactor_;
+    ExponentialCurve<Urho3D::Vector2> acceleration_;
+    ExponentialCurve<float> cameraOffset_;
+    ExponentialCurve<float> animationWalkFactor_;
 
     Mode mode_;
 };

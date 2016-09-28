@@ -1,5 +1,6 @@
 #pragma once
 
+#include "iceweasel/Curves.h"
 #include <Urho3D/Scene/LogicComponent.h>
 
 namespace Urho3D {
@@ -46,6 +47,8 @@ private:
     Urho3D::SharedPtr<Urho3D::CollisionShape> collisionShapeCrouch_;
     Urho3D::SharedPtr<Urho3D::Node> moveNode_;
     Urho3D::SharedPtr<Urho3D::Node> offsetNode_;
+
+    ExponentialCurve<Urho3D::Vector3> localPlaneAcceleration_;
 
     Urho3D::Quaternion currentRotation_;
     float downVelocity_;
