@@ -119,20 +119,17 @@ void PlayerController::Update(float timeStep)
     /*
      * Handle animation states.
      */
-/*
     animationWalkFactor_.SetTarget(Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_).LengthSquared() /
             (config.playerClass(0).speed.walk * config.playerClass(0).speed.walk));
     animationWalkFactor_.Advance(timeStep * 12.0f);
     if(animation_[WALK_FAST])
-        animation_[WALK_FAST]->SetWeight(animationWalkFactor_.GetValue());
+        animation_[WALK_FAST]->SetWeight(animationWalkFactor_.value_);
     if(animation_[IDLE])
-        animation_[IDLE]->SetWeight(1.0f - animationWalkFactor_.GetValue());
+        animation_[IDLE]->SetWeight(1.0f - animationWalkFactor_.value_);
 
     for(unsigned i = 0; i != NUM_ANIMATIONS; ++i)
         if(animation_[i])
-            animation_[i]->AddTime(timeStep);*/
-
-
+            animation_[i]->AddTime(timeStep);
 }
 
 // ----------------------------------------------------------------------------
