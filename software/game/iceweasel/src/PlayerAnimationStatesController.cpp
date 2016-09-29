@@ -46,6 +46,12 @@ void PlayerAnimationStatesController::Start()
         animationWeight_[i].SetTarget(0);
     }
 
+    // jump animations are not looped
+    if(animation_[IceWeaselConfig::JUMP_OFF])
+        animation_[IceWeaselConfig::JUMP_OFF]->SetLooped(false);
+    if(animation_[IceWeaselConfig::JUMP_LAND])
+        animation_[IceWeaselConfig::JUMP_LAND]->SetLooped(false);
+
     // Used to control transitions between idle/walk/run/hop animations
     SubscribeToEvent(E_LOCALMOVEMENTVELOCITYCHANGED, URHO3D_HANDLER(PlayerAnimationStatesController, HandleLocalMovementVelocityChanged));
     SubscribeToEvent(E_CROUCHSTATECHANGED, URHO3D_HANDLER(PlayerAnimationStatesController, HandleCrouchStateChanged));
@@ -69,10 +75,22 @@ void PlayerAnimationStatesController::Update(float timeStep)
     {
         case ON_GROUND:
             HandleGroundWeights(velocitySquared);
+
+            if(currentLocalVelocity_.y_ > 0.0f)
+                state_ = JUMP_BEGIN;
+            if(currentLocalVelocity_.y_ < 0.0f)
+                state_ = JUMP_FALL;
+
             break;
 
         case CROUCHING:
             HandleCrouchWeights(velocitySquared);
+
+            if(currentLocalVelocity_.y_ > 0.0f)
+                state_ = JUMP_BEGIN;
+            if(currentLocalVelocity_.y_ < 0.0f)
+                state_ = JUMP_FALL;
+
             break;
 
         case JUMP_BEGIN:
@@ -83,20 +101,35 @@ void PlayerAnimationStatesController::Update(float timeStep)
             // fall through on purpose
 
         case JUMP_OFF:
+            animationWeight_[IceWeaselConfig::JUMP_OFF].SetTarget(1);
+
             if(currentLocalVelocity_.y_ <= 0.0f) // now falling
-            {
                 state_ = JUMP_FALL;
-                if(animation_[IceWeaselConfig::JUMP_LAND])
-                    animation_[IceWeaselConfig::JUMP_LAND]->SetTime(0);
-            }
+
             break;
 
         case JUMP_FALL:
+            animationWeight_[IceWeaselConfig::JUMP_OFF].SetTarget(1);
+            animationWeight_[IceWeaselConfig::JUMP_LAND].SetTarget(1);
+
+            // keep landing animation in reset pose, looks like falling
+            if(animation_[IceWeaselConfig::JUMP_LAND])
+                    animation_[IceWeaselConfig::JUMP_LAND]->SetTime(0);
+
             if(currentLocalVelocity_.y_ == 0.0f) // landed
                 state_ = JUMP_LAND;
+
             break;
 
         case JUMP_LAND:
+            animationWeight_[IceWeaselConfig::JUMP_LAND].SetTarget(1);
+            animationWeight_[IceWeaselConfig::JUMP_OFF].value_ = 0;
+            if(animation_[IceWeaselConfig::JUMP_LAND] == NULL ||
+                animation_[IceWeaselConfig::JUMP_LAND]->GetTime() >= animation_[IceWeaselConfig::JUMP_LAND]->GetLength())
+            {
+                state_ = ON_GROUND;
+            }
+
             break;
     }
 

@@ -218,7 +218,11 @@ void MovementController::FixedUpdate(float timeStep)
     else
         localPlaneVelocity.Advance(timeStep);
 
-    NotifyLocalMovementVelocityChange(localPlaneVelocity.value_);
+    NotifyLocalMovementVelocityChange(Vector3(
+        localPlaneVelocity.value_.x_,
+        downVelocity_,
+        localPlaneVelocity.value_.z_
+    ));
 
     // Integrate downwards velocity and apply velocity back to body.
     downVelocity_ -= gravity.Length() * timeStep;
