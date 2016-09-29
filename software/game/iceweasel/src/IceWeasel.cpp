@@ -25,6 +25,7 @@
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
+#include <Urho3D/AngelScript/ScriptFile.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Button.h>
 #include <Urho3D/UI/Font.h>
@@ -86,7 +87,7 @@ void IceWeasel::CleanupState()
 void IceWeasel::StartState_MainMenu()
 {
     mainMenu_ = new MenuScreens(context_);
-    mainMenu_->LoadMenu("UI/MainMenu.xml");
+    mainMenu_->LoadMenuFromFile("UI/MainMenu.xml");
     GetSubsystem<UI>()->GetRoot()->AddChild(mainMenu_);
 }
 

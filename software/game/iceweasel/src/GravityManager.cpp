@@ -10,6 +10,10 @@
 
 using namespace Urho3D;
 
+#ifdef max
+#undef max
+#endif
+
 // ----------------------------------------------------------------------------
 GravityManager::GravityManager(Context* context)
     : Component(context),

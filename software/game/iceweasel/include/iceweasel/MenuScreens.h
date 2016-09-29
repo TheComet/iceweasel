@@ -9,7 +9,7 @@ class MenuScreens : public Urho3D::UIElement
 public:
     MenuScreens(Urho3D::Context* context);
 
-    void LoadMenu(Urho3D::String fileName);
+    void LoadMenuFromFile(Urho3D::String fileName);
 
 private:
     void Reload();

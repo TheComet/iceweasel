@@ -9,7 +9,7 @@ namespace Urho3D {
 }
 
 
-class URHO3D_API InGameEditor : public Urho3D::Object
+class InGameEditor : public Urho3D::Object
 {
     URHO3D_OBJECT(InGameEditor, Urho3D::Object)
 

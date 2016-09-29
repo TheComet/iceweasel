@@ -26,7 +26,7 @@ MenuScreens::MenuScreens(Context* context) :
 }
 
 // ----------------------------------------------------------------------------
-void MenuScreens::LoadMenu(String fileName)
+void MenuScreens::LoadMenuFromFile(String fileName)
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     topXML_ = cache->GetResource<XMLFile>(fileName);
