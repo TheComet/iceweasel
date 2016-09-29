@@ -1,5 +1,6 @@
 #pragma once
 
+#include "iceweasel/PlayerAnimation.h"
 #include <Urho3D/Core/Object.h>
 
 
@@ -14,20 +15,6 @@ class IceWeaselConfig : public Urho3D::Object
     URHO3D_OBJECT(IceWeaselConfig, Urho3D::Object)
 
 public:
-
-    enum Animation
-    {
-        IDLE,
-        WALK,
-        RUN,
-        SPRINT,
-        CROUCH,
-        CROUCH_WALK,
-        JUMP_OFF,
-        JUMP_LAND,
-
-        NUM_ANIMATIONS
-    };
 
     struct Data {
         struct Input {
@@ -65,7 +52,7 @@ public:
             struct Animations {
                 float speed;
                 float transitionSpeed;
-            } animations[NUM_ANIMATIONS];
+            } animations[PlayerAnimation::NUM_ANIMATIONS];
         };
         Urho3D::Vector<PlayerClass> playerClassContainer;
         const PlayerClass& playerClass(unsigned index) const;

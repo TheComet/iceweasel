@@ -1,7 +1,7 @@
 #pragma once
 
 #include "iceweasel/Curves.h"
-#include "iceweasel/IceWeaselConfig.h"
+#include "iceweasel/PlayerAnimation.h"
 #include <Urho3D/Scene/LogicComponent.h>
 
 namespace Urho3D {
@@ -36,14 +36,14 @@ protected:
 private:
     void HandleGroundWeights(float velocitySquared);
     void HandleCrouchWeights(float velocitySquared);
-    void HandleAirStates();
+    void HandleAirWeights();
 
     void HandleLocalMovementVelocityChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleCrouchStateChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleDownVelocityChange(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    Urho3D::SharedPtr<Urho3D::AnimationState> animation_[IceWeaselConfig::NUM_ANIMATIONS];
-    ExponentialCurve<float> animationWeight_[IceWeaselConfig::NUM_ANIMATIONS];
+    Urho3D::SharedPtr<Urho3D::AnimationState> animation_[PlayerAnimation::NUM_ANIMATIONS];
+    ExponentialCurve<float> animationWeight_[PlayerAnimation::NUM_ANIMATIONS];
 
     State state_;
 

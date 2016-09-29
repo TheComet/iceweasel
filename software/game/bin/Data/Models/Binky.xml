@@ -116,13 +116,13 @@
 			<variant type="Int" value="0" />
 			<variant type="ResourceRef" value="Animation;Models/Binky_JumpOff.ani" />
 			<variant type="String" value="Root" />
-			<variant type="Bool" value="true" />
+			<variant type="Bool" value="false" />
 			<variant type="Float" value="0" />
 			<variant type="Float" value="0.537673" />
 			<variant type="Int" value="0" />
 			<variant type="ResourceRef" value="Animation;Models/Binky_JumpLand.ani" />
 			<variant type="String" value="Root" />
-			<variant type="Bool" value="true" />
+			<variant type="Bool" value="false" />
 			<variant type="Float" value="0" />
 			<variant type="Float" value="0.148429" />
 			<variant type="Int" value="0" />

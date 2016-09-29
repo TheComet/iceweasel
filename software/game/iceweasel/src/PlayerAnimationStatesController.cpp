@@ -29,8 +29,6 @@ PlayerAnimationStatesController::PlayerAnimationStatesController(Context* contex
 // ----------------------------------------------------------------------------
 void PlayerAnimationStatesController::Start()
 {
-    ResourceCache* cache = GetSubsystem<ResourceCache>();
-
     AnimatedModel* aniModel = node_->GetComponent<AnimatedModel>();
     if(!aniModel)
         return;
@@ -39,18 +37,21 @@ void PlayerAnimationStatesController::Start()
      * Get all animations from the animated model. We assume they are in the
      * same order as in the enum.
      */
-    for(unsigned i = 0; i != IceWeaselConfig::NUM_ANIMATIONS; ++i)
+    for(unsigned i = 0; i != PlayerAnimation::NUM_ANIMATIONS; ++i)
     {
         animation_[i] = aniModel->GetAnimationState(i);
         animationWeight_[i].value_ = 0;
         animationWeight_[i].SetTarget(0);
+
+        if(animation_[i] == NULL)
+            URHO3D_LOGERRORF("Animation \"%s\" (index %d) failed to load", PlayerAnimation::name[i], i);
     }
 
     // jump animations are not looped
-    if(animation_[IceWeaselConfig::JUMP_OFF])
-        animation_[IceWeaselConfig::JUMP_OFF]->SetLooped(false);
-    if(animation_[IceWeaselConfig::JUMP_LAND])
-        animation_[IceWeaselConfig::JUMP_LAND]->SetLooped(false);
+    if(animation_[PlayerAnimation::JUMP_OFF])
+        animation_[PlayerAnimation::JUMP_OFF]->SetLooped(false);
+    if(animation_[PlayerAnimation::JUMP_LAND])
+        animation_[PlayerAnimation::JUMP_LAND]->SetLooped(false);
 
     // Used to control transitions between idle/walk/run/hop animations
     SubscribeToEvent(E_LOCALMOVEMENTVELOCITYCHANGED, URHO3D_HANDLER(PlayerAnimationStatesController, HandleLocalMovementVelocityChanged));
@@ -68,7 +69,7 @@ void PlayerAnimationStatesController::Update(float timeStep)
      * Reset all of the animation weights every time we update, so we don't
      * have to care about resetting it during transitions.
      */
-    for(unsigned i = 0; i != IceWeaselConfig::NUM_ANIMATIONS; ++i)
+    for(unsigned i = 0; i != PlayerAnimation::NUM_ANIMATIONS; ++i)
         animationWeight_[i].SetTarget(0);
 
     switch(state_)
@@ -94,14 +95,14 @@ void PlayerAnimationStatesController::Update(float timeStep)
             break;
 
         case JUMP_BEGIN:
-            if(animation_[IceWeaselConfig::JUMP_OFF])
-                animation_[IceWeaselConfig::JUMP_OFF]->SetTime(0);
+            if(animation_[PlayerAnimation::JUMP_OFF])
+                animation_[PlayerAnimation::JUMP_OFF]->SetTime(0);
             state_ = JUMP_OFF;
 
             // fall through on purpose
 
         case JUMP_OFF:
-            animationWeight_[IceWeaselConfig::JUMP_OFF].SetTarget(1);
+            animationWeight_[PlayerAnimation::JUMP_OFF].SetTarget(1);
 
             if(currentLocalVelocity_.y_ <= 0.0f) // now falling
                 state_ = JUMP_FALL;
@@ -109,12 +110,12 @@ void PlayerAnimationStatesController::Update(float timeStep)
             break;
 
         case JUMP_FALL:
-            animationWeight_[IceWeaselConfig::JUMP_OFF].SetTarget(1);
-            animationWeight_[IceWeaselConfig::JUMP_LAND].SetTarget(1);
+            animationWeight_[PlayerAnimation::JUMP_OFF].SetTarget(1);
+            animationWeight_[PlayerAnimation::JUMP_LAND].SetTarget(1);
 
             // keep landing animation in reset pose, looks like falling
-            if(animation_[IceWeaselConfig::JUMP_LAND])
-                    animation_[IceWeaselConfig::JUMP_LAND]->SetTime(0);
+            if(animation_[PlayerAnimation::JUMP_LAND])
+                    animation_[PlayerAnimation::JUMP_LAND]->SetTime(0);
 
             if(currentLocalVelocity_.y_ == 0.0f) // landed
                 state_ = JUMP_LAND;
@@ -122,10 +123,10 @@ void PlayerAnimationStatesController::Update(float timeStep)
             break;
 
         case JUMP_LAND:
-            animationWeight_[IceWeaselConfig::JUMP_LAND].SetTarget(1);
-            animationWeight_[IceWeaselConfig::JUMP_OFF].value_ = 0;
-            if(animation_[IceWeaselConfig::JUMP_LAND] == NULL ||
-                animation_[IceWeaselConfig::JUMP_LAND]->GetTime() >= animation_[IceWeaselConfig::JUMP_LAND]->GetLength())
+            animationWeight_[PlayerAnimation::JUMP_LAND].SetTarget(1);
+            animationWeight_[PlayerAnimation::JUMP_OFF].value_ = 0;
+            if(animation_[PlayerAnimation::JUMP_LAND] == NULL ||
+                animation_[PlayerAnimation::JUMP_LAND]->GetTime() >= animation_[PlayerAnimation::JUMP_LAND]->GetLength())
             {
                 state_ = ON_GROUND;
             }
@@ -133,7 +134,7 @@ void PlayerAnimationStatesController::Update(float timeStep)
             break;
     }
 
-    for(unsigned i = 0; i != IceWeaselConfig::NUM_ANIMATIONS; ++i)
+    for(unsigned i = 0; i != PlayerAnimation::NUM_ANIMATIONS; ++i)
         if(animation_[i])
         {
             animationWeight_[i].Advance(timeStep * config.playerClass(0).animations[i].transitionSpeed);
@@ -151,27 +152,27 @@ void PlayerAnimationStatesController::HandleGroundWeights(float velocitySquared)
     float runSpeedSquared = config.playerClass(0).speed.run * config.playerClass(0).speed.run;
 
 
-    animationWeight_[IceWeaselConfig::IDLE].SetTarget(1);
+    animationWeight_[PlayerAnimation::IDLE].SetTarget(1);
     if(velocitySquared <= walkSlowSpeedSquared)
     {
         float factor = velocitySquared / walkSlowSpeedSquared;
-        animationWeight_[IceWeaselConfig::WALK].SetTarget(factor);
-        animationWeight_[IceWeaselConfig::RUN].SetTarget(0);
-        animationWeight_[IceWeaselConfig::SPRINT].SetTarget(0);
+        animationWeight_[PlayerAnimation::WALK].SetTarget(factor);
+        animationWeight_[PlayerAnimation::RUN].SetTarget(0);
+        animationWeight_[PlayerAnimation::SPRINT].SetTarget(0);
     }
     else if(velocitySquared <= walkFastSpeedSquared)
     {
         float factor = (velocitySquared - walkSlowSpeedSquared) / (walkFastSpeedSquared - walkSlowSpeedSquared);
-        animationWeight_[IceWeaselConfig::WALK].SetTarget(1.0f - factor);
-        animationWeight_[IceWeaselConfig::RUN].SetTarget(factor);
-        animationWeight_[IceWeaselConfig::SPRINT].SetTarget(0);
+        animationWeight_[PlayerAnimation::WALK].SetTarget(1.0f - factor);
+        animationWeight_[PlayerAnimation::RUN].SetTarget(factor);
+        animationWeight_[PlayerAnimation::SPRINT].SetTarget(0);
     }
     else
     {
         float factor = (velocitySquared - walkFastSpeedSquared) / (runSpeedSquared - walkFastSpeedSquared);
-        animationWeight_[IceWeaselConfig::WALK].SetTarget(0);
-        animationWeight_[IceWeaselConfig::RUN].SetTarget(1.0f - factor);
-        animationWeight_[IceWeaselConfig::SPRINT].SetTarget(factor);
+        animationWeight_[PlayerAnimation::WALK].SetTarget(0);
+        animationWeight_[PlayerAnimation::RUN].SetTarget(1.0f - factor);
+        animationWeight_[PlayerAnimation::SPRINT].SetTarget(factor);
     }
 }
 
@@ -186,8 +187,8 @@ void PlayerAnimationStatesController::HandleCrouchWeights(float velocitySquared)
      * precedence.
      */
     float factor = Min(1.0f, velocitySquared / crouchSpeedSquared);
-    animationWeight_[IceWeaselConfig::CROUCH].SetTarget(1);
-    animationWeight_[IceWeaselConfig::CROUCH_WALK].SetTarget(factor);
+    animationWeight_[PlayerAnimation::CROUCH].SetTarget(1);
+    animationWeight_[PlayerAnimation::CROUCH_WALK].SetTarget(factor);
 }
 
 // ----------------------------------------------------------------------------
