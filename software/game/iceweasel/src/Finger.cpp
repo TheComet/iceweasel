@@ -10,37 +10,57 @@
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Math/Quaternion.h>
 
-Finger::Finger(Urho3D::Context* context) :
-        Urho3D::LogicComponent(context)
+using namespace Urho3D;
+
+// ----------------------------------------------------------------------------
+Finger::Finger(Context* context) :
+        LogicComponent(context),
+        storeViewMask_(0)
 {
 }
 
+// ----------------------------------------------------------------------------
+void Finger::SetVisible(bool visible)
+{
+    StaticModel* model = fingerNode_->GetComponent<StaticModel>();
+    if(!model)
+        return;
+
+    if(visible)
+        model->SetViewMask(storeViewMask_);
+    else
+        model->SetViewMask(0);
+}
+
+// ----------------------------------------------------------------------------
 void Finger::Start()
 {
-    fingerNode_ = new Urho3D::Node(
+    fingerNode_ = new Node(
         context_
     );
     node_->AddChild(
             fingerNode_, 0
     );
 
-    Urho3D::Quaternion rotation = Urho3D::Quaternion();
-    rotation.FromAngleAxis(80, Urho3D::Vector3(0, 1, 0));
-    fingerNode_->SetTransform(Urho3D::Vector3(0.5, -0.5, 1.0), rotation, 1.2);
+    Quaternion rotation = Quaternion();
+    rotation.FromAngleAxis(80, Vector3(0, 1, 0));
+    fingerNode_->SetTransform(Vector3(0.5, -0.5, 1.0), rotation, 1.2);
 
-    Urho3D::ResourceCache* cache = GetSubsystem<Urho3D::ResourceCache>();
-    model_ = cache->GetResource<Urho3D::Model>("Models/Hand_01.mdl");
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    model_ = cache->GetResource<Model>("Models/Hand_01.mdl");
     if (!model_)
     {
         URHO3D_LOGERROR("Model not found, cannot initialize example scene");
         return;
     }
 
-    Urho3D::StaticModel* staticModel = fingerNode_->CreateComponent<Urho3D::StaticModel>();
+    StaticModel* staticModel = fingerNode_->CreateComponent<StaticModel>();
     staticModel->SetModel(model_);
+    storeViewMask_ = staticModel->GetViewMask();
 }
 
+// ----------------------------------------------------------------------------
 void Finger::Stop()
 {
-    fingerNode_.Get()->Remove();
+    fingerNode_->Remove();
 }

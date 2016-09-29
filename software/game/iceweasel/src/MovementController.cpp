@@ -27,6 +27,7 @@ MovementController::MovementController(Context* context, Node* moveNode, Node* o
     respawnDistance_(200.0f)
 {
 }
+
 // ----------------------------------------------------------------------------
 void MovementController::setRespawnDistance(float distance)
 {
@@ -74,10 +75,7 @@ void MovementController::Update(float timeStep)
         collisionShapeCrouch_->SetEnabled(true);
         collisionShapeUpright_->SetEnabled(false);
 
-        using namespace CrouchStateChanged;
-        VariantMap& eventData = GetEventDataMap();
-        eventData[P_CROUCHING] = true;
-        SendEvent(E_CROUCHSTATECHANGED, eventData);
+        NotifyCrouchStateChange(true);
     }
     if(IsCrouching() && input_->GetKeyDown(KEY_CTRL) == false)
     {
@@ -86,10 +84,7 @@ void MovementController::Update(float timeStep)
             collisionShapeCrouch_->SetEnabled(false);
             collisionShapeUpright_->SetEnabled(true);
 
-            using namespace CrouchStateChanged;
-            VariantMap& eventData = GetEventDataMap();
-            eventData[P_CROUCHING] = false;
-            SendEvent(E_CROUCHSTATECHANGED, eventData);
+            NotifyCrouchStateChange(false);
         }
     }
 
@@ -223,12 +218,7 @@ void MovementController::FixedUpdate(float timeStep)
     else
         localPlaneVelocity.Advance(timeStep);
 
-    {
-        using namespace LocalMovementVelocityChanged;
-        VariantMap& eventData = GetEventDataMap();
-        eventData[P_LOCALMOVEMENTVELOCITY] = localPlaneVelocity.value_;
-        SendEvent(E_LOCALMOVEMENTVELOCITYCHANGED, eventData);
-    }
+    NotifyLocalMovementVelocityChange(localPlaneVelocity.value_);
 
     // Integrate downwards velocity and apply velocity back to body.
     downVelocity_ -= gravity.Length() * timeStep;
@@ -405,4 +395,22 @@ void MovementController::UpdatePhysicsSettings()
 void MovementController::SetInitialPhysicsParameters()
 {
     downVelocity_ = 0.0f;
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::NotifyLocalMovementVelocityChange(const Urho3D::Vector3& localPlaneVelocity)
+{
+    using namespace LocalMovementVelocityChanged;
+    VariantMap& eventData = GetEventDataMap();
+    eventData[P_LOCALMOVEMENTVELOCITY] = localPlaneVelocity;
+    SendEvent(E_LOCALMOVEMENTVELOCITYCHANGED, eventData);
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::NotifyCrouchStateChange(bool isCrouching)
+{
+    using namespace CrouchStateChanged;
+    VariantMap& eventData = GetEventDataMap();
+    eventData[P_CROUCHING] = isCrouching;
+    SendEvent(E_CROUCHSTATECHANGED, eventData);
 }

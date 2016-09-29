@@ -102,7 +102,7 @@ void IceWeaselConfig::Reload()
 
         XMLElement animations = player.GetChild("Animations");
         static const char* animationKeys[] = {
-            "Idle", "Walk", "Run", "Sprint", "Crouch", "CrouchWalk"
+            "Idle", "Walk", "Run", "Sprint", "Crouch", "CrouchWalk", "JumpOff", "JumpLand"
         };
         for(unsigned i = 0; i != NUM_ANIMATIONS; ++i)
         {
@@ -117,6 +117,14 @@ void IceWeaselConfig::Reload()
         }
 
         data_.playerClassContainer.Push(playerClass);
+    }
+
+    // Load camera parameters
+    XMLElement camera = root.GetChild("Camera");
+    {
+        XMLElement transition = camera.GetChild("Transition");
+        data_.camera.transition.speed    = transition.GetFloat("Speed");
+        data_.camera.transition.distance = transition.GetFloat("Distance");
     }
 
     // Load freecam parameters

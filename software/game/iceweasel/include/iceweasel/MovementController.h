@@ -39,6 +39,9 @@ private:
     void UpdatePhysicsSettings();
     void SetInitialPhysicsParameters();
 
+    void NotifyLocalMovementVelocityChange(const Urho3D::Vector3& localPlaneVelocity);
+    void NotifyCrouchStateChange(bool isCrouching);
+
     Urho3D::SharedPtr<Urho3D::Input> input_;
     Urho3D::SharedPtr<Urho3D::PhysicsWorld> physicsWorld_;
     Urho3D::SharedPtr<GravityManager> gravityManager_;

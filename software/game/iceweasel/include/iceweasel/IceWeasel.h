@@ -47,6 +47,7 @@ private:
     void CleanupState_Game();
 
     void RegisterSubsystems();
+    void RegisterComponents();
     void CreateCamera();
     void CreateScene();
     void CreateDebugHud();
@@ -73,5 +74,5 @@ private:
 
     DebugDrawMode debugDrawMode_;
     GameState gameState_;
-    bool cameraModeIsFreeCam_;
+    bool isThirdPerson_;
 };

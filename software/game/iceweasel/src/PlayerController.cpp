@@ -26,14 +26,46 @@ PlayerController::PlayerController(Context* context, Node* moveNode, Node* offse
     moveNode_(moveNode),
     offsetNode_(offsetNode),
     rotateNode_(rotateNode),
-    currentYAngle_(0.0f)
+    currentYAngle_(0.0f),
+    storeViewMask_(0)
 {
+    SetMode(FIRST_PERSON);
 }
 
 // ----------------------------------------------------------------------------
 void PlayerController::SetMode(Mode mode)
 {
+    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
+
     mode_ = mode;
+
+    switch(mode_)
+    {
+        case FIRST_PERSON:
+            cameraOffset_.SetTarget(0);
+            break;
+
+        case THIRD_PERSON:
+            cameraOffset_.SetTarget(-config.camera.transition.distance);
+            break;
+
+        case FREE_CAM:
+            URHO3D_LOGERROR("FreeCam is currently not implemented");
+            break;
+    }
+}
+
+// ----------------------------------------------------------------------------
+void PlayerController::SetPlayerVisible(bool visible)
+{
+    AnimatedModel* model = modelNode_->GetComponent<AnimatedModel>();
+    if(!model)
+        return;
+
+    if(visible)
+        model->SetViewMask(storeViewMask_);
+    else
+        model->SetViewMask(0);
 }
 
 // ----------------------------------------------------------------------------
@@ -53,13 +85,13 @@ void PlayerController::Start()
     if(!modelNodeXML)
         return;
     modelNode_->LoadXML(modelNodeXML->GetRoot());
+    AnimatedModel* model = modelNode_->GetComponent<AnimatedModel>();
+    if(model)
+        storeViewMask_ = model->GetViewMask();
 
     // Let the animation controller component set the different animation state
     // weights
     modelNode_->AddComponent(new PlayerAnimationStatesController(context_), 0, LOCAL);
-
-    // Initial camera offset
-    cameraOffset_.SetTarget(-4);
 
     SubscribeToEvent(E_LOCALMOVEMENTVELOCITYCHANGED, URHO3D_HANDLER(PlayerController, HandleLocalMovementVelocityChanged));
 }
@@ -100,8 +132,18 @@ void PlayerController::Update(float timeStep)
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
 
     // Control camera offset
-    static const float cameraSmooth = 5;
-    rotateNode_->SetPosition(Vector3(0, 0, cameraOffset_.Advance(timeStep * cameraSmooth)));
+    rotateNode_->SetPosition(Vector3(0, 0, cameraOffset_.Advance(timeStep * config.camera.transition.speed)));
+    float factor = -cameraOffset_.value_ / config.camera.transition.distance;
+    if(factor < 0.1)
+    {
+        SetPlayerVisible(false);
+        rotateNode_->GetComponent<Finger>()->SetVisible(true);
+    }
+    else
+    {
+        SetPlayerVisible(true);
+        rotateNode_->GetComponent<Finger>()->SetVisible(false);
+    }
 
     // X and Z rotate model depending on acceleration
     acceleration_.SetTarget((
@@ -114,9 +156,9 @@ void PlayerController::Update(float timeStep)
     targetRotation = targetRotation * Quaternion(acceleration_.value_.y_, Vector3::LEFT);
 
     // Y rotate model in local space towards the direction it is moving
-    float newAngle = Atan2(currentLocalVelocity_.x_, currentLocalVelocity_.z_);
-    if(Abs(currentLocalVelocity_.x_) + Abs(currentLocalVelocity_.z_) > M_EPSILON*10)
-        targetRotation = targetRotation * Quaternion(newAngle, Vector3::UP);
+    if(Abs(currentLocalVelocity_.x_) + Abs(currentLocalVelocity_.z_) > M_EPSILON*100)
+        currentYAngle_ = Atan2(currentLocalVelocity_.x_, currentLocalVelocity_.z_);
+    targetRotation = targetRotation * Quaternion(currentYAngle_, Vector3::UP);
 
     modelNode_->SetRotation(modelNode_->GetRotation().Nlerp(targetRotation, Min(1.0f, config.playerClass(0).turn.speed * timeStep), true));
 

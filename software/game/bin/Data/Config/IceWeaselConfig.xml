@@ -18,8 +18,14 @@
             <Sprint Speed="1.7" />
             <Crouch Speed="1.2" />
             <CrouchWalk Speed="2.0" />
+            <JumpOff Speed="1.0" />
+            <JumpLand Speed="1.0" />
         </Animations>
     </Player>
+
+    <Camera>
+        <Transition Speed="12.0" Distance="5" />
+    </Camera>
 
     <FreeCam>
         <Speed Normal="0.3" Fast="1.5" Smoothness="5.0" />

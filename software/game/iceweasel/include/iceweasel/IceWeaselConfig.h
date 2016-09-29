@@ -23,6 +23,8 @@ public:
         SPRINT,
         CROUCH,
         CROUCH_WALK,
+        JUMP_OFF,
+        JUMP_LAND,
 
         NUM_ANIMATIONS
     };
@@ -67,6 +69,14 @@ public:
         };
         Urho3D::Vector<PlayerClass> playerClassContainer;
         const PlayerClass& playerClass(unsigned index) const;
+
+        struct Camera {
+            struct Transition {
+                float speed;
+                float distance;
+            } transition;
+        } camera;
+
         struct FreeCam {
             struct Speed {
                 float normal, fast, smoothness;

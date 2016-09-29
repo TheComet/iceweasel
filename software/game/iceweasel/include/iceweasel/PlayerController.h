@@ -26,6 +26,8 @@ public:
 
     void SetMode(Mode mode);
 
+    void SetPlayerVisible(bool visible);
+
 protected:
     virtual void Start() override;
     virtual void Stop() override;
@@ -49,5 +51,6 @@ private:
     ExponentialCurve<Urho3D::Vector2> acceleration_;
     ExponentialCurve<float> cameraOffset_;
 
+    int storeViewMask_;
     Mode mode_;
 };

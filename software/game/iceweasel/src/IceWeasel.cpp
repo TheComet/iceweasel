@@ -47,7 +47,7 @@ IceWeasel::IceWeasel(Context* context) :
     Application(context),
     debugDrawMode_(DRAW_NONE),
     gameState_(EMPTY),
-    cameraModeIsFreeCam_(false)
+    isThirdPerson_(true)
 {
 }
 
@@ -130,8 +130,12 @@ void IceWeasel::Start()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
 
+    RegisterIceWeaselMods(context_);
     RegisterSubsystems();
+    RegisterComponents();
     CreateDebugHud();
+
+    GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
 
     SwitchState(GAME);
 
@@ -151,14 +155,15 @@ void IceWeasel::Stop()
 // ----------------------------------------------------------------------------
 void IceWeasel::RegisterSubsystems()
 {
-    RegisterIceWeaselMods(context_);
-
     context_->RegisterSubsystem(new Script(context_));
     context_->RegisterSubsystem(new LuaScript(context_));
     context_->RegisterSubsystem(new IceWeaselConfig(context_));
     context_->RegisterSubsystem(new InGameEditor(context_));
+}
 
-    GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
+// ----------------------------------------------------------------------------
+void IceWeasel::RegisterComponents()
+{
 }
 
 // ----------------------------------------------------------------------------
@@ -178,9 +183,8 @@ void IceWeasel::CreateCamera()
     Camera* camera = cameraRotateNode_->CreateComponent<Camera>(LOCAL);
     camera->SetFarClip(300.0f);
 
-    // spawn location
-    cameraMoveNode_->SetPosition(Vector3(0.0f, 5.0f, 0.0f));
-    SwitchCameraToFPSCam();
+    cameraMoveNode_->AddComponent(new PlayerController(context_, cameraMoveNode_, cameraOffsetNode_, cameraRotateNode_), 0, LOCAL);
+    cameraMoveNode_->GetComponent<PlayerController>()->SetMode(PlayerController::THIRD_PERSON);
 
     // Give the camera a viewport
     Viewport* viewport = new Viewport(context_, scene_, camera);
@@ -251,7 +255,7 @@ void IceWeasel::SwitchCameraToFreeCam()
 void IceWeasel::SwitchCameraToFPSCam()
 {
     cameraMoveNode_->RemoveComponent<CameraControllerFree>();
-    cameraMoveNode_->AddComponent(new PlayerController(context_, cameraMoveNode_, cameraOffsetNode_, cameraRotateNode_), 0, LOCAL);
+
 }
 
 // ----------------------------------------------------------------------------
@@ -298,11 +302,11 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     // toggle between free-cam and FPS cam
     if(key == KEY_5)
     {
-        cameraModeIsFreeCam_ = !cameraModeIsFreeCam_;
-        if(cameraModeIsFreeCam_)
-            SwitchCameraToFreeCam();
+        isThirdPerson_ = !isThirdPerson_;
+        if(isThirdPerson_)
+            cameraMoveNode_->GetComponent<PlayerController>()->SetMode(PlayerController::THIRD_PERSON);
         else
-            SwitchCameraToFPSCam();
+            cameraMoveNode_->GetComponent<PlayerController>()->SetMode(PlayerController::FIRST_PERSON);
     }
 
     // Toggle mouse visibility (for debugging)

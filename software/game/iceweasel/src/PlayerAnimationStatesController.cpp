@@ -21,7 +21,8 @@ using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
 PlayerAnimationStatesController::PlayerAnimationStatesController(Context* context) :
-    LogicComponent(context)
+    LogicComponent(context),
+    state_(ON_GROUND)
 {
 }
 
@@ -41,8 +42,8 @@ void PlayerAnimationStatesController::Start()
     for(unsigned i = 0; i != IceWeaselConfig::NUM_ANIMATIONS; ++i)
     {
         animation_[i] = aniModel->GetAnimationState(i);
-        animationFactor_[i].value_ = 0;
-        animationFactor_[i].SetTarget(0);
+        animationWeight_[i].value_ = 0;
+        animationWeight_[i].SetTarget(0);
     }
 
     // Used to control transitions between idle/walk/run/hop animations
@@ -57,25 +58,59 @@ void PlayerAnimationStatesController::Update(float timeStep)
 
     float velocitySquared = Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_).LengthSquared();
 
+    /*
+     * Reset all of the animation weights every time we update, so we don't
+     * have to care about resetting it during transitions.
+     */
     for(unsigned i = 0; i != IceWeaselConfig::NUM_ANIMATIONS; ++i)
-        animationFactor_[i].SetTarget(0);
+        animationWeight_[i].SetTarget(0);
 
-    if(isCrouching_)
-        HandleCrouchStates(velocitySquared);
-    else
-        HandleGroundStates(velocitySquared);
+    switch(state_)
+    {
+        case ON_GROUND:
+            HandleGroundWeights(velocitySquared);
+            break;
+
+        case CROUCHING:
+            HandleCrouchWeights(velocitySquared);
+            break;
+
+        case JUMP_BEGIN:
+            if(animation_[IceWeaselConfig::JUMP_OFF])
+                animation_[IceWeaselConfig::JUMP_OFF]->SetTime(0);
+            state_ = JUMP_OFF;
+
+            // fall through on purpose
+
+        case JUMP_OFF:
+            if(currentLocalVelocity_.y_ <= 0.0f) // now falling
+            {
+                state_ = JUMP_FALL;
+                if(animation_[IceWeaselConfig::JUMP_LAND])
+                    animation_[IceWeaselConfig::JUMP_LAND]->SetTime(0);
+            }
+            break;
+
+        case JUMP_FALL:
+            if(currentLocalVelocity_.y_ == 0.0f) // landed
+                state_ = JUMP_LAND;
+            break;
+
+        case JUMP_LAND:
+            break;
+    }
 
     for(unsigned i = 0; i != IceWeaselConfig::NUM_ANIMATIONS; ++i)
         if(animation_[i])
         {
-            animationFactor_[i].Advance(timeStep * config.playerClass(0).animations[i].transitionSpeed);
-            animation_[i]->SetWeight(animationFactor_[i].value_);
+            animationWeight_[i].Advance(timeStep * config.playerClass(0).animations[i].transitionSpeed);
+            animation_[i]->SetWeight(animationWeight_[i].value_);
             animation_[i]->AddTime(timeStep * config.playerClass(0).animations[i].speed);
         }
 }
 
 // ----------------------------------------------------------------------------
-void PlayerAnimationStatesController::HandleGroundStates(float velocitySquared)
+void PlayerAnimationStatesController::HandleGroundWeights(float velocitySquared)
 {
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
     float walkFastSpeedSquared = config.playerClass(0).speed.walk * config.playerClass(0).speed.walk;
@@ -83,32 +118,32 @@ void PlayerAnimationStatesController::HandleGroundStates(float velocitySquared)
     float runSpeedSquared = config.playerClass(0).speed.run * config.playerClass(0).speed.run;
 
 
-    animationFactor_[IceWeaselConfig::IDLE].SetTarget(1);
+    animationWeight_[IceWeaselConfig::IDLE].SetTarget(1);
     if(velocitySquared <= walkSlowSpeedSquared)
     {
         float factor = velocitySquared / walkSlowSpeedSquared;
-        animationFactor_[IceWeaselConfig::WALK].SetTarget(factor);
-        animationFactor_[IceWeaselConfig::RUN].SetTarget(0);
-        animationFactor_[IceWeaselConfig::SPRINT].SetTarget(0);
+        animationWeight_[IceWeaselConfig::WALK].SetTarget(factor);
+        animationWeight_[IceWeaselConfig::RUN].SetTarget(0);
+        animationWeight_[IceWeaselConfig::SPRINT].SetTarget(0);
     }
     else if(velocitySquared <= walkFastSpeedSquared)
     {
         float factor = (velocitySquared - walkSlowSpeedSquared) / (walkFastSpeedSquared - walkSlowSpeedSquared);
-        animationFactor_[IceWeaselConfig::WALK].SetTarget(1.0f - factor);
-        animationFactor_[IceWeaselConfig::RUN].SetTarget(factor);
-        animationFactor_[IceWeaselConfig::SPRINT].SetTarget(0);
+        animationWeight_[IceWeaselConfig::WALK].SetTarget(1.0f - factor);
+        animationWeight_[IceWeaselConfig::RUN].SetTarget(factor);
+        animationWeight_[IceWeaselConfig::SPRINT].SetTarget(0);
     }
     else
     {
         float factor = (velocitySquared - walkFastSpeedSquared) / (runSpeedSquared - walkFastSpeedSquared);
-        animationFactor_[IceWeaselConfig::WALK].SetTarget(0);
-        animationFactor_[IceWeaselConfig::RUN].SetTarget(1.0f - factor);
-        animationFactor_[IceWeaselConfig::SPRINT].SetTarget(factor);
+        animationWeight_[IceWeaselConfig::WALK].SetTarget(0);
+        animationWeight_[IceWeaselConfig::RUN].SetTarget(1.0f - factor);
+        animationWeight_[IceWeaselConfig::SPRINT].SetTarget(factor);
     }
 }
 
 // ----------------------------------------------------------------------------
-void PlayerAnimationStatesController::HandleCrouchStates(float velocitySquared)
+void PlayerAnimationStatesController::HandleCrouchWeights(float velocitySquared)
 {
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
     float crouchSpeedSquared = config.playerClass(0).speed.crouch * config.playerClass(0).speed.crouch;
@@ -118,8 +153,17 @@ void PlayerAnimationStatesController::HandleCrouchStates(float velocitySquared)
      * precedence.
      */
     float factor = Min(1.0f, velocitySquared / crouchSpeedSquared);
-    animationFactor_[IceWeaselConfig::CROUCH].SetTarget(1);
-    animationFactor_[IceWeaselConfig::CROUCH_WALK].SetTarget(factor);
+    animationWeight_[IceWeaselConfig::CROUCH].SetTarget(1);
+    animationWeight_[IceWeaselConfig::CROUCH_WALK].SetTarget(factor);
+}
+
+// ----------------------------------------------------------------------------
+void PlayerAnimationStatesController::HandleAirWeights()
+{
+    if(currentLocalVelocity_.y_ > 0.0f)
+        animationWeight_[IceWeaselConfig::JUMP_OFF].SetTarget(1);
+    else
+        animationWeight_[IceWeaselConfig::JUMP_LAND].SetTarget(1);
 }
 
 // ----------------------------------------------------------------------------
@@ -133,5 +177,8 @@ void PlayerAnimationStatesController::HandleLocalMovementVelocityChanged(Urho3D:
 void PlayerAnimationStatesController::HandleCrouchStateChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
     using namespace CrouchStateChanged;
-    isCrouching_ = eventData[P_CROUCHING].GetBool();
+    if(eventData[P_CROUCHING].GetBool())
+        state_ = CROUCHING;
+    else
+        state_ = ON_GROUND;
 }
