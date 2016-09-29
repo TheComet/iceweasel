@@ -158,15 +158,6 @@ void PlayerAnimationStatesController::HandleCrouchWeights(float velocitySquared)
 }
 
 // ----------------------------------------------------------------------------
-void PlayerAnimationStatesController::HandleAirWeights()
-{
-    if(currentLocalVelocity_.y_ > 0.0f)
-        animationWeight_[IceWeaselConfig::JUMP_OFF].SetTarget(1);
-    else
-        animationWeight_[IceWeaselConfig::JUMP_LAND].SetTarget(1);
-}
-
-// ----------------------------------------------------------------------------
 void PlayerAnimationStatesController::HandleLocalMovementVelocityChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
     using namespace LocalMovementVelocityChanged;
