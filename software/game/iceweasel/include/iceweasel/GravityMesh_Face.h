@@ -1,7 +1,5 @@
 #pragma once
 
-#include "iceweasel/GravityPoint.h"
-
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Math/Vector4.h>
 #include <Urho3D/Math/Matrix4.h>
@@ -12,25 +10,35 @@ namespace Urho3D {
     class DebugRenderer;
 }
 
-class GravityPoint;
+namespace GravityMesh {
+class Vertex;
 
-class GravityTriangle
+class Face
 {
 public:
-    GravityTriangle() { assert(false); } // Required for Vector<GravityTriangle>
+    Face() { assert(false); } // Required for Vector<GravityTriangle>
 
     /*!
-     * @brief Constructs a triangle from 4 vertex locations in cartesian
-     * space.
+     * @brief Constructs a triangle from 3 vertices.
      */
-    GravityTriangle(const GravityPoint& p0,
-                    const GravityPoint& p1,
-                    const GravityPoint& p2);
+    Face(const Vertex& p0,
+         const Vertex& p1,
+         const Vertex& p2);
 
-    const GravityPoint& GetVertex(unsigned char vertexID);
+    /*!
+     * @param vertexID The ID (0, 1 or 2) of the vertex to get.
+     * @return Returns the specified vertex.
+     */
+    Vertex* GetVertex(unsigned char vertexID);
 
+    /*!
+     * @return Retrieves the face's normal vector.
+     */
     const Urho3D::Vector3& GetNormal() const;
 
+    /*!
+     * Inverts the direction of the face's normal vector.
+     */
     void FlipNormal();
 
     /*!
@@ -39,6 +47,11 @@ public:
      */
     bool PointLiesInside(const Urho3D::Vector3& bary) const;
 
+    /*!
+     * Calculates the point of intersection from a ray onto the face.
+     * @param origin Where the ray begins.
+     * @param direction Normalised vector of the direction of the ray.
+     */
     Urho3D::Vector3 Intersect(const Urho3D::Vector3& origin, const Urho3D::Vector3& direction) const;
 
     /*!
@@ -60,8 +73,10 @@ private:
     Urho3D::Matrix4 CalculateSurfaceProjectionMatrix() const;
     Urho3D::Matrix4 CalculateBarycentricTransformationMatrix() const;
 
-    GravityPoint vertex_[3];
+    Urho3D::SharedPtr<Vertex> vertex_[3];
     Urho3D::Vector3 normal_;
 
     Urho3D::Matrix4 transform_;
 };
+
+}

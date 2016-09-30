@@ -31,7 +31,7 @@ void GravityMesh::SetMesh(const GravityMeshBuilder::SharedTetrahedralMesh& share
     {
         GravityMeshBuilder::SharedVertexTetrahedron* t = *it;
 
-        tetrahedrons_.Push(GravityTetrahedron(
+        tetrahedrons_.Push(Tetrahedron(
             GravityPoint(t->v_[0]->position_, t->v_[0]->direction_, t->v_[0]->forceFactor_),
             GravityPoint(t->v_[1]->position_, t->v_[1]->direction_, t->v_[1]->forceFactor_),
             GravityPoint(t->v_[2]->position_, t->v_[2]->direction_, t->v_[2]->forceFactor_),
@@ -44,7 +44,7 @@ void GravityMesh::SetMesh(const GravityMeshBuilder::SharedTetrahedralMesh& share
 bool GravityMesh::Query(Vector3* gravity, const Vector3& position) const
 {
     // Use a linear search for now. Can optimise later
-    Vector<GravityTetrahedron>::ConstIterator tetrahedron = tetrahedrons_.Begin();
+    Vector<Tetrahedron>::ConstIterator tetrahedron = tetrahedrons_.Begin();
     for(; tetrahedron != tetrahedrons_.End(); ++tetrahedron)
     {
         Vector4 bary = tetrahedron->TransformToBarycentric(position);
@@ -63,7 +63,7 @@ bool GravityMesh::Query(Vector3* gravity, const Vector3& position) const
 void GravityMesh::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector3 pos)
 {
     unsigned count = 0;
-    Vector<GravityTetrahedron>::Iterator it = tetrahedrons_.Begin();
+    Vector<Tetrahedron>::Iterator it = tetrahedrons_.Begin();
     for(; it != tetrahedrons_.End(); ++it)
         if(it->PointLiesInside(it->TransformToBarycentric(pos)))
         {

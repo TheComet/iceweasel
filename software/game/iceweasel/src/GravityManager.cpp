@@ -48,8 +48,8 @@ Vector3 GravityManager::QueryGravity(Vector3 worldLocation)
     {
         // TODO Really shitty method of finding closest node
         float distance = std::numeric_limits<float>::max();
-        PODVector<GravityVector*>::ConstIterator it = gravityVectors_.Begin();
-        GravityVector* foundGravityVector = NULL;
+        PODVector<GravityVectorComponent*>::ConstIterator it = gravityVectors_.Begin();
+        GravityVectorComponent* foundGravityVector = NULL;
         for(; it != gravityVectors_.End(); ++it)
         {
             float newDistance = (worldLocation - (*it)->GetPosition()).Length();
@@ -93,7 +93,7 @@ Vector3 GravityManager::QueryGravity(Vector3 worldLocation)
 // ----------------------------------------------------------------------------
 void GravityManager::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector3 pos)
 {
-    PODVector<GravityVector*>::ConstIterator it = gravityVectors_.Begin();
+    PODVector<GravityVectorComponent*>::ConstIterator it = gravityVectors_.Begin();
     for(; it != gravityVectors_.End(); ++it)
         (*it)->DrawDebugGeometry(debug, depthTest);
     gravityMesh_->DrawDebugGeometry(debug, depthTest, pos);
@@ -144,14 +144,14 @@ void GravityManager::AddGravityVectorsRecursively(Node* node)
     // should not be possible for there to be duplicates; scene graphs can't
     // have loops.
     PODVector<Node*> gravityVectorNodesToAdd;
-    node->GetChildrenWithComponent<GravityVector>(gravityVectorNodesToAdd, true);
+    node->GetChildrenWithComponent<GravityVectorComponent>(gravityVectorNodesToAdd, true);
     // Don't forget to check this node's components as well
-    if(node->GetComponent<GravityVector>())
+    if(node->GetComponent<GravityVectorComponent>())
         gravityVectorNodesToAdd.Push(node);
 
     PODVector<Node*>::Iterator it = gravityVectorNodesToAdd.Begin();
     for(; it != gravityVectorNodesToAdd.End(); ++it)
-        gravityVectors_.Push((*it)->GetComponent<GravityVector>());
+        gravityVectors_.Push((*it)->GetComponent<GravityVectorComponent>());
 }
 
 // ----------------------------------------------------------------------------
@@ -159,16 +159,16 @@ void GravityManager::RemoveGravityVectorsRecursively(Node* node)
 {
     // Recursively retrieve all nodes that have a gravity probe component
     PODVector<Node*> gravityVectorNodesToRemove;
-    node->GetChildrenWithComponent<GravityVector>(gravityVectorNodesToRemove, true);
+    node->GetChildrenWithComponent<GravityVectorComponent>(gravityVectorNodesToRemove, true);
     // Don't forget to check this node's components as well
-    if(node->GetComponent<GravityVector>())
+    if(node->GetComponent<GravityVectorComponent>())
         gravityVectorNodesToRemove.Push(node);
 
     // search for found components and remove them from our internal list
     PODVector<Node*>::ConstIterator it = gravityVectorNodesToRemove.Begin();
     for(; it != gravityVectorNodesToRemove.End(); ++it)
     {
-        PODVector<GravityVector*>::Iterator gravityNode = gravityVectors_.Find((*it)->GetComponent<GravityVector>());
+        PODVector<GravityVectorComponent*>::Iterator gravityNode = gravityVectors_.Find((*it)->GetComponent<GravityVectorComponent>());
         if(gravityNode != gravityVectors_.End())
             gravityVectors_.Erase(gravityNode);
     }
@@ -187,10 +187,10 @@ void GravityManager::HandleComponentAdded(StringHash eventType, VariantMap& even
     // Check if the component that was added is a gravity vector. If not, then
     // it does not concern us.
     Component* component = static_cast<Component*>(eventData[P_COMPONENT].GetPtr());
-    if(component->GetType() != GravityVector::GetTypeStatic())
+    if(component->GetType() != GravityVectorComponent::GetTypeStatic())
         return;
 
-    gravityVectors_.Push(static_cast<GravityVector*>(component));
+    gravityVectors_.Push(static_cast<GravityVectorComponent*>(component));
     RebuildTetrahedralMesh();
 }
 
@@ -207,10 +207,10 @@ void GravityManager::HandleComponentRemoved(StringHash eventType, VariantMap& ev
     // Check if the component that was removed was a gravity vector. If not,
     // then it does not concern us.
     Component* component = static_cast<Component*>(eventData[P_COMPONENT].GetPtr());
-    if(component->GetType() != GravityVector::GetTypeStatic())
+    if(component->GetType() != GravityVectorComponent::GetTypeStatic())
         return;
 
-    gravityVectors_.Remove(static_cast<GravityVector*>(component));
+    gravityVectors_.Remove(static_cast<GravityVectorComponent*>(component));
     RebuildTetrahedralMesh();
 }
 

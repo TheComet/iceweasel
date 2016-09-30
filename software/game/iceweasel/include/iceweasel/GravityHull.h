@@ -16,9 +16,9 @@ class GravityHull : public Urho3D::RefCounted
 public:
     GravityHull();
 
-    GravityHull(const GravityMeshBuilder::Polyhedron& polyhedron);
+    GravityHull(const GravityMesh::Polyhedron& polyhedron);
 
-    void SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron);
+    void SetMesh(const GravityMesh::Polyhedron& polyhedron);
 
     bool Query(Urho3D::Vector3* gravity, const Urho3D::Vector3& position);
 
@@ -26,9 +26,9 @@ public:
 
 private:
     Urho3D::Vector3 centre_;
-    Urho3D::Vector<GravityTriangle> triangles_;
-    Urho3D::Vector<GravityEdge> edges_;
-    Urho3D::Vector<GravityPoint> points_;
+    Urho3D::Vector<Urho3D::SharedPtr<GravityMesh::Face> > triangles_;
+    Urho3D::Vector<Urho3D::SharedPtr<GravityMesh::Edge> > edges_;
+    Urho3D::Vector<Urho3D::SharedPtr<GravityMesh::Vertex> > vertices_;
 
     Urho3D::Vector3 lastIntersection_;
 };

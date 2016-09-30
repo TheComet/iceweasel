@@ -1,6 +1,6 @@
 #pragma once
 
-#include "iceweasel/GravityPoint.h"
+#include "iceweasel/GravityMesh_Vertex.h"
 
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Math/Vector4.h>
@@ -11,17 +11,19 @@ namespace Urho3D {
     class DebugRenderer;
 }
 
-class GravityTetrahedron
+namespace GravityMesh {
+
+class Tetrahedron : public Urho3D::RefCounted
 {
 public:
 
-    GravityTetrahedron() { assert(false); } // Required for Vector<GravityTetrahedron>
+    Tetrahedron() { assert(false); } // Required for Vector<GravityTetrahedron>
 
     /*!
      * @brief Constructs a tetrahedron from 4 vertex locations in cartesian
      * space.
      */
-    GravityTetrahedron(const GravityPoint& p0,
+    Tetrahedron(const GravityPoint& p0,
                        const GravityPoint& p1,
                        const GravityPoint& p2,
                        const GravityPoint& p3);
@@ -56,3 +58,5 @@ private:
 
     Urho3D::Matrix4 transform_;
 };
+
+}

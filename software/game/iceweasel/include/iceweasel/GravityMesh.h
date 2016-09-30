@@ -10,7 +10,7 @@ namespace Urho3D {
     class DebugRenderer;
 }
 
-class GravityVector;
+class GravityVectorComponent;
 
 class GravityMesh : public Urho3D::RefCounted
 {
@@ -49,5 +49,5 @@ public:
 
 private:
     // TODO consider just using GravityMeshBuilder::SharedTetrahedralMesh directly
-    Urho3D::Vector<GravityTetrahedron> tetrahedrons_;
+    Urho3D::Vector<Tetrahedron> tetrahedrons_;
 };

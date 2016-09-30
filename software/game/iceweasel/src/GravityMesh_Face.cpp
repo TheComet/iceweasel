@@ -6,7 +6,7 @@
 using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
-GravityTriangle::GravityTriangle(const GravityPoint& p0,
+Face::Face(const GravityPoint& p0,
                                  const GravityPoint& p1,
                                  const GravityPoint& p2)
 {
@@ -21,26 +21,26 @@ GravityTriangle::GravityTriangle(const GravityPoint& p0,
 }
 
 // ----------------------------------------------------------------------------
-const GravityPoint& GravityTriangle::GetVertex(unsigned char vertexID)
+const GravityPoint& Face::GetVertex(unsigned char vertexID)
 {
     assert(vertexID < 3);
     return vertex_[vertexID];
 }
 
 // ----------------------------------------------------------------------------
-const Vector3& GravityTriangle::GetNormal() const
+const Vector3& Face::GetNormal() const
 {
     return normal_;
 }
 
 // ----------------------------------------------------------------------------
-void GravityTriangle::FlipNormal()
+void Face::FlipNormal()
 {
     normal_ *= -1;
 }
 
 // ----------------------------------------------------------------------------
-bool GravityTriangle::PointLiesInside(const Vector3& bary) const
+bool Face::PointLiesInside(const Vector3& bary) const
 {
     return (
         bary.x_ >= 0.0f &&
@@ -50,7 +50,7 @@ bool GravityTriangle::PointLiesInside(const Vector3& bary) const
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityTriangle::Intersect(const Vector3& origin, const Vector3& direction) const
+Vector3 Face::Intersect(const Vector3& origin, const Vector3& direction) const
 {
 #define NO_INTERSECTION Vector3(-1, -1, -1)
 #define DO_CULL 0
@@ -90,14 +90,14 @@ Vector3 GravityTriangle::Intersect(const Vector3& origin, const Vector3& directi
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityTriangle::ProjectAndTransformToBarycentric(const Vector3& cartesian) const
+Vector3 Face::ProjectAndTransformToBarycentric(const Vector3& cartesian) const
 {
     Vector4 result = transform_ * Vector4(cartesian, 1.0f);
     return Vector3(result.x_, result.y_, result.z_);
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityTriangle::TransformToCartesian(const Vector3& barycentric) const
+Vector3 Face::TransformToCartesian(const Vector3& barycentric) const
 {
     return barycentric.x_ * vertex_[0].position_ +
             barycentric.y_ * vertex_[1].position_ +
@@ -105,7 +105,7 @@ Vector3 GravityTriangle::TransformToCartesian(const Vector3& barycentric) const
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityTriangle::InterpolateGravity(const Vector3& barycentric) const
+Vector3 Face::InterpolateGravity(const Vector3& barycentric) const
 {
     return (
         vertex_[0].direction_ * barycentric.x_ +
@@ -119,7 +119,7 @@ Vector3 GravityTriangle::InterpolateGravity(const Vector3& barycentric) const
 }
 
 // ----------------------------------------------------------------------------
-Matrix4 GravityTriangle::CalculateSurfaceProjectionMatrix() const
+Matrix4 Face::CalculateSurfaceProjectionMatrix() const
 {
     // This function builds a projection matrix that will project a 3D point
     // onto one of the tetrahedron's triangles (namely the face that doesn't
@@ -180,7 +180,7 @@ Matrix4 GravityTriangle::CalculateSurfaceProjectionMatrix() const
 }
 
 // ----------------------------------------------------------------------------
-Matrix4 GravityTriangle::CalculateBarycentricTransformationMatrix() const
+Matrix4 Face::CalculateBarycentricTransformationMatrix() const
 {
     // Barycentric transformation matrix
     // https://en.wikipedia.org/wiki/Barycentric_coordinate_system#Conversion_between_barycentric_and_Cartesian_coordinates
@@ -193,7 +193,7 @@ Matrix4 GravityTriangle::CalculateBarycentricTransformationMatrix() const
 }
 
 // ----------------------------------------------------------------------------
-void GravityTriangle::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color) const
+void Face::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color) const
 {
     Vector3 average(Vector3::ZERO);
     for(unsigned i = 0; i != 3; ++i)

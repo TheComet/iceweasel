@@ -30,49 +30,49 @@
 using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
-GravityVector::GravityVector(Context* context) :
+GravityVectorComponent::GravityVectorComponent(Context* context) :
     Component(context),
     forceFactor_(1.0f)
 {
 }
 
 // ----------------------------------------------------------------------------
-GravityVector::~GravityVector()
+GravityVectorComponent::~GravityVectorComponent()
 {
 }
 
 // ----------------------------------------------------------------------------
-void GravityVector::RegisterObject(Context* context)
+void GravityVectorComponent::RegisterObject(Context* context)
 {
-    context->RegisterFactory<GravityVector>(ICEWEASEL_CATEGORY);
+    context->RegisterFactory<GravityVectorComponent>(ICEWEASEL_CATEGORY);
 }
 
 // ----------------------------------------------------------------------------
-void GravityVector::SetPosition(Vector3 position)
+void GravityVectorComponent::SetPosition(Vector3 position)
 {
     node_->SetWorldPosition(position);
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityVector::GetPosition() const
+Vector3 GravityVectorComponent::GetPosition() const
 {
     return node_->GetWorldPosition();
 }
 
 // ----------------------------------------------------------------------------
-void GravityVector::SetDirection(Vector3 direction)
+void GravityVectorComponent::SetDirection(Vector3 direction)
 {
     node_->SetWorldDirection(direction);
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityVector::GetDirection() const
+Vector3 GravityVectorComponent::GetDirection() const
 {
     return node_->GetWorldDirection();
 }
 
 // ----------------------------------------------------------------------------
-void GravityVector::DrawDebugGeometry(DebugRenderer* debug, bool depthTest)
+void GravityVectorComponent::DrawDebugGeometry(DebugRenderer* debug, bool depthTest)
 {
     // Collect data for drawing an arrow
     float scale = forceFactor_ * 3.0f;

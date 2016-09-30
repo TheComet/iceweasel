@@ -6,7 +6,7 @@
 using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
-GravityEdge::GravityEdge(const GravityPoint& p0,
+Edge::Edge(const GravityPoint& p0,
                          const GravityPoint& p1,
                          const Vector3& boundaryNormal0,
                          const Vector3& boundaryNormal1)
@@ -23,7 +23,7 @@ GravityEdge::GravityEdge(const GravityPoint& p0,
 }
 
 // ----------------------------------------------------------------------------
-void GravityEdge::FlipBoundaryCheck()
+void Edge::FlipBoundaryCheck()
 {
     Vector3 tmp = boundaryNormal_[0];
     boundaryNormal_[0] = boundaryNormal_[1];
@@ -31,7 +31,7 @@ void GravityEdge::FlipBoundaryCheck()
 }
 
 // ----------------------------------------------------------------------------
-bool GravityEdge::PointLiesInside(Vector2 bary) const
+bool Edge::PointLiesInside(Vector2 bary) const
 {
     return (
         bary.x_ >= 0.0f &&
@@ -40,7 +40,7 @@ bool GravityEdge::PointLiesInside(Vector2 bary) const
 }
 
 // ----------------------------------------------------------------------------
-bool GravityEdge::ProjectionAngleIsInBounds(const Vector3& cartesianTransform,
+bool Edge::ProjectionAngleIsInBounds(const Vector3& cartesianTransform,
                                             const Vector3& position) const
 {
     Vector3 check = cartesianTransform - position;
@@ -54,21 +54,21 @@ bool GravityEdge::ProjectionAngleIsInBounds(const Vector3& cartesianTransform,
 }
 
 // ----------------------------------------------------------------------------
-Vector2 GravityEdge::ProjectAndTransformToBarycentric(const Vector3& cartesian) const
+Vector2 Edge::ProjectAndTransformToBarycentric(const Vector3& cartesian) const
 {
     Vector4 result = transform_ * Vector4(cartesian, 1.0f);
     return Vector2(result.x_, result.y_);
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityEdge::TransformToCartesian(const Vector2& barycentric) const
+Vector3 Edge::TransformToCartesian(const Vector2& barycentric) const
 {
     return barycentric.x_ * vertex_[0].position_ +
             barycentric.y_ * vertex_[1].position_;
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityEdge::InterpolateGravity(const Vector2& barycentric) const
+Vector3 Edge::InterpolateGravity(const Vector2& barycentric) const
 {
     return (
         vertex_[0].direction_ * barycentric.x_ +
@@ -80,7 +80,7 @@ Vector3 GravityEdge::InterpolateGravity(const Vector2& barycentric) const
 }
 
 // ----------------------------------------------------------------------------
-Matrix4 GravityEdge::CalculateEdgeProjectionMatrix() const
+Matrix4 Edge::CalculateEdgeProjectionMatrix() const
 {
     // This function builds a projection matrix that will project a 3D point
     // onto one of the tetrahedron's edges (namely the edges that doesn't
@@ -133,7 +133,7 @@ Matrix4 GravityEdge::CalculateEdgeProjectionMatrix() const
 }
 
 // ----------------------------------------------------------------------------
-Matrix4 GravityEdge::CalculateBarycentricTransformationMatrix() const
+Matrix4 Edge::CalculateBarycentricTransformationMatrix() const
 {
     Vector3 fix1 = vertex_[0].position_.CrossProduct(vertex_[1].position_);
     Vector3 fix2 = fix1 + vertex_[0].position_;
@@ -148,7 +148,7 @@ Matrix4 GravityEdge::CalculateBarycentricTransformationMatrix() const
 }
 
 // ----------------------------------------------------------------------------
-void GravityEdge::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color) const
+void Edge::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color) const
 {
     debug->AddLine(vertex_[0].position_, vertex_[1].position_, color, depthTest);
 

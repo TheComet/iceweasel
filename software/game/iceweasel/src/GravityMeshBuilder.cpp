@@ -8,7 +8,7 @@ using namespace Urho3D;
 
 // ============================================================================
 GravityMeshBuilder::
-Vertex::Vertex(const Vector3& position,
+SharedVertex::SharedVertex(const Vector3& position,
                const Vector3& direction,
                float forceFactor) :
     position_(position),
@@ -19,8 +19,8 @@ Vertex::Vertex(const Vector3& position,
 
 // ============================================================================
 GravityMeshBuilder::
-SharedVertexTetrahedron::SharedVertexTetrahedron(Vertex* v1, Vertex* v2,
-                                                 Vertex* v3, Vertex* v4)
+SharedVertexTetrahedron::SharedVertexTetrahedron(SharedVertex* v1, SharedVertex* v2,
+                                                 SharedVertex* v3, SharedVertex* v4)
 {
     v_[0] = v1; v_[1] = v2; v_[2] = v3; v_[3] = v4;
     circumscibedSphereCenter_ = Math::CircumscribeSphere(v1->position_,
@@ -34,9 +34,9 @@ SharedVertexTetrahedron::SharedVertexTetrahedron(Vertex* v1, Vertex* v2,
 struct Face
 {
     Face() {}
-    Face(GravityMeshBuilder::Vertex* v1,
-         GravityMeshBuilder::Vertex* v2,
-         GravityMeshBuilder::Vertex* v3) :
+    Face(GravityMeshBuilder::SharedVertex* v1,
+         GravityMeshBuilder::SharedVertex* v2,
+         GravityMeshBuilder::SharedVertex* v3) :
         marked_(true)
     {
         v_[0] = v1;
@@ -55,21 +55,21 @@ struct Face
         return false;
     }
 
-    GravityMeshBuilder::Vertex* v_[3];
+    GravityMeshBuilder::SharedVertex* v_[3];
     bool marked_;
 };
 
 
 // ============================================================================
 static GravityMeshBuilder::SharedVertexTetrahedron*
-ConstructSuperTetrahedron(const PODVector<GravityVector*>& gravityVectors)
+ConstructSuperTetrahedron(const PODVector<GravityVectorComponent*>& gravityVectors)
 {
-    typedef GravityMeshBuilder::Vertex Vertex;
+    typedef GravityMeshBuilder::SharedVertex Vertex;
     typedef GravityMeshBuilder::SharedVertexTetrahedron SharedVertexTetrahedron;
 
     // Compute bounding box
     BoundingBox aabb;
-    for(PODVector<GravityVector*>::ConstIterator it = gravityVectors.Begin();
+    for(PODVector<GravityVectorComponent*>::ConstIterator it = gravityVectors.Begin();
         it != gravityVectors.End();
         ++it)
     {
@@ -100,8 +100,14 @@ ConstructSuperTetrahedron(const PODVector<GravityVector*>& gravityVectors)
 }
 
 // ----------------------------------------------------------------------------
-void GravityMeshBuilder::Build(const PODVector<GravityVector*>& gravityVectors)
+void GravityMeshBuilder::Build(const PODVector<GravityVectorComponent*>& gravityVectors)
 {
+    /*
+     * The Bowyer-Watson algorithm is used here to convert a set of 3D points
+     * into a mesh of non-overlapping tetrahedrons.
+     * https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm
+     */
+
     triangulationResult_.Clear();
     hull_.Clear();
 
@@ -113,11 +119,11 @@ void GravityMeshBuilder::Build(const PODVector<GravityVector*>& gravityVectors)
     triangulationResult_.Push(superTetrahedron);
 
     // Iterate over all gravity vectors, add each as a vertex to the mesh one by one
-    for(PODVector<GravityVector*>::ConstIterator gravityVectorsIt = gravityVectors.Begin();
+    for(PODVector<GravityVectorComponent*>::ConstIterator gravityVectorsIt = gravityVectors.Begin();
         gravityVectorsIt != gravityVectors.End();
         ++gravityVectorsIt)
     {
-        GravityVector* gravityVector = *gravityVectorsIt;
+        GravityVectorComponent* gravityVector = *gravityVectorsIt;
 
         FindBadTetrahedrons(&badTetrahedrons, gravityVector->GetPosition());
         CreateHullFromTetrahedrons(&polyhedron, badTetrahedrons);
@@ -234,11 +240,11 @@ void GravityMeshBuilder::RemoveTetrahedronsFromTriangulation(
 
 // ----------------------------------------------------------------------------
 void GravityMeshBuilder::ReTriangulateGap(const Polyhedron& polyhedron,
-                                          const GravityVector& gravityVector)
+                                          const GravityVectorComponent& gravityVector)
 {
 
     // Create an internal Vertex object from the gravity vector component.
-    SharedPtr<Vertex> connectToVertex(new Vertex(
+    SharedPtr<SharedVertex> connectToVertex(new SharedVertex(
         gravityVector.GetPosition(),
         gravityVector.GetDirection(),
         gravityVector.GetForceFactor()
@@ -249,9 +255,9 @@ void GravityMeshBuilder::ReTriangulateGap(const Polyhedron& polyhedron,
     Polyhedron::ConstIterator vertex = polyhedron.Begin();
     while(vertex != polyhedron.End())
     {
-        Vertex* v1 = *vertex++;
-        Vertex* v2 = *vertex++;
-        Vertex* v3 = *vertex++;
+        SharedVertex* v1 = *vertex++;
+        SharedVertex* v2 = *vertex++;
+        SharedVertex* v3 = *vertex++;
         triangulationResult_.Push(SharedPtr<SharedVertexTetrahedron>(
             new SharedVertexTetrahedron(connectToVertex, v1, v2, v3)
         ));

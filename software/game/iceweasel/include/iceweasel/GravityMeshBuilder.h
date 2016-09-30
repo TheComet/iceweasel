@@ -5,26 +5,10 @@
 #include <Urho3D/Math/Vector3.h>
 
 
-class GravityVector;
+class GravityVectorComponent;
 
 struct GravityMeshBuilder
 {
-    /*!
-     * @brief Reference counted vertex. Holds position, (gravitational)
-     * direction, and (gravitational) force factor as attributes.
-     */
-    class Vertex : public Urho3D::RefCounted
-    {
-    public:
-        Vertex(const Urho3D::Vector3& position,
-               const Urho3D::Vector3& direction=Urho3D::Vector3::ZERO,
-               float forceFactor=0.0f);
-
-        Urho3D::Vector3 position_;
-        Urho3D::Vector3 direction_;
-        float forceFactor_;
-    };
-
     /*!
      * @brief Construct a tetrahedron by using existing Vertex objects. Allows
      * for multiple tetrahedrons to share the same vertices.
@@ -33,21 +17,21 @@ struct GravityMeshBuilder
     {
     public:
         SharedVertexTetrahedron() {}
-        SharedVertexTetrahedron(Vertex* v1, Vertex* v2, Vertex* v3, Vertex* v4);
+        SharedVertexTetrahedron(SharedVertex* v1, SharedVertex* v2, SharedVertex* v3, SharedVertex* v4);
 
-        Urho3D::SharedPtr<Vertex> v_[4];
+        Urho3D::SharedPtr<SharedVertex> v_[4];
         Urho3D::Vector3 circumscibedSphereCenter_;
     };
 
     /// Data type used to represent a mesh of tetrahedrons who's vertices can be referenced more than once.
     typedef Urho3D::Vector<Urho3D::SharedPtr<SharedVertexTetrahedron> > SharedTetrahedralMesh;
     /// Data type to represent a number of triangles. There will always be a multiple of 3 vertices.
-    typedef Urho3D::PODVector<Vertex*> Polyhedron;
+    typedef Urho3D::PODVector<SharedVertex*> Polyhedron;
 
     /*!
      * @brief Takes a list of gravity vector components and creates a triangulated mesh.
      */
-    void Build(const Urho3D::PODVector<GravityVector*>& gravityVectors);
+    void Build(const Urho3D::PODVector<GravityVectorComponent*>& gravityVectors);
 
     /*!
      * @brief After building, the resulting mesh can be retrieved with this.
@@ -91,7 +75,7 @@ private:
      * gravity vector component is used to create the new vertex to which
      * the faces are connected.
      */
-    void ReTriangulateGap(const Polyhedron& polyhedron,const GravityVector& gravityVector);
+    void ReTriangulateGap(const Polyhedron& polyhedron,const GravityVectorComponent& gravityVector);
 
     /*!
      * @brief Cleans up the triangulation result such that no more connections

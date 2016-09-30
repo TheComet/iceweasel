@@ -28,6 +28,8 @@ public:
 
     void SetPlayerVisible(bool visible);
 
+    void FuckOff(bool shti);
+
 protected:
     virtual void Start() override;
     virtual void Stop() override;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "iceweasel/GravityPoint.h"
-
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Math/Vector4.h>
 #include <Urho3D/Math/Matrix4.h>
@@ -12,16 +10,19 @@ namespace Urho3D {
     class DebugRenderer;
 }
 
-class GravityEdge
+namespace GravityMesh {
+class Vertex;
+
+class Edge
 {
 public:
-    GravityEdge() { assert(false); } // Required for Vector<GravityEdge>
+    Edge() { assert(false); } // Required for Vector<GravityEdge>
 
     /*!
      * @brief Constructs a triangle from 4 vertex locations in cartesian
      * space.
      */
-    GravityEdge(const GravityPoint& p0,
+    Edge(const GravityPoint& p0,
                 const GravityPoint& p1,
                 const Urho3D::Vector3& boundaryNormal0,
                 const Urho3D::Vector3& boundaryNormal1);
@@ -62,3 +63,5 @@ private:
 
     Urho3D::Matrix4 transform_;
 };
+
+}

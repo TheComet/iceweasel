@@ -8,7 +8,7 @@
 using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
-GravityTetrahedron::GravityTetrahedron(const GravityPoint& p0,
+Tetrahedron::Tetrahedron(const GravityPoint& p0,
                                        const GravityPoint& p1,
                                        const GravityPoint& p2,
                                        const GravityPoint& p3)
@@ -22,7 +22,7 @@ GravityTetrahedron::GravityTetrahedron(const GravityPoint& p0,
 }
 
 // ----------------------------------------------------------------------------
-bool GravityTetrahedron::PointLiesInside(const Vector4& bary) const
+bool Tetrahedron::PointLiesInside(const Vector4& bary) const
 {
     return (
         bary.x_ >= 0.0f &&
@@ -33,13 +33,13 @@ bool GravityTetrahedron::PointLiesInside(const Vector4& bary) const
 }
 
 // ----------------------------------------------------------------------------
-Vector4 GravityTetrahedron::TransformToBarycentric(const Vector3& cartesian) const
+Vector4 Tetrahedron::TransformToBarycentric(const Vector3& cartesian) const
 {
     return transform_ * Vector4(cartesian, 1.0f);
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityTetrahedron::TransformToCartesian(const Vector4& barycentric) const
+Vector3 Tetrahedron::TransformToCartesian(const Vector4& barycentric) const
 {
     return barycentric.x_ * vertex_[0].position_ +
             barycentric.y_ * vertex_[1].position_ +
@@ -48,14 +48,14 @@ Vector3 GravityTetrahedron::TransformToCartesian(const Vector4& barycentric) con
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityTetrahedron::GetVertexPosition(unsigned char vertexID) const
+Vector3 Tetrahedron::GetVertexPosition(unsigned char vertexID) const
 {
     assert(vertexID < 4);
     return vertex_[vertexID].position_;
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityTetrahedron::InterpolateGravity(const Vector4& barycentric) const
+Vector3 Tetrahedron::InterpolateGravity(const Vector4& barycentric) const
 {
     return (
         vertex_[0].direction_ * barycentric.x_ +
@@ -71,7 +71,7 @@ Vector3 GravityTetrahedron::InterpolateGravity(const Vector4& barycentric) const
 }
 
 // ----------------------------------------------------------------------------
-Matrix4 GravityTetrahedron::CalculateBarycentricTransformationMatrix() const
+Matrix4 Tetrahedron::CalculateBarycentricTransformationMatrix() const
 {
     // Barycentric transformation matrix
     // https://en.wikipedia.org/wiki/Barycentric_coordinate_system#Conversion_between_barycentric_and_Cartesian_coordinates
@@ -84,7 +84,7 @@ Matrix4 GravityTetrahedron::CalculateBarycentricTransformationMatrix() const
 }
 
 // ----------------------------------------------------------------------------
-void GravityTetrahedron::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color)
+void Tetrahedron::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, const Color& color)
 {
     for(unsigned i = 0; i != 4; ++i)
     {

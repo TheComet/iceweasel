@@ -40,7 +40,7 @@ const char* ICEWEASEL_CATEGORY = "IceWeasel Mods";
 void RegisterIceWeaselMods(Urho3D::Context* context)
 {
     GravityManager::RegisterObject(context);
-    GravityVector::RegisterObject(context);
+    GravityVectorComponent::RegisterObject(context);
 }
 
 // ----------------------------------------------------------------------------

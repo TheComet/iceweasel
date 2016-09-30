@@ -19,7 +19,7 @@ GravityHull::GravityHull(const GravityMeshBuilder::Polyhedron& polyhedron)
 // ----------------------------------------------------------------------------
 void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
 {
-    typedef GravityMeshBuilder::Vertex Vertex;
+    typedef GravityMeshBuilder::SharedVertex Vertex;
     typedef GravityMeshBuilder::Polyhedron Polyhedron;
 
     triangles_.Clear();
@@ -44,7 +44,7 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
         );
 
         // Add triangle
-        triangles_.Push(GravityTriangle(
+        triangles_.Push(Face(
             GravityPoint(vertex0->position_, vertex0->direction_, vertex0->forceFactor_),
             GravityPoint(vertex1->position_, vertex1->direction_, vertex1->forceFactor_),
             GravityPoint(vertex2->position_, vertex2->direction_, vertex2->forceFactor_)
@@ -64,7 +64,7 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
 
     // Make sure each triangle's normal vector is pointing away from centre of
     // the hull
-    for(Vector<GravityTriangle>::Iterator it = triangles_.Begin(); it != triangles_.End(); ++it)
+    for(Vector<Face>::Iterator it = triangles_.Begin(); it != triangles_.End(); ++it)
     {
         Vector3 outwards = it->GetVertex(0).position_ - centre_;
         if(outwards.DotProduct(it->GetNormal()) < 0)
@@ -81,7 +81,7 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
     // structure than the triangles list. The triangles list is required to get
     // the calculated and adjusted normals.
     vertexIt = polyhedron.Begin();
-    Vector<GravityTriangle>::ConstIterator triangleIt = triangles_.Begin();
+    Vector<Face>::ConstIterator triangleIt = triangles_.Begin();
     for(; vertexIt != polyhedron.End(); triangleIt++)
     {
         Vertex* vertex[3];
@@ -90,7 +90,7 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
         vertex[2] = *vertexIt++;
 
         // find the three adjacent triangles
-        Vector<GravityTriangle>::ConstIterator triangleIt2 = triangles_.Begin();
+        Vector<Face>::ConstIterator triangleIt2 = triangles_.Begin();
         Polyhedron::ConstIterator vertexIt2 = polyhedron.Begin();
         for(; vertexIt2 != polyhedron.End(); triangleIt2++)
         {
@@ -119,7 +119,7 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
                 continue;
 
             // Found a joined edge, add it
-            edges_.Push(GravityEdge(
+            edges_.Push(Edge(
                 GravityPoint(joined[0]->position_, joined[0]->direction_, joined[0]->forceFactor_),
                 GravityPoint(joined[1]->position_, joined[1]->direction_, joined[1]->forceFactor_),
                 triangleIt->GetNormal(),
@@ -166,7 +166,7 @@ bool GravityHull::Query(Vector3* gravity, const Vector3& position)
     Vector3 distanceVec =  position - centre_;
 
     // Try all faces first
-    for(Vector<GravityTriangle>::ConstIterator triangle = triangles_.Begin();
+    for(Vector<Face>::ConstIterator triangle = triangles_.Begin();
         triangle != triangles_.End();
         ++triangle)
     {
@@ -186,7 +186,7 @@ bool GravityHull::Query(Vector3* gravity, const Vector3& position)
     }
 
     // Try all edges
-    for(Vector<GravityEdge>::ConstIterator edge = edges_.Begin();
+    for(Vector<Edge>::ConstIterator edge = edges_.Begin();
         edge != edges_.End();
         ++edge)
     {
@@ -233,10 +233,10 @@ bool GravityHull::Query(Vector3* gravity, const Vector3& position)
 // ----------------------------------------------------------------------------
 void GravityHull::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector3 pos) const
 {
-    for(Vector<GravityTriangle>::ConstIterator it = triangles_.Begin(); it != triangles_.End(); ++it)
+    for(Vector<Face>::ConstIterator it = triangles_.Begin(); it != triangles_.End(); ++it)
         it->DrawDebugGeometry(debug, depthTest, Color::WHITE);
 
-    for(Vector<GravityEdge>::ConstIterator it = edges_.Begin(); it != edges_.End(); ++it)
+    for(Vector<Edge>::ConstIterator it = edges_.Begin(); it != edges_.End(); ++it)
         it->DrawDebugGeometry(debug, depthTest, Color::WHITE);
 
     debug->AddSphere(Sphere(lastIntersection_, 1.0f), Color::RED, depthTest);
