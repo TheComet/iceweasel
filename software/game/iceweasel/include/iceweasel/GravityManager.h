@@ -10,8 +10,7 @@ namespace TetrahedralMesh {
     class Mesh;
     class Hull;
 }
-
-class GravityVectorComponent;
+class GravityVector;
 
 /*!
  * @brief Provides an interface to query the scene for gravitational data.
@@ -101,9 +100,9 @@ private:
     void HandleNodeAdded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleNodeRemoved(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    Urho3D::PODVector<GravityVectorComponent*> gravityVectors_;/*
+    Urho3D::PODVector<GravityVector*> gravityVectors_;
     Urho3D::SharedPtr<TetrahedralMesh::Mesh> gravityMesh_;
-    Urho3D::SharedPtr<TetrahedralMesh::Hull> gravityHull_;*/
+    Urho3D::SharedPtr<TetrahedralMesh::Hull> gravityHull_;
 
     float gravity_;
 

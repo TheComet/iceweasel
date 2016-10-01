@@ -1,15 +1,13 @@
 #pragma once
 
+#include "iceweasel/TetrahedralMesh_Vertex.h"
+#include "iceweasel/TetrahedralMesh_Polyhedron.h"
+
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Container/Vector.h>
 #include <Urho3D/Math/Vector3.h>
 
-
-class GravityVectorComponent;
-namespace TetrahedralMesh {
-    class Polyhedron;
-    class Vertex;
-}
+class GravityVector;
 
 struct TetrahedralMeshBuilder
 {
@@ -28,18 +26,17 @@ struct TetrahedralMeshBuilder
         Urho3D::Vector3 circumscibedSphereCenter_;
     };
 
-    /// Data type used to represent a mesh of tetrahedrons who's vertices can be referenced more than once.
     typedef Urho3D::Vector<Urho3D::SharedPtr<CircumscribedTetrahedron> > CircumscribedTetrahedralMesh;
 
     /*!
      * @brief Takes a list of gravity vector components and creates a triangulated mesh.
      */
-    void Build(const Urho3D::PODVector<GravityVectorComponent*>& gravityVectors);
+    void Build(const Urho3D::PODVector<GravityVector*>& gravityVectors);
 
     /*!
      * @brief After building, the resulting mesh can be retrieved with this.
      */
-    const CircumscribedTetrahedralMesh& GetSharedTetrahedralMesh() const;
+    const CircumscribedTetrahedralMesh& GetTetrahedralMesh() const;
 
     TetrahedralMesh::Polyhedron* GetHullMesh() const;
 
@@ -62,7 +59,7 @@ private:
      * @param[in] tetrahedrons The tetrahedrons to create the hull from.
      */
     static void CreateHullFromTetrahedrons(TetrahedralMesh::Polyhedron* polyhedron,
-                                           CircumscribedTetrahedralMesh& tetrahedrons);
+                                           const CircumscribedTetrahedralMesh& tetrahedrons);
 
     /*!
      * @brief Removes the specified tetrahedrons from the triangulation result.
@@ -78,13 +75,13 @@ private:
      * gravity vector component is used to create the new vertex to which
      * the faces are connected.
      */
-    void ReTriangulateGap(TetrahedralMesh::Polyhedron* polyhedron,const GravityVectorComponent& gravityVector);
+    void ReTriangulateGap(const TetrahedralMesh::Polyhedron& polyhedron, const GravityVector& gravityVector);
 
     /*!
      * @brief Cleans up the triangulation result such that no more connections
      * exist to the original super tetrahedron.
      */
-    void CleanUp(Urho3D::SharedPtr<CircumscribedTetrahedron> superTetrahedron);
+    void CleanUp(const CircumscribedTetrahedron* superTetrahedron);
 
     CircumscribedTetrahedralMesh triangulationResult_;
     TetrahedralMesh::Polyhedron* hull_;

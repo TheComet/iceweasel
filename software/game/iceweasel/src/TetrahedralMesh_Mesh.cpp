@@ -31,13 +31,7 @@ void Mesh::SetMesh(const TetrahedralMeshBuilder::CircumscribedTetrahedralMesh& s
         ++it)
     {
         TetrahedralMeshBuilder::CircumscribedTetrahedron* t = *it;
-
-        tetrahedrons_.Push(Tetrahedron(
-            Vertex(t->v_[0]->position_, t->v_[0]->direction_, t->v_[0]->forceFactor_),
-            Vertex(t->v_[1]->position_, t->v_[1]->direction_, t->v_[1]->forceFactor_),
-            Vertex(t->v_[2]->position_, t->v_[2]->direction_, t->v_[2]->forceFactor_),
-            Vertex(t->v_[3]->position_, t->v_[3]->direction_, t->v_[3]->forceFactor_)
-        ));
+        tetrahedrons_.Push(Tetrahedron(t->v_[0], t->v_[1], t->v_[2], t->v_[3]));
     }
 }
 

@@ -1,11 +1,12 @@
 #pragma once
 
 #include "iceweasel/TetrahedralMeshBuilder.h"
+#include "iceweasel/TetrahedralMesh_Tetrahedron.h"
 
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Container/Ptr.h>
 
-class GravityVectorComponent;
+class GravityVector;
 namespace Urho3D {
     class DebugRenderer;
 }
@@ -48,7 +49,7 @@ public:
     void DrawDebugGeometry(Urho3D::DebugRenderer* debug, bool depthTest, Urho3D::Vector3 pos);
 
 private:
-    typedef Urho3D::Vector<Urho3D::SharedPtr<Tetrahedron> > ContainerType;
+    typedef Urho3D::Vector<Tetrahedron> ContainerType;
     ContainerType tetrahedrons_;
 };
 

@@ -1,15 +1,17 @@
 #include "iceweasel/TetrahedralMeshBuilder.h"
+#include "iceweasel/TetrahedralMesh_Polyhedron.h"
 #include "iceweasel/Math.h"
-#include "iceweasel/GravityVectorComponent.h"
+#include "iceweasel/GravityVector.h"
 
 #include <Urho3D/Math/BoundingBox.h>
 
 using namespace Urho3D;
+using namespace TetrahedralMesh;
 
 // ============================================================================
 TetrahedralMeshBuilder::
-CircumscribedTetrahedron::CircumscribedTetrahedron(GravityMesh::Vertex* v1, GravityMesh::Vertex* v2,
-                                                   GravityMesh::Vertex* v3, GravityMesh::Vertex* v4)
+CircumscribedTetrahedron::CircumscribedTetrahedron(TetrahedralMesh::Vertex* v1, TetrahedralMesh::Vertex* v2,
+                                                   TetrahedralMesh::Vertex* v3, TetrahedralMesh::Vertex* v4)
 {
     v_[0] = v1; v_[1] = v2; v_[2] = v3; v_[3] = v4;
     circumscibedSphereCenter_ = Math::CircumscribeSphere(v1->position_,
@@ -23,9 +25,9 @@ CircumscribedTetrahedron::CircumscribedTetrahedron(GravityMesh::Vertex* v1, Grav
 struct Face
 {
     Face() {}
-    Face(GravityMesh::Vertex* v1,
-         GravityMesh::Vertex* v2,
-         GravityMesh::Vertex* v3) :
+    Face(TetrahedralMesh::Vertex* v1,
+         TetrahedralMesh::Vertex* v2,
+         TetrahedralMesh::Vertex* v3) :
         marked_(true)
     {
         v_[0] = v1;
@@ -44,21 +46,18 @@ struct Face
         return false;
     }
 
-    SharedPtr<GravityMesh::Vertex> v_[3];
+    SharedPtr<TetrahedralMesh::Vertex> v_[3];
     bool marked_;
 };
 
 
 // ============================================================================
-static TetrahedralMeshBuilder::SharedVertexTetrahedron*
-ConstructSuperTetrahedron(const PODVector<GravityVectorComponent*>& gravityVectors)
+static SharedPtr<TetrahedralMeshBuilder::CircumscribedTetrahedron>
+ConstructSuperTetrahedron(const PODVector<GravityVector*>& gravityVectors)
 {
-    typedef TetrahedralMeshBuilder::SharedVertex Vertex;
-    typedef TetrahedralMeshBuilder::SharedVertexTetrahedron SharedVertexTetrahedron;
-
-    // Compute bounding box
+    // Compute bounding box of all of the gravity vector components
     BoundingBox aabb;
-    for(PODVector<GravityVectorComponent*>::ConstIterator it = gravityVectors.Begin();
+    for(PODVector<GravityVector*>::ConstIterator it = gravityVectors.Begin();
         it != gravityVectors.End();
         ++it)
     {
@@ -80,16 +79,16 @@ ConstructSuperTetrahedron(const PODVector<GravityVectorComponent*>& gravityVecto
     aabb.max_.z_ += Abs(aabb.max_.z_ * 0.1f);
 
     // This tetrahedron should encompass all vertices in the list
-    return new SharedVertexTetrahedron(
-        new Vertex(aabb.max_),
-        new Vertex(Vector3(aabb.min_.x_, aabb.max_.y_, aabb.max_.z_)),
-        new Vertex(Vector3(aabb.max_.x_, aabb.min_.y_, aabb.max_.z_)),
-        new Vertex(Vector3(aabb.max_.x_, aabb.max_.y_, aabb.min_.z_))
-    );
+    return SharedPtr<TetrahedralMeshBuilder::CircumscribedTetrahedron>(new TetrahedralMeshBuilder::CircumscribedTetrahedron(
+        new Vertex(aabb.max_, Vector3::DOWN),
+        new Vertex(Vector3(aabb.min_.x_, aabb.max_.y_, aabb.max_.z_), Vector3::DOWN),
+        new Vertex(Vector3(aabb.max_.x_, aabb.min_.y_, aabb.max_.z_), Vector3::DOWN),
+        new Vertex(Vector3(aabb.max_.x_, aabb.max_.y_, aabb.min_.z_), Vector3::DOWN)
+    ));
 }
 
 // ----------------------------------------------------------------------------
-void TetrahedralMeshBuilder::Build(const PODVector<GravityVectorComponent*>& gravityVectors)
+void TetrahedralMeshBuilder::Build(const PODVector<GravityVector*>& gravityVectors)
 {
     /*
      * The Bowyer-Watson algorithm is used here to convert a set of 3D points
@@ -98,21 +97,21 @@ void TetrahedralMeshBuilder::Build(const PODVector<GravityVectorComponent*>& gra
      */
 
     triangulationResult_.Clear();
-    hull_.Clear();
+    hull_ = new TetrahedralMesh::Polyhedron;
 
-    SharedTetrahedralMesh badTetrahedrons;
-    Polyhedron polyhedron;
+    CircumscribedTetrahedralMesh badTetrahedrons;
+    TetrahedralMesh::Polyhedron polyhedron;
 
     // Add super tetrahedron as the first tetrahedron to the list.
-    SharedPtr<SharedVertexTetrahedron> superTetrahedron(ConstructSuperTetrahedron(gravityVectors));
+    SharedPtr<CircumscribedTetrahedron> superTetrahedron = ConstructSuperTetrahedron(gravityVectors);
     triangulationResult_.Push(superTetrahedron);
 
     // Iterate over all gravity vectors, add each as a vertex to the mesh one by one
-    for(PODVector<GravityVectorComponent*>::ConstIterator gravityVectorsIt = gravityVectors.Begin();
+    for(PODVector<GravityVector*>::ConstIterator gravityVectorsIt = gravityVectors.Begin();
         gravityVectorsIt != gravityVectors.End();
         ++gravityVectorsIt)
     {
-        GravityVectorComponent* gravityVector = *gravityVectorsIt;
+        GravityVector* gravityVector = *gravityVectorsIt;
 
         FindBadTetrahedrons(&badTetrahedrons, gravityVector->GetPosition());
         CreateHullFromTetrahedrons(&polyhedron, badTetrahedrons);
@@ -126,24 +125,25 @@ void TetrahedralMeshBuilder::Build(const PODVector<GravityVectorComponent*>& gra
     // in the mesh as "bad" and running it through the face-face comparison
     // code. This will return a list of all triangles that don't touch each
     // other, i.e. the hull.
-    CreateHullFromTetrahedrons(&hull_, triangulationResult_);
+    CreateHullFromTetrahedrons(hull_, triangulationResult_);
 }
 
 // ----------------------------------------------------------------------------
-const TetrahedralMeshBuilder::SharedTetrahedralMesh& TetrahedralMeshBuilder::GetSharedTetrahedralMesh() const
+const TetrahedralMeshBuilder::CircumscribedTetrahedralMesh&
+TetrahedralMeshBuilder::GetTetrahedralMesh() const
 {
     return triangulationResult_;
 }
 
 // ----------------------------------------------------------------------------
-const TetrahedralMeshBuilder::Polyhedron& TetrahedralMeshBuilder::GetHullMesh() const
+TetrahedralMesh::Polyhedron* TetrahedralMeshBuilder::GetHullMesh() const
 {
     return hull_;
 }
 
 // ----------------------------------------------------------------------------
 void TetrahedralMeshBuilder::FindBadTetrahedrons(
-    SharedTetrahedralMesh* badTetrahedrons,
+    CircumscribedTetrahedralMesh* badTetrahedrons,
     Vector3 point) const
 {
     badTetrahedrons->Clear();
@@ -151,30 +151,29 @@ void TetrahedralMeshBuilder::FindBadTetrahedrons(
     // Iterate all tetrahedrons in current triangulation and calculate their
     // circumsphere. If the vertex location (point) we are adding is within the
     // sphere, then we add that tetrahedron to the bad list.
-    for(SharedTetrahedralMesh::ConstIterator tetrahedron = triangulationResult_.Begin();
-        tetrahedron != triangulationResult_.End();
-        ++tetrahedron)
+    for(CircumscribedTetrahedralMesh::ConstIterator pTetrahedron = triangulationResult_.Begin();
+        pTetrahedron != triangulationResult_.End();
+        ++pTetrahedron)
     {
-        SharedVertexTetrahedron* t = *tetrahedron;
-
+        CircumscribedTetrahedron* tetrahedron = *pTetrahedron;
         Vector3 circumsphereCenter = Math::CircumscribeSphere(
-            t->v_[0]->position_,
-            t->v_[1]->position_,
-            t->v_[2]->position_,
-            t->v_[3]->position_
+            tetrahedron->v_[0]->position_,
+            tetrahedron->v_[1]->position_,
+            tetrahedron->v_[2]->position_,
+            tetrahedron->v_[3]->position_
         );
 
         // Test if point is inside circumcircle of tetrahedron. Add to bad list
-        float radiusSquared = (circumsphereCenter - t->v_[0]->position_).LengthSquared();
+        float radiusSquared = (circumsphereCenter - tetrahedron->v_[0]->position_).LengthSquared();
         if((point - circumsphereCenter).LengthSquared() < radiusSquared)
-            badTetrahedrons->Push(SharedPtr<SharedVertexTetrahedron>(t));
+            badTetrahedrons->Push(SharedPtr<CircumscribedTetrahedron>(tetrahedron));
     }
 }
 
 // ----------------------------------------------------------------------------
 void TetrahedralMeshBuilder::CreateHullFromTetrahedrons(
-    Polyhedron* polyhedron,
-    const SharedTetrahedralMesh& tetrahedrons)
+    TetrahedralMesh::Polyhedron* polyhedron,
+    const CircumscribedTetrahedralMesh& tetrahedrons)
 {
     polyhedron->Clear();
 
@@ -182,10 +181,10 @@ void TetrahedralMeshBuilder::CreateHullFromTetrahedrons(
     // all faces are marked initially.
     unsigned numFaces = tetrahedrons.Size() * 4;
     Face* face = new Face[numFaces];
-    SharedTetrahedralMesh::ConstIterator tetrahedron = tetrahedrons.Begin();
+    CircumscribedTetrahedralMesh::ConstIterator tetrahedron = tetrahedrons.Begin();
     for(unsigned i = 0; tetrahedron != tetrahedrons.End(); ++tetrahedron, i += 4)
     {
-        SharedVertexTetrahedron* t = *tetrahedron;
+        CircumscribedTetrahedron* t = *tetrahedron;
         face[i+0] = Face(t->v_[0], t->v_[1], t->v_[2]);
         face[i+1] = Face(t->v_[3], t->v_[0], t->v_[1]);
         face[i+2] = Face(t->v_[3], t->v_[1], t->v_[2]);
@@ -217,9 +216,9 @@ void TetrahedralMeshBuilder::CreateHullFromTetrahedrons(
 
 // ----------------------------------------------------------------------------
 void TetrahedralMeshBuilder::RemoveTetrahedronsFromTriangulation(
-    const TetrahedralMeshBuilder::SharedTetrahedralMesh& tetrahedrons)
+    const CircumscribedTetrahedralMesh& tetrahedrons)
 {
-    for(SharedTetrahedralMesh::ConstIterator tetrahedronIt = tetrahedrons.Begin();
+    for(CircumscribedTetrahedralMesh::ConstIterator tetrahedronIt = tetrahedrons.Begin();
         tetrahedronIt != tetrahedrons.End();
         ++tetrahedronIt)
     {
@@ -228,12 +227,12 @@ void TetrahedralMeshBuilder::RemoveTetrahedronsFromTriangulation(
 }
 
 // ----------------------------------------------------------------------------
-void TetrahedralMeshBuilder::ReTriangulateGap(const Polyhedron& polyhedron,
-                                          const GravityVectorComponent& gravityVector)
+void TetrahedralMeshBuilder::ReTriangulateGap(const TetrahedralMesh::Polyhedron& polyhedron,
+                                          const GravityVector& gravityVector)
 {
 
     // Create an internal Vertex object from the gravity vector component.
-    SharedPtr<SharedVertex> connectToVertex(new SharedVertex(
+    SharedPtr<Vertex> connectToVertex(new Vertex(
         gravityVector.GetPosition(),
         gravityVector.GetDirection(),
         gravityVector.GetForceFactor()
@@ -241,25 +240,25 @@ void TetrahedralMeshBuilder::ReTriangulateGap(const Polyhedron& polyhedron,
 
     // Connect all faces in the polyhedron to the new vertex to form new
     // tetrahedrons.
-    Polyhedron::ConstIterator vertex = polyhedron.Begin();
+    TetrahedralMesh::Polyhedron::ConstIterator vertex = polyhedron.Begin();
     while(vertex != polyhedron.End())
     {
-        SharedVertex* v1 = *vertex++;
-        SharedVertex* v2 = *vertex++;
-        SharedVertex* v3 = *vertex++;
-        triangulationResult_.Push(SharedPtr<SharedVertexTetrahedron>(
-            new SharedVertexTetrahedron(connectToVertex, v1, v2, v3)
+        Vertex* v1 = *vertex++;
+        Vertex* v2 = *vertex++;
+        Vertex* v3 = *vertex++;
+        triangulationResult_.Push(SharedPtr<CircumscribedTetrahedron>(
+            new CircumscribedTetrahedron(connectToVertex, v1, v2, v3)
         ));
     }
 }
 
 // ----------------------------------------------------------------------------
-void TetrahedralMeshBuilder::CleanUp(SharedPtr<SharedVertexTetrahedron> superTetrahedron)
+void TetrahedralMeshBuilder::CleanUp(const CircumscribedTetrahedron* superTetrahedron)
 {
-    SharedTetrahedralMesh::Iterator tetrahedron = triangulationResult_.Begin();
+    CircumscribedTetrahedralMesh::Iterator tetrahedron = triangulationResult_.Begin();
     while(tetrahedron != triangulationResult_.End())
     {
-        SharedVertexTetrahedron* t = *tetrahedron;
+        CircumscribedTetrahedron* t = *tetrahedron;
 
         for(int i = 0; i != 4; ++i)
             for(int j = 0; j != 4; ++j)

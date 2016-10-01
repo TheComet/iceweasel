@@ -6,7 +6,6 @@ namespace Urho3D {
     class Node;
     class Scene;
     class Text;
-    class TetrahedralMesh;
 }
 
 class MenuScreens;

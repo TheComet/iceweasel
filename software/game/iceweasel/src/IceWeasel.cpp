@@ -4,7 +4,7 @@
 #include "iceweasel/PlayerController.h"
 #include "iceweasel/CameraControllerFree.h"
 #include "iceweasel/GravityManager.h"
-#include "iceweasel/GravityVectorComponent.h"
+#include "iceweasel/GravityVector.h"
 #include "iceweasel/InGameEditor.h"
 #include "iceweasel/MenuScreens.h"
 
@@ -40,7 +40,7 @@ const char* ICEWEASEL_CATEGORY = "IceWeasel Mods";
 void RegisterIceWeaselMods(Urho3D::Context* context)
 {
     GravityManager::RegisterObject(context);
-    GravityVectorComponent::RegisterObject(context);
+    GravityVector::RegisterObject(context);
 }
 
 // ----------------------------------------------------------------------------

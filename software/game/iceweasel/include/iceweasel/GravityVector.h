@@ -7,21 +7,21 @@ namespace Urho3D {
     class Context;
 }
 
-class GravityVectorComponent : public Urho3D::Component
+class GravityVector : public Urho3D::Component
 {
-    URHO3D_OBJECT(GravityVectorComponent, Component)
+    URHO3D_OBJECT(GravityVector, Component)
 
 public:
 
     /*!
      * @brief Constructs a new gravity probe.
      */
-    GravityVectorComponent(Urho3D::Context* context);
+    GravityVector(Urho3D::Context* context);
 
     /*!
      * @brief Destructs the gravity probe.
      */
-    virtual ~GravityVectorComponent();
+    virtual ~GravityVector();
 
     /*!
      * @brief Registers this class as an object factory.

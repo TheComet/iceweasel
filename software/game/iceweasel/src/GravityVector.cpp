@@ -20,59 +20,59 @@
 // THE SOFTWARE.
 //
 
-#include <Urho3D/Core/Context.h>
-#include "iceweasel/GravityVectorComponent.h"
+#include "iceweasel/GravityVector.h"
 #include "iceweasel/IceWeasel.h"
 
+#include <Urho3D/Core/Context.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Scene/Node.h>
 
 using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
-GravityVectorComponent::GravityVectorComponent(Context* context) :
+GravityVector::GravityVector(Context* context) :
     Component(context),
     forceFactor_(1.0f)
 {
 }
 
 // ----------------------------------------------------------------------------
-GravityVectorComponent::~GravityVectorComponent()
+GravityVector::~GravityVector()
 {
 }
 
 // ----------------------------------------------------------------------------
-void GravityVectorComponent::RegisterObject(Context* context)
+void GravityVector::RegisterObject(Context* context)
 {
-    context->RegisterFactory<GravityVectorComponent>(ICEWEASEL_CATEGORY);
+    context->RegisterFactory<GravityVector>(ICEWEASEL_CATEGORY);
 }
 
 // ----------------------------------------------------------------------------
-void GravityVectorComponent::SetPosition(Vector3 position)
+void GravityVector::SetPosition(Vector3 position)
 {
     node_->SetWorldPosition(position);
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityVectorComponent::GetPosition() const
+Vector3 GravityVector::GetPosition() const
 {
     return node_->GetWorldPosition();
 }
 
 // ----------------------------------------------------------------------------
-void GravityVectorComponent::SetDirection(Vector3 direction)
+void GravityVector::SetDirection(Vector3 direction)
 {
     node_->SetWorldDirection(direction);
 }
 
 // ----------------------------------------------------------------------------
-Vector3 GravityVectorComponent::GetDirection() const
+Vector3 GravityVector::GetDirection() const
 {
     return node_->GetWorldDirection();
 }
 
 // ----------------------------------------------------------------------------
-void GravityVectorComponent::DrawDebugGeometry(DebugRenderer* debug, bool depthTest)
+void GravityVector::DrawDebugGeometry(DebugRenderer* debug, bool depthTest)
 {
     // Collect data for drawing an arrow
     float scale = forceFactor_ * 3.0f;

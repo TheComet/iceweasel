@@ -13,7 +13,7 @@ namespace Urho3D {
 namespace TetrahedralMesh {
 class Vertex;
 
-class Tetrahedron : public Urho3D::RefCounted
+class Tetrahedron
 {
 public:
 
