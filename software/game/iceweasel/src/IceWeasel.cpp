@@ -4,7 +4,7 @@
 #include "iceweasel/PlayerController.h"
 #include "iceweasel/CameraControllerFree.h"
 #include "iceweasel/GravityManager.h"
-#include "iceweasel/GravityVector.h"
+#include "iceweasel/GravityVectorComponent.h"
 #include "iceweasel/InGameEditor.h"
 #include "iceweasel/MenuScreens.h"
 

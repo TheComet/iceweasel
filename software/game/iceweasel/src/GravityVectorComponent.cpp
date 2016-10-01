@@ -21,7 +21,7 @@
 //
 
 #include <Urho3D/Core/Context.h>
-#include "iceweasel/GravityVector.h"
+#include "iceweasel/GravityVectorComponent.h"
 #include "iceweasel/IceWeasel.h"
 
 #include <Urho3D/Graphics/DebugRenderer.h>

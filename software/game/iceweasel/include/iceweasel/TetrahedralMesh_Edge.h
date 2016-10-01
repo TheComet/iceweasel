@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Math/Vector4.h>
 #include <Urho3D/Math/Matrix4.h>
@@ -10,7 +11,7 @@ namespace Urho3D {
     class DebugRenderer;
 }
 
-namespace GravityMesh {
+namespace TetrahedralMesh {
 class Vertex;
 
 class Edge
@@ -22,10 +23,10 @@ public:
      * @brief Constructs a triangle from 4 vertex locations in cartesian
      * space.
      */
-    Edge(const GravityPoint& p0,
-                const GravityPoint& p1,
-                const Urho3D::Vector3& boundaryNormal0,
-                const Urho3D::Vector3& boundaryNormal1);
+    Edge(Vertex* v0,
+         Vertex* v1,
+         const Urho3D::Vector3& boundaryNormal0,
+         const Urho3D::Vector3& boundaryNormal1);
 
     void FlipBoundaryCheck();
 
@@ -58,7 +59,7 @@ private:
     Urho3D::Matrix4 CalculateEdgeProjectionMatrix() const;
     Urho3D::Matrix4 CalculateBarycentricTransformationMatrix() const;
 
-    GravityPoint vertex_[2];
+    Urho3D::SharedPtr<Vertex> vertex_[2];
     Urho3D::Vector3 boundaryNormal_[2];
 
     Urho3D::Matrix4 transform_;

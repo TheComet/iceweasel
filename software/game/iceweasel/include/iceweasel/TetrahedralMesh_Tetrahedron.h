@@ -1,7 +1,6 @@
 #pragma once
 
-#include "iceweasel/GravityMesh_Vertex.h"
-
+#include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Math/Vector4.h>
 #include <Urho3D/Math/Matrix4.h>
@@ -11,7 +10,8 @@ namespace Urho3D {
     class DebugRenderer;
 }
 
-namespace GravityMesh {
+namespace TetrahedralMesh {
+class Vertex;
 
 class Tetrahedron : public Urho3D::RefCounted
 {
@@ -23,10 +23,10 @@ public:
      * @brief Constructs a tetrahedron from 4 vertex locations in cartesian
      * space.
      */
-    Tetrahedron(const GravityPoint& p0,
-                       const GravityPoint& p1,
-                       const GravityPoint& p2,
-                       const GravityPoint& p3);
+    Tetrahedron(Vertex* v0,
+                Vertex* v1,
+                Vertex* v2,
+                Vertex* v3);
 
     /*!
      * @brief Returns true if the specified barycentric coordinate lies inside
@@ -54,8 +54,7 @@ public:
 private:
     Urho3D::Matrix4 CalculateBarycentricTransformationMatrix() const;
 
-    GravityPoint vertex_[4];
-
+    Urho3D::SharedPtr<Vertex> vertex_[4];
     Urho3D::Matrix4 transform_;
 };
 

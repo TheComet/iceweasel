@@ -1,8 +1,8 @@
 #include "iceweasel/GravityManager.h"
-#include "iceweasel/GravityVector.h"
+#include "iceweasel/GravityVectorComponent.h"
 #include "iceweasel/IceWeasel.h"
-#include "iceweasel/GravityHull.h"
-#include "iceweasel/GravityMesh.h"
+#include "iceweasel/TetrahedralMesh_Mesh.h"
+#include "iceweasel/TetrahedralMesh_Hull.h"
 
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Scene/SceneEvents.h>
@@ -15,10 +15,10 @@ using namespace Urho3D;
 #endif
 
 // ----------------------------------------------------------------------------
-GravityManager::GravityManager(Context* context)
-    : Component(context),
-    gravityMesh_(new GravityMesh),
-    gravityHull_(new GravityHull),
+GravityManager::GravityManager(Context* context) :
+    Component(context),
+    gravityMesh_(new ::TetrahedralMesh::Mesh),
+    gravityHull_(new ::TetrahedralMesh::Hull),
     gravity_(9.81f),
     strategy_(SHORTEST_DISTANCE)
 {

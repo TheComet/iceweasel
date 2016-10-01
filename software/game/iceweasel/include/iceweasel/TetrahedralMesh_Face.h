@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Math/Vector4.h>
 #include <Urho3D/Math/Matrix4.h>
@@ -10,7 +11,7 @@ namespace Urho3D {
     class DebugRenderer;
 }
 
-namespace GravityMesh {
+namespace TetrahedralMesh {
 class Vertex;
 
 class Face
@@ -21,9 +22,9 @@ public:
     /*!
      * @brief Constructs a triangle from 3 vertices.
      */
-    Face(const Vertex& p0,
-         const Vertex& p1,
-         const Vertex& p2);
+    Face(Vertex* v0,
+         Vertex* v1,
+         Vertex* v2);
 
     /*!
      * @param vertexID The ID (0, 1 or 2) of the vertex to get.

@@ -9,7 +9,7 @@ namespace Urho3D {
 
 class GravityVectorComponent : public Urho3D::Component
 {
-    URHO3D_OBJECT(GravityVector, Component)
+    URHO3D_OBJECT(GravityVectorComponent, Component)
 
 public:
 

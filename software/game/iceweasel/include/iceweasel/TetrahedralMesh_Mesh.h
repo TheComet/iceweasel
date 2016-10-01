@@ -1,21 +1,21 @@
 #pragma once
 
-#include "iceweasel/GravityMeshBuilder.h"
-#include "iceweasel/GravityTetrahedron.h"
+#include "iceweasel/TetrahedralMeshBuilder.h"
 
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Container/Ptr.h>
 
+class GravityVectorComponent;
 namespace Urho3D {
     class DebugRenderer;
 }
+namespace TetrahedralMesh {
+class Tetrahedron;
 
-class GravityVectorComponent;
-
-class GravityMesh : public Urho3D::RefCounted
+class Mesh : public Urho3D::RefCounted
 {
 public:
-    GravityMesh();
+    Mesh();
 
     /*!
      * @brief Creates the gravity mesh from a shared vertex mesh (provided by
@@ -23,7 +23,7 @@ public:
      *
      * The mesh is split into individual tetrahedron objects.
      */
-    GravityMesh(const GravityMeshBuilder::SharedTetrahedralMesh& sharedVertexMesh);
+    Mesh(const TetrahedralMeshBuilder::CircumscribedTetrahedralMesh& sharedVertexMesh);
 
     /*!
      * @brief Queries which tetrahedron a point is located in.
@@ -43,11 +43,13 @@ public:
      *
      * The mesh is split into individual tetrahedron objects.
      */
-    void SetMesh(const GravityMeshBuilder::SharedTetrahedralMesh& sharedVertexMesh);
+    void SetMesh(const TetrahedralMeshBuilder::CircumscribedTetrahedralMesh& sharedVertexMesh);
 
     void DrawDebugGeometry(Urho3D::DebugRenderer* debug, bool depthTest, Urho3D::Vector3 pos);
 
 private:
-    // TODO consider just using GravityMeshBuilder::SharedTetrahedralMesh directly
-    Urho3D::Vector<Tetrahedron> tetrahedrons_;
+    typedef Urho3D::Vector<Urho3D::SharedPtr<Tetrahedron> > ContainerType;
+    ContainerType tetrahedrons_;
 };
+
+}

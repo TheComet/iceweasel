@@ -1,15 +1,17 @@
 #pragma once
 
-#include "../Scene/Component.h"
+#include <Urho3D/Scene/Component.h>
 
 namespace Urho3D {
     class Context;
     class DebugRenderer;
 }
+namespace TetrahedralMesh {
+    class Mesh;
+    class Hull;
+}
 
 class GravityVectorComponent;
-class GravityHull;
-class GravityMesh;
 
 /*!
  * @brief Provides an interface to query the scene for gravitational data.
@@ -99,9 +101,9 @@ private:
     void HandleNodeAdded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleNodeRemoved(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    Urho3D::PODVector<GravityVectorComponent*> gravityVectors_;
-    Urho3D::SharedPtr<GravityMesh> gravityMesh_;
-    Urho3D::SharedPtr<GravityHull> gravityHull_;
+    Urho3D::PODVector<GravityVectorComponent*> gravityVectors_;/*
+    Urho3D::SharedPtr<TetrahedralMesh::Mesh> gravityMesh_;
+    Urho3D::SharedPtr<TetrahedralMesh::Hull> gravityHull_;*/
 
     float gravity_;
 

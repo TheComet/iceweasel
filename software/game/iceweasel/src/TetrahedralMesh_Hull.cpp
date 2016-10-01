@@ -1,72 +1,70 @@
-#include "iceweasel/GravityHull.h"
+#include "iceweasel/TetrahedralMesh_Hull.h"
+#include "iceweasel/TetrahedralMesh_Polyhedron.h"
+#include "iceweasel/TetrahedralMesh_Vertex.h"
+#include "iceweasel/TetrahedralMesh_Edge.h"
+#include "iceweasel/TetrahedralMesh_Face.h"
 
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Math/Vector3.h>
 
-using namespace Urho3D;
+using namespace TetrahedralMesh;
 
 // ----------------------------------------------------------------------------
-GravityHull::GravityHull()
+Hull::Hull()
 {
 }
 
 // ----------------------------------------------------------------------------
-GravityHull::GravityHull(const GravityMeshBuilder::Polyhedron& polyhedron)
+Hull::Hull(Polyhedron* polyhedron)
 {
     SetMesh(polyhedron);
 }
 
 // ----------------------------------------------------------------------------
-void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
+void Hull::SetMesh(Polyhedron* polyhedron)
 {
-    typedef GravityMeshBuilder::SharedVertex Vertex;
-    typedef GravityMeshBuilder::Polyhedron Polyhedron;
-
-    triangles_.Clear();
+    faces_.Clear();
     edges_.Clear();
-    points_.Clear();
+    hullMesh_ = polyhedron;
 
-    if(polyhedron.Size() == 0)
+    if(hullMesh_->FaceCount() == 0)
         return;
 
-    Vector<Vector3> trianglePositions;
+    Urho3D::Vector<Urho3D::Vector3> trianglePositions;
 
-    Polyhedron::ConstIterator vertexIt = polyhedron.Begin();
-    while(vertexIt != polyhedron.End())
+    Polyhedron::ConstIterator vertexIt = hullMesh_->Begin();
+    while(vertexIt != hullMesh_->End())
     {
-        Vertex* vertex0 = *vertexIt++;
-        Vertex* vertex1 = *vertexIt++;
-        Vertex* vertex2 = *vertexIt++;
+        Vertex* v0 = *vertexIt++;
+        Vertex* v1 = *vertexIt++;
+        Vertex* v2 = *vertexIt++;
 
         // Accumulate positions of triangle centres for average position
         trianglePositions.Push(
-            (vertex0->position_ + vertex1->position_ + vertex2->position_) / 3.0f
+            (v0->position_ + v1->position_ + v2->position_) / 3.0f
         );
 
-        // Add triangle
-        triangles_.Push(Face(
-            GravityPoint(vertex0->position_, vertex0->direction_, vertex0->forceFactor_),
-            GravityPoint(vertex1->position_, vertex1->direction_, vertex1->forceFactor_),
-            GravityPoint(vertex2->position_, vertex2->direction_, vertex2->forceFactor_)
-        ));
-
-        // Add three points
-        points_.Push(GravityPoint(vertex0->position_, vertex0->direction_, vertex0->forceFactor_));
-        points_.Push(GravityPoint(vertex1->position_, vertex1->direction_, vertex1->forceFactor_));
-        points_.Push(GravityPoint(vertex2->position_, vertex2->direction_, vertex2->forceFactor_));
+        // Add face
+        faces_.Push(Face(v0, v1, v2));
     }
 
     // Average triangle centres to get centre of hull
-    centre_ = Vector3::ZERO;
-    for(Vector<Vector3>::ConstIterator it = trianglePositions.Begin(); it != trianglePositions.End(); ++it)
+    centre_ = Urho3D::Vector3::ZERO;
+    for(Urho3D::Vector<Urho3D::Vector3>::ConstIterator it = trianglePositions.Begin();
+        it != trianglePositions.End();
+        ++it)
+    {
         centre_ += *it;
+    }
     centre_ /= trianglePositions.Size();
 
     // Make sure each triangle's normal vector is pointing away from centre of
     // the hull
-    for(Vector<Face>::Iterator it = triangles_.Begin(); it != triangles_.End(); ++it)
+    for(Urho3D::Vector<Face>::Iterator it = faces_.Begin();
+        it != faces_.End();
+        ++it)
     {
-        Vector3 outwards = it->GetVertex(0).position_ - centre_;
+        Urho3D::Vector3 outwards = it->GetVertex(0)->position_ - centre_;
         if(outwards.DotProduct(it->GetNormal()) < 0)
             it->FlipNormal();
     }
@@ -80,9 +78,9 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
     // it is more efficient to check for joined edges using the polyhedron data
     // structure than the triangles list. The triangles list is required to get
     // the calculated and adjusted normals.
-    vertexIt = polyhedron.Begin();
-    Vector<Face>::ConstIterator triangleIt = triangles_.Begin();
-    for(; vertexIt != polyhedron.End(); triangleIt++)
+    vertexIt = hullMesh_->Begin();
+    Urho3D::Vector<Face>::ConstIterator triangleIt = faces_.Begin();
+    for(; vertexIt != hullMesh_->End(); triangleIt++)
     {
         Vertex* vertex[3];
         vertex[0] = *vertexIt++;
@@ -90,9 +88,9 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
         vertex[2] = *vertexIt++;
 
         // find the three adjacent triangles
-        Vector<Face>::ConstIterator triangleIt2 = triangles_.Begin();
-        Polyhedron::ConstIterator vertexIt2 = polyhedron.Begin();
-        for(; vertexIt2 != polyhedron.End(); triangleIt2++)
+        Urho3D::Vector<Face>::ConstIterator triangleIt2 = faces_.Begin();
+        Polyhedron::ConstIterator vertexIt2 = hullMesh_->Begin();
+        for(; vertexIt2 != hullMesh_->End(); triangleIt2++)
         {
             Vertex* vertex2[3];
             vertex2[0] = *vertexIt2++;
@@ -120,15 +118,15 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
 
             // Found a joined edge, add it
             edges_.Push(Edge(
-                GravityPoint(joined[0]->position_, joined[0]->direction_, joined[0]->forceFactor_),
-                GravityPoint(joined[1]->position_, joined[1]->direction_, joined[1]->forceFactor_),
+                joined[0],
+                joined[1],
                 triangleIt->GetNormal(),
                 triangleIt2->GetNormal()
             ));
 
             // Make sure edge boundary check points outwards from the hull's
             // centre
-            Vector2 bary = edges_.Back().ProjectAndTransformToBarycentric(centre_);
+            Urho3D::Vector2 bary = edges_.Back().ProjectAndTransformToBarycentric(centre_);
             if(edges_.Back().ProjectionAngleIsInBounds(edges_.Back().TransformToCartesian(bary), centre_))
                 edges_.Back().FlipBoundaryCheck();
         }
@@ -136,8 +134,10 @@ void GravityHull::SetMesh(const GravityMeshBuilder::Polyhedron& polyhedron)
 }
 
 // ----------------------------------------------------------------------------
-bool GravityHull::Query(Vector3* gravity, const Vector3& position)
+bool Hull::Query(Urho3D::Vector3* gravity, const Urho3D::Vector3& position)
 {
+    using namespace Urho3D;
+
     /* NOTE This method works, but was removed because the results were not
      * good enough.
     Vector3 distanceVec = centre_ - position;
@@ -166,21 +166,21 @@ bool GravityHull::Query(Vector3* gravity, const Vector3& position)
     Vector3 distanceVec =  position - centre_;
 
     // Try all faces first
-    for(Vector<Face>::ConstIterator triangle = triangles_.Begin();
-        triangle != triangles_.End();
-        ++triangle)
+    for(Vector<Face>::ConstIterator face = faces_.Begin();
+        face != faces_.End();
+        ++face)
     {
-        Vector3 bary = triangle->ProjectAndTransformToBarycentric(position);
-        if(triangle->PointLiesInside(bary))
+        Vector3 bary = face->ProjectAndTransformToBarycentric(position);
+        if(face->PointLiesInside(bary))
         {
             // It's possible we hit a triangle on the other side
-            if(distanceVec.DotProduct(triangle->GetNormal()) < 0)
+            if(distanceVec.DotProduct(face->GetNormal()) < 0)
                 continue;
 
             // We found the triangle, interpolate gravity vector and return
             if(gravity != NULL)
-                *gravity = triangle->InterpolateGravity(bary);
-            lastIntersection_ = triangle->TransformToCartesian(bary);
+                *gravity = face->InterpolateGravity(bary);
+            lastIntersection_ = face->TransformToCartesian(bary);
             return true;
         }
     }
@@ -207,16 +207,17 @@ bool GravityHull::Query(Vector3* gravity, const Vector3& position)
 
     // Find closest vertex as a last resort
     float distanceSquared = M_INFINITY;
-    const GravityPoint* foundPoint = NULL;
-    for(Vector<GravityPoint>::ConstIterator point = points_.Begin();
-        point != points_.End();
-        ++point)
+    const Vertex* foundPoint = NULL;
+    for(Polyhedron::ConstIterator pVertex = hullMesh_->Begin();
+        pVertex != hullMesh_->End();
+        ++pVertex)
     {
-        float newDist = (point->position_ - position).LengthSquared();
+        Vertex* vertex = *pVertex;
+        float newDist = (vertex->position_ - position).LengthSquared();
         if(newDist < distanceSquared)
         {
             distanceSquared = newDist;
-            foundPoint = &(*point);
+            foundPoint = &(*vertex);
         }
     }
     if(foundPoint != NULL)
@@ -231,13 +232,21 @@ bool GravityHull::Query(Vector3* gravity, const Vector3& position)
 }
 
 // ----------------------------------------------------------------------------
-void GravityHull::DrawDebugGeometry(DebugRenderer* debug, bool depthTest, Vector3 pos) const
+void Hull::DrawDebugGeometry(Urho3D::DebugRenderer* debug, bool depthTest, Urho3D::Vector3 pos) const
 {
-    for(Vector<Face>::ConstIterator it = triangles_.Begin(); it != triangles_.End(); ++it)
-        it->DrawDebugGeometry(debug, depthTest, Color::WHITE);
+    for(Urho3D::Vector<Face>::ConstIterator it = faces_.Begin();
+        it != faces_.End();
+        ++it)
+    {
+        it->DrawDebugGeometry(debug, depthTest, Urho3D::Color::WHITE);
+    }
 
-    for(Vector<Edge>::ConstIterator it = edges_.Begin(); it != edges_.End(); ++it)
-        it->DrawDebugGeometry(debug, depthTest, Color::WHITE);
+    for(Urho3D::Vector<Edge>::ConstIterator it = edges_.Begin();
+        it != edges_.End();
+        ++it)
+    {
+        it->DrawDebugGeometry(debug, depthTest, Urho3D::Color::WHITE);
+    }
 
-    debug->AddSphere(Sphere(lastIntersection_, 1.0f), Color::RED, depthTest);
+    debug->AddSphere(Urho3D::Sphere(lastIntersection_, 1.0f), Urho3D::Color::RED, depthTest);
 }
