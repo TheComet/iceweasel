@@ -1,11 +1,15 @@
 #include "iceweasel/InGameEditor.h"
+#include "iceweasel/IceWeasel.h"
 
 #include <Urho3D/AngelScript/ScriptFile.h>
 #include <Urho3D/Scene/Scene.h>
+#include <Urho3D/AngelScript/Script.h>
+#include <Urho3D/LuaScript/LuaScript.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Resource/ResourceEvents.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/UIElement.h>
 
 using namespace Urho3D;
 
@@ -16,14 +20,37 @@ InGameEditor::InGameEditor(Urho3D::Context* context) :
 }
 
 // ----------------------------------------------------------------------------
-void InGameEditor::OpenEditor(Urho3D::Scene* scene)
+void InGameEditor::RunEditor(Urho3D::Scene* scene)
 {
-    if(scriptFile_)
-        return;
-
-    scene_ = scene;
     URHO3D_LOGINFO("Opening Editor");
 
+    Urho3D::Context* editorContext = new Urho3D::Context;
+    InGameEditorApplication* editorApplication = new InGameEditorApplication(editorContext, scene);
+    RegisterIceWeaselMods(editorContext);
+    editorContext->RegisterSubsystem(new Script(editorContext));
+    editorContext->RegisterSubsystem(new LuaScript(editorContext));
+    editorApplication->Run();
+
+    URHO3D_LOGINFO("Closing Editor");
+}
+
+// ----------------------------------------------------------------------------
+InGameEditorApplication::InGameEditorApplication(Context* context, Scene* scene) :
+    Application(context),
+    scene_(scene)
+{
+}
+
+// ----------------------------------------------------------------------------
+InGameEditorApplication::~InGameEditorApplication()
+{
+    if(scriptFile_ && scriptFile_->GetFunction("void Stop()"))
+        scriptFile_->Execute("void Stop()");
+}
+
+// ----------------------------------------------------------------------------
+void InGameEditorApplication::Start()
+{
     VariantVector args;
     args.Push(Variant(scene_));
 
@@ -32,63 +59,37 @@ void InGameEditor::OpenEditor(Urho3D::Scene* scene)
     if(scriptFile_ && scriptFile_->Execute("void Start(Scene@)", args))
     {
         // Subscribe to script's reload event to allow live-reload of the application
-        SubscribeToEvent(scriptFile_, E_RELOADSTARTED, URHO3D_HANDLER(InGameEditor, HandleScriptReloadStarted));
-        SubscribeToEvent(scriptFile_, E_RELOADFINISHED, URHO3D_HANDLER(InGameEditor, HandleScriptReloadFinished));
-        SubscribeToEvent(scriptFile_, E_RELOADFAILED, URHO3D_HANDLER(InGameEditor, HandleScriptReloadFailed));
+        SubscribeToEvent(scriptFile_, E_RELOADSTARTED, URHO3D_HANDLER(InGameEditorApplication, HandleScriptReloadStarted));
+        SubscribeToEvent(scriptFile_, E_RELOADFINISHED, URHO3D_HANDLER(InGameEditorApplication, HandleScriptReloadFinished));
+        SubscribeToEvent(scriptFile_, E_RELOADFAILED, URHO3D_HANDLER(InGameEditorApplication, HandleScriptReloadFailed));
     }
-}
-
-// ----------------------------------------------------------------------------
-void InGameEditor::CloseEditor()
-{
-    if(!scriptFile_)
-        return;
-
-    if(scriptFile_->GetFunction("void Stop()"))
-        scriptFile_->Execute("void Stop()");
-    scriptFile_.Reset();
-
-    GetSubsystem<UI>()->Clear();
-}
-
-// ----------------------------------------------------------------------------
-void InGameEditor::ToggleEditor(Scene* scene)
-{
-    if(IsOpen())
-        CloseEditor();
     else
-        OpenEditor(scene);
+        ErrorExit();
 }
 
 // ----------------------------------------------------------------------------
-bool InGameEditor::IsOpen()
-{
-    return scriptFile_ != NULL;
-}
-
-// ----------------------------------------------------------------------------
-void InGameEditor::HandleScriptReloadStarted(StringHash eventType, VariantMap& eventData)
+void InGameEditorApplication::HandleScriptReloadStarted(StringHash eventType, VariantMap& eventData)
 {
     URHO3D_LOGINFO("Reloading editor script");
 
-    if(scriptFile_->GetFunction("void Stop()"))
+    if(scriptFile_ && scriptFile_->GetFunction("void Stop()"))
         scriptFile_->Execute("void Stop()");
 }
 
 // ----------------------------------------------------------------------------
-void InGameEditor::HandleScriptReloadFailed(StringHash eventType, VariantMap& eventData)
+void InGameEditorApplication::HandleScriptReloadFailed(StringHash eventType, VariantMap& eventData)
 {
     URHO3D_LOGERROR("Failed reloading editor script");
     scriptFile_.Reset();
 }
 
 // ----------------------------------------------------------------------------
-void InGameEditor::HandleScriptReloadFinished(StringHash eventType, VariantMap& eventData)
+void InGameEditorApplication::HandleScriptReloadFinished(StringHash eventType, VariantMap& eventData)
 {
     VariantVector args;
     args.Push(Variant(scene_));
 
-    if(!scriptFile_->Execute("void Start(Scene@)"))
+    if(scriptFile_ && !scriptFile_->Execute("void Start(Scene@)"))
     {
         URHO3D_LOGERROR("Failed to call Start() function in editor script");
         scriptFile_.Reset();

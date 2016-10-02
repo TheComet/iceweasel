@@ -46,7 +46,6 @@ private:
     void CleanupState_Game();
 
     void RegisterSubsystems();
-    void RegisterComponents();
     void CreateCamera();
     void CreateScene();
     void CreateDebugHud();

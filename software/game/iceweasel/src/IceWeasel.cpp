@@ -133,7 +133,6 @@ void IceWeasel::Start()
 
     RegisterIceWeaselMods(context_);
     RegisterSubsystems();
-    RegisterComponents();
     CreateDebugHud();
 
     GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
@@ -160,11 +159,6 @@ void IceWeasel::RegisterSubsystems()
     context_->RegisterSubsystem(new LuaScript(context_));
     context_->RegisterSubsystem(new IceWeaselConfig(context_));
     context_->RegisterSubsystem(new InGameEditor(context_));
-}
-
-// ----------------------------------------------------------------------------
-void IceWeasel::RegisterComponents()
-{
 }
 
 // ----------------------------------------------------------------------------
@@ -271,10 +265,7 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     {
         InGameEditor* editor = GetSubsystem<InGameEditor>();
         if(editor)
-        {
-            if(editor->IsOpen() == false)
-                editor->OpenEditor(scene_);
-        }
+            editor->RunEditor(scene_);
     }
 
     // Toggle debug geometry
