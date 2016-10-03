@@ -48,8 +48,6 @@ void MovementController::Start()
     // Initial physics parameters
     moveNode_->SetRotation(Quaternion::IDENTITY);
 
-    // Need to listen to node collision events to reset gravity
-    SubscribeToEvent(E_NODECOLLISION, URHO3D_HANDLER(MovementController, HandleNodeCollision));
     // WASD depends on the current camera Y angle
     SubscribeToEvent(E_CAMERAANGLECHANGED, URHO3D_HANDLER(MovementController, HandleCameraAngleChanged));
     // Update physics collision shapes and rigid body parameters
@@ -129,6 +127,14 @@ void MovementController::FixedUpdate(float timeStep)
      *        acceleration is a lot smoother this way.
      *      - It's a little more realistic.
      */
+
+    /*
+     * Do some raycasts to figure out if we are on the ground (or hitting our
+     * head on something). If so, reset the down velocity to 0.0f.
+     *
+     * A down velocity of 0.0f means we are on the ground.
+     */
+    ResetDownVelocityIfOnGround();
 
     /*
      * Get input direction vector from WASD on keyboard and store in x and z
@@ -317,7 +323,7 @@ bool MovementController::IsCrouching() const
 }
 
 // ----------------------------------------------------------------------------
-void MovementController::HandleNodeCollision(StringHash /*eventType*/, VariantMap& /*eventData*/)
+void MovementController::ResetDownVelocityIfOnGround()
 {
     /*
      * The point of this event handler is to reset the player's downVelocity to

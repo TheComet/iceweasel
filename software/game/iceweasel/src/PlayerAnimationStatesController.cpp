@@ -65,7 +65,6 @@ void PlayerAnimationStatesController::Start()
 void PlayerAnimationStatesController::Update(float timeStep)
 {
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
-    DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
 
     float velocitySquared = Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_).LengthSquared();
 
@@ -84,20 +83,17 @@ void PlayerAnimationStatesController::Update(float timeStep)
             if(currentLocalVelocity_.y_ > 0.0f)
             {
                 state_ = JUMP_BEGIN;
-                if(debug)
-                    debug->Print("JUMP_BEGIN");
+                LOG_SCROLL("JUMP_BEGIN");
             }
             if(currentLocalVelocity_.y_ < 0.0f)
             {
                 state_ = JUMP_FALL;
-                if(debug)
-                    debug->Print("JUMP_FALL");
+                LOG_SCROLL("JUMP_FALL");
             }
             if(isCrouching_)
             {
                 state_ = CROUCHING;
-                if(debug)
-                    debug->Print("CROUCHING");
+                LOG_SCROLL("CROUCHING");
             }
 
             break;
@@ -108,20 +104,17 @@ void PlayerAnimationStatesController::Update(float timeStep)
             if(currentLocalVelocity_.y_ > 0.0f)
             {
                 state_ = JUMP_BEGIN;
-                if(debug)
-                    debug->Print("JUMP_BEGIN");
+                LOG_SCROLL("JUMP_BEGIN");
             }
             if(currentLocalVelocity_.y_ < 0.0f)
             {
                 state_ = JUMP_FALL;
-                if(debug)
-                    debug->Print("JUMP_FALL");
+                LOG_SCROLL("JUMP_FALL");
             }
             if(!isCrouching_)
             {
                 state_ = ON_GROUND;
-                if(debug)
-                    debug->Print("ON_GROUND");
+                LOG_SCROLL("ON_GROUND");
             }
 
             break;
@@ -131,8 +124,7 @@ void PlayerAnimationStatesController::Update(float timeStep)
                 animation_[PlayerAnimation::JUMP_OFF]->SetTime(0);
 
             state_ = JUMP_OFF;
-            if(debug)
-                debug->Print("JUMP_OFF");
+            LOG_SCROLL("JUMP_OFF");
 
             // fall through on purpose
 
@@ -142,8 +134,7 @@ void PlayerAnimationStatesController::Update(float timeStep)
             if(currentLocalVelocity_.y_ <= 0.0f) // now falling
             {
                 state_ = JUMP_FALL;
-                if(debug)
-                    debug->Print("JUMP_FALL");
+                LOG_SCROLL("JUMP_FALL");
             }
 
             break;
@@ -159,8 +150,7 @@ void PlayerAnimationStatesController::Update(float timeStep)
             if(currentLocalVelocity_.y_ == 0.0f) // landed
             {
                 state_ = JUMP_LAND;
-                if(debug)
-                    debug->Print("JUMP_LAND");
+                LOG_SCROLL("JUMP_LAND");
             }
 
             break;
@@ -174,14 +164,12 @@ void PlayerAnimationStatesController::Update(float timeStep)
                 if(isCrouching_)
                 {
                     state_ = CROUCHING;
-                    if(debug)
-                        debug->Print("CROUCHING");
+                    LOG_SCROLL("CROUCHING");
                 }
                 else
                 {
                     state_ = ON_GROUND;
-                    if(debug)
-                        debug->Print("ON_GROUND");
+                    LOG_SCROLL("ON_GROUND");
                 }
             }
 

@@ -34,8 +34,9 @@ protected:
 
 private:
     void HandleCameraAngleChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
-    void HandleNodeCollision(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleConfigReloaded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+
+    void ResetDownVelocityIfOnGround();
     void UpdatePhysicsSettings();
     void SetInitialPhysicsParameters();
 

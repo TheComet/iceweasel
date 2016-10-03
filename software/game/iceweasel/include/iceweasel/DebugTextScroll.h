@@ -2,6 +2,18 @@
 
 #include <Urho3D/Core/Object.h>
 
+#if defined(DEBUG)
+#   include <Urho3D/IO/Log.h>
+#   define LOG_SCROLL(msg) do {                                \
+            DebugTextScroll* debug_##__LINE__ =                \
+                    GetSubsystem<DebugTextScroll>();           \
+            if(debug_##__LINE__) debug_##__LINE__->Print(msg); \
+            URHO3D_LOGDEBUG(msg);                              \
+    } while(0)
+#else
+#   define LOG_SCROLL(msg)
+#endif
+
 namespace Urho3D {
     class Text;
 }
@@ -18,6 +30,7 @@ public:
 
 private:
     void HandleUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleLogMessage(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
     struct TextItem
     {

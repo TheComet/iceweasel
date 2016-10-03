@@ -2,6 +2,7 @@
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/IO/IOEvents.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/Font.h>
@@ -13,6 +14,7 @@ DebugTextScroll::DebugTextScroll(Urho3D::Context* context) :
     Object(context)
 {
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(DebugTextScroll, HandleUpdate));
+    SubscribeToEvent(E_LOGMESSAGE, URHO3D_HANDLER(DebugTextScroll, HandleLogMessage));
 }
 
 // ----------------------------------------------------------------------------
@@ -81,3 +83,14 @@ void DebugTextScroll::HandleUpdate(StringHash eventType, VariantMap& eventData)
         }
     }
 }
+
+// ----------------------------------------------------------------------------
+void DebugTextScroll::HandleLogMessage(StringHash eventType, VariantMap& eventData)
+{
+    using namespace LogMessage;
+    if(eventData[P_LEVEL].GetInt() < LOG_WARNING)
+        return;
+
+    Print(eventData[P_MESSAGE].GetString());
+}
+
