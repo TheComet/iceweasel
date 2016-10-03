@@ -45,15 +45,16 @@ void DebugTextScroll::SetTextCount(unsigned count)
 
 
 // ----------------------------------------------------------------------------
-void DebugTextScroll::Print(const Urho3D::String& str)
+void DebugTextScroll::Print(const String& str, const Color& color)
 {
     if(items_.Size() == 0)
         return;
 
     insertIt_->text_->SetText(str);
     insertIt_->text_->SetOpacity(1);
+    insertIt_->text_->SetColor(color);
     insertIt_->text_->SetPosition(0, GetSubsystem<UI>()->GetRoot()->GetHeight() - 40);
-    insertIt_->timeOut_ = 3;
+    insertIt_->timeOut_ = 5;
 
     if(++insertIt_ == items_.End())
         insertIt_ = items_.Begin();
@@ -88,9 +89,14 @@ void DebugTextScroll::HandleUpdate(StringHash eventType, VariantMap& eventData)
 void DebugTextScroll::HandleLogMessage(StringHash eventType, VariantMap& eventData)
 {
     using namespace LogMessage;
-    if(eventData[P_LEVEL].GetInt() < LOG_WARNING)
+    int level = eventData[P_LEVEL].GetInt();
+    if(level < LOG_WARNING)
         return;
 
-    Print(eventData[P_MESSAGE].GetString());
+    Color color = Color::WHITE;
+    if(level == LOG_WARNING)
+        color = Color(1, 0.5, 0.1);
+    if(level == LOG_ERROR)
+        color = Color(1, 0.1, 0.1);
+    Print(eventData[P_MESSAGE].GetString(), color);
 }
-

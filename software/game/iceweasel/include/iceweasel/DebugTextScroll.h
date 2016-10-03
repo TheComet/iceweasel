@@ -26,7 +26,7 @@ public:
     DebugTextScroll(Urho3D::Context* context);
 
     void SetTextCount(unsigned count);
-    void Print(const Urho3D::String& str);
+    void Print(const Urho3D::String& str, const Urho3D::Color& color=Urho3D::Color::WHITE);
 
 private:
     void HandleUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);

@@ -5,10 +5,10 @@
 	<attribute name="Smoothing Constant" value="50" />
 	<attribute name="Snap Threshold" value="5" />
 	<attribute name="Elapsed Time" value="1170.4" />
-	<attribute name="Next Replicated Node ID" value="200" />
-	<attribute name="Next Replicated Component ID" value="447" />
-	<attribute name="Next Local Node ID" value="16777242" />
-	<attribute name="Next Local Component ID" value="16777528" />
+	<attribute name="Next Replicated Node ID" value="202" />
+	<attribute name="Next Replicated Component ID" value="455" />
+	<attribute name="Next Local Node ID" value="16777244" />
+	<attribute name="Next Local Component ID" value="16777552" />
 	<attribute name="Variables" />
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
@@ -408,26 +408,6 @@
 					<attribute name="Physics Position" value="10 0 40" />
 				</component>
 			</node>
-			<node id="64">
-				<attribute name="Is Enabled" value="true" />
-				<attribute name="Name" value="Ground" />
-				<attribute name="Tags" />
-				<attribute name="Position" value="-10 0 40" />
-				<attribute name="Rotation" value="1 0 0 0" />
-				<attribute name="Scale" value="1 1 1" />
-				<attribute name="Variables" />
-				<component type="StaticModel" id="159">
-					<attribute name="Model" value="Model;Models/ShittyGround.mdl" />
-					<attribute name="Material" value="Material;Materials/ShittyGround.xml" />
-				</component>
-				<component type="CollisionShape" id="160">
-					<attribute name="Shape Type" value="ConvexHull" />
-					<attribute name="Model" value="Model;Models/ShittyGround.mdl" />
-				</component>
-				<component type="RigidBody" id="161">
-					<attribute name="Physics Position" value="-10 0 40" />
-				</component>
-			</node>
 			<node id="65">
 				<attribute name="Is Enabled" value="true" />
 				<attribute name="Name" value="Ground" />
@@ -509,6 +489,48 @@
 					<attribute name="Physics Rotation" value="0.927758 -0.373182 0 0" />
 					<attribute name="Physics Position" value="-10 3.00344 32.5381" />
 				</component>
+			</node>
+			<node id="64">
+				<attribute name="Is Enabled" value="true" />
+				<attribute name="Name" value="Pond" />
+				<attribute name="Tags" />
+				<attribute name="Position" value="-10 -0.102402 40" />
+				<attribute name="Rotation" value="1 0 0 0" />
+				<attribute name="Scale" value="0.715539 0.715539 0.715539" />
+				<attribute name="Variables" />
+				<node id="200">
+					<attribute name="Is Enabled" value="true" />
+					<attribute name="Name" value="Solid" />
+					<attribute name="Tags" />
+					<attribute name="Position" value="0 0 0" />
+					<attribute name="Rotation" value="1 0 0 0" />
+					<attribute name="Scale" value="1 1 1" />
+					<attribute name="Variables" />
+					<component type="StaticModel" id="449">
+						<attribute name="Model" value="Model;Models/TestMap_Pond.mdl" />
+						<attribute name="Material" value="Material;Materials/ShittyGround.xml" />
+					</component>
+					<component type="CollisionShape" id="450">
+						<attribute name="Shape Type" value="TriangleMesh" />
+						<attribute name="Model" value="Model;Models/TestMap_Pond.mdl" />
+					</component>
+					<component type="RigidBody" id="451">
+						<attribute name="Physics Position" value="-10 -0.102402 40" />
+					</component>
+				</node>
+				<node id="201">
+					<attribute name="Is Enabled" value="true" />
+					<attribute name="Name" value="Water" />
+					<attribute name="Tags" />
+					<attribute name="Position" value="0 0 0" />
+					<attribute name="Rotation" value="1 0 0 0" />
+					<attribute name="Scale" value="1 1 1" />
+					<attribute name="Variables" />
+					<component type="StaticModel" id="453">
+						<attribute name="Model" value="Model;Models/TestMap_PondWater.mdl" />
+						<attribute name="Material" value="Material;Materials/Water.xml" />
+					</component>
+				</node>
 			</node>
 		</node>
 		<node id="111">
@@ -1634,11 +1656,6 @@
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 				</component>
-				<component type="ScriptInstance" id="57">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
-				</component>
 				<component type="CollisionShape" id="114">
 					<attribute name="Shape Type" value="ConvexHull" />
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
@@ -1686,11 +1703,6 @@
 				<component type="StaticModel" id="59">
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-				</component>
-				<component type="ScriptInstance" id="60">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
 				</component>
 				<component type="CollisionShape" id="118">
 					<attribute name="Shape Type" value="ConvexHull" />
@@ -1839,11 +1851,6 @@
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 						<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 					</component>
-					<component type="ScriptInstance" id="106">
-						<attribute name="Delayed Method Calls" value="0" />
-						<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-						<attribute name="Class Name" value="RotateNode" />
-					</component>
 					<component type="CollisionShape" id="127">
 						<attribute name="Shape Type" value="ConvexHull" />
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
@@ -1864,11 +1871,6 @@
 					<component type="StaticModel" id="109">
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 						<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-					</component>
-					<component type="ScriptInstance" id="110">
-						<attribute name="Delayed Method Calls" value="0" />
-						<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-						<attribute name="Class Name" value="RotateNode" />
 					</component>
 					<component type="CollisionShape" id="129">
 						<attribute name="Shape Type" value="ConvexHull" />
@@ -1943,11 +1945,6 @@
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 				</component>
-				<component type="ScriptInstance" id="225">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
-				</component>
 				<component type="CollisionShape" id="226">
 					<attribute name="Shape Type" value="ConvexHull" />
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
@@ -1995,11 +1992,6 @@
 				<component type="StaticModel" id="230">
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-				</component>
-				<component type="ScriptInstance" id="231">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
 				</component>
 				<component type="CollisionShape" id="232">
 					<attribute name="Shape Type" value="ConvexHull" />
@@ -2149,11 +2141,6 @@
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 						<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 					</component>
-					<component type="ScriptInstance" id="248">
-						<attribute name="Delayed Method Calls" value="0" />
-						<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-						<attribute name="Class Name" value="RotateNode" />
-					</component>
 					<component type="CollisionShape" id="249">
 						<attribute name="Shape Type" value="ConvexHull" />
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
@@ -2174,11 +2161,6 @@
 					<component type="StaticModel" id="251">
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 						<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-					</component>
-					<component type="ScriptInstance" id="252">
-						<attribute name="Delayed Method Calls" value="0" />
-						<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-						<attribute name="Class Name" value="RotateNode" />
 					</component>
 					<component type="CollisionShape" id="253">
 						<attribute name="Shape Type" value="ConvexHull" />
@@ -2253,11 +2235,6 @@
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 				</component>
-				<component type="ScriptInstance" id="302">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
-				</component>
 				<component type="CollisionShape" id="303">
 					<attribute name="Shape Type" value="ConvexHull" />
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
@@ -2305,11 +2282,6 @@
 				<component type="StaticModel" id="307">
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-				</component>
-				<component type="ScriptInstance" id="308">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
 				</component>
 				<component type="CollisionShape" id="309">
 					<attribute name="Shape Type" value="ConvexHull" />
@@ -2459,11 +2431,6 @@
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 						<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 					</component>
-					<component type="ScriptInstance" id="325">
-						<attribute name="Delayed Method Calls" value="0" />
-						<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-						<attribute name="Class Name" value="RotateNode" />
-					</component>
 					<component type="CollisionShape" id="326">
 						<attribute name="Shape Type" value="ConvexHull" />
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
@@ -2484,11 +2451,6 @@
 					<component type="StaticModel" id="328">
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 						<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-					</component>
-					<component type="ScriptInstance" id="329">
-						<attribute name="Delayed Method Calls" value="0" />
-						<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-						<attribute name="Class Name" value="RotateNode" />
 					</component>
 					<component type="CollisionShape" id="330">
 						<attribute name="Shape Type" value="ConvexHull" />
@@ -2563,11 +2525,6 @@
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 				</component>
-				<component type="ScriptInstance" id="387">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
-				</component>
 				<component type="CollisionShape" id="388">
 					<attribute name="Shape Type" value="ConvexHull" />
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
@@ -2615,11 +2572,6 @@
 				<component type="StaticModel" id="392">
 					<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-				</component>
-				<component type="ScriptInstance" id="393">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
 				</component>
 				<component type="CollisionShape" id="394">
 					<attribute name="Shape Type" value="ConvexHull" />
@@ -2769,11 +2721,6 @@
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 						<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 					</component>
-					<component type="ScriptInstance" id="410">
-						<attribute name="Delayed Method Calls" value="0" />
-						<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-						<attribute name="Class Name" value="RotateNode" />
-					</component>
 					<component type="CollisionShape" id="411">
 						<attribute name="Shape Type" value="ConvexHull" />
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
@@ -2794,11 +2741,6 @@
 					<component type="StaticModel" id="413">
 						<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 						<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-					</component>
-					<component type="ScriptInstance" id="414">
-						<attribute name="Delayed Method Calls" value="0" />
-						<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-						<attribute name="Class Name" value="RotateNode" />
 					</component>
 					<component type="CollisionShape" id="415">
 						<attribute name="Shape Type" value="ConvexHull" />
@@ -2873,11 +2815,6 @@
 					<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
 				</component>
-				<component type="ScriptInstance" id="438">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
-				</component>
 				<component type="CollisionShape" id="439">
 					<attribute name="Shape Type" value="ConvexHull" />
 					<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
@@ -2898,11 +2835,6 @@
 				<component type="StaticModel" id="441">
 					<attribute name="Model" value="Model;Models/StonePillar2.mdl" />
 					<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
-				</component>
-				<component type="ScriptInstance" id="442">
-					<attribute name="Delayed Method Calls" value="0" />
-					<attribute name="Script File" value="ScriptFile;Scripts/RotateNode.as" />
-					<attribute name="Class Name" value="RotateNode" />
 				</component>
 				<component type="CollisionShape" id="443">
 					<attribute name="Shape Type" value="ConvexHull" />

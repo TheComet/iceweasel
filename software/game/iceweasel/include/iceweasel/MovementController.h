@@ -33,12 +33,16 @@ protected:
     bool IsCrouching() const;
 
 private:
-    void HandleCameraAngleChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
-    void HandleConfigReloaded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
-
+    void FixedUpdate_Ground();
+    void FixedUpdate_Water();
+    void Update_Ground();
+    void Update_Water();
     void ResetDownVelocityIfOnGround();
     void UpdatePhysicsSettings();
     void SetInitialPhysicsParameters();
+
+    void HandleCameraAngleChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleConfigReloaded(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
     void NotifyLocalMovementVelocityChange(const Urho3D::Vector3& localPlaneVelocity);
     void NotifyCrouchStateChange(bool isCrouching);
