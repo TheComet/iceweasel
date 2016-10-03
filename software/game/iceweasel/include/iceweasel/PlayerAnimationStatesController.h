@@ -48,4 +48,5 @@ private:
     State state_;
 
     Urho3D::Vector3 currentLocalVelocity_;
+    bool isCrouching_;
 };

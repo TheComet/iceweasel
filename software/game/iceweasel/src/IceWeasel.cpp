@@ -3,6 +3,7 @@
 
 #include "iceweasel/PlayerController.h"
 #include "iceweasel/CameraControllerFree.h"
+#include "iceweasel/DebugTextScroll.h"
 #include "iceweasel/GravityManager.h"
 #include "iceweasel/GravityVector.h"
 #include "iceweasel/InGameEditor.h"
@@ -160,6 +161,9 @@ void IceWeasel::RegisterSubsystems()
     context_->RegisterSubsystem(new LuaScript(context_));
     context_->RegisterSubsystem(new IceWeaselConfig(context_));
     context_->RegisterSubsystem(new InGameEditor(context_));
+    context_->RegisterSubsystem(new DebugTextScroll(context_));
+
+    GetSubsystem<DebugTextScroll>()->SetTextCount(20);
 }
 
 // ----------------------------------------------------------------------------

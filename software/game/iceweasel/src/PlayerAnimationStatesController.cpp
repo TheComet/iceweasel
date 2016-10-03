@@ -1,12 +1,14 @@
 #include "iceweasel/PlayerAnimationStatesController.h"
+
 #include "iceweasel/CameraControllerRotation.h"
 #include "iceweasel/CameraControllerEvents.h"
-#include "iceweasel/MovementController.h"
-#include "iceweasel/Math.h"
+#include "iceweasel/DebugTextScroll.h"
 #include "iceweasel/Finger.h"
+#include "iceweasel/GravityManager.h"
 #include "iceweasel/IceWeaselConfig.h"
 #include "iceweasel/IceWeaselConfigEvents.h"
-#include "iceweasel/GravityManager.h"
+#include "iceweasel/MovementController.h"
+#include "iceweasel/Math.h"
 
 #include <Urho3D/Graphics/AnimatedModel.h>
 #include <Urho3D/Graphics/AnimationState.h>
@@ -22,7 +24,8 @@ using namespace Urho3D;
 // ----------------------------------------------------------------------------
 PlayerAnimationStatesController::PlayerAnimationStatesController(Context* context) :
     LogicComponent(context),
-    state_(ON_GROUND)
+    state_(ON_GROUND),
+    isCrouching_(false)
 {
 }
 
@@ -62,6 +65,7 @@ void PlayerAnimationStatesController::Start()
 void PlayerAnimationStatesController::Update(float timeStep)
 {
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
+    DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
 
     float velocitySquared = Vector2(currentLocalVelocity_.x_, currentLocalVelocity_.z_).LengthSquared();
 
@@ -78,9 +82,23 @@ void PlayerAnimationStatesController::Update(float timeStep)
             HandleGroundWeights(velocitySquared);
 
             if(currentLocalVelocity_.y_ > 0.0f)
+            {
                 state_ = JUMP_BEGIN;
+                if(debug)
+                    debug->Print("JUMP_BEGIN");
+            }
             if(currentLocalVelocity_.y_ < 0.0f)
+            {
                 state_ = JUMP_FALL;
+                if(debug)
+                    debug->Print("JUMP_FALL");
+            }
+            if(isCrouching_)
+            {
+                state_ = CROUCHING;
+                if(debug)
+                    debug->Print("CROUCHING");
+            }
 
             break;
 
@@ -88,16 +106,33 @@ void PlayerAnimationStatesController::Update(float timeStep)
             HandleCrouchWeights(velocitySquared);
 
             if(currentLocalVelocity_.y_ > 0.0f)
+            {
                 state_ = JUMP_BEGIN;
+                if(debug)
+                    debug->Print("JUMP_BEGIN");
+            }
             if(currentLocalVelocity_.y_ < 0.0f)
+            {
                 state_ = JUMP_FALL;
+                if(debug)
+                    debug->Print("JUMP_FALL");
+            }
+            if(!isCrouching_)
+            {
+                state_ = ON_GROUND;
+                if(debug)
+                    debug->Print("ON_GROUND");
+            }
 
             break;
 
         case JUMP_BEGIN:
             if(animation_[PlayerAnimation::JUMP_OFF])
                 animation_[PlayerAnimation::JUMP_OFF]->SetTime(0);
+
             state_ = JUMP_OFF;
+            if(debug)
+                debug->Print("JUMP_OFF");
 
             // fall through on purpose
 
@@ -105,7 +140,11 @@ void PlayerAnimationStatesController::Update(float timeStep)
             animationWeight_[PlayerAnimation::JUMP_OFF].SetTarget(1);
 
             if(currentLocalVelocity_.y_ <= 0.0f) // now falling
+            {
                 state_ = JUMP_FALL;
+                if(debug)
+                    debug->Print("JUMP_FALL");
+            }
 
             break;
 
@@ -118,7 +157,11 @@ void PlayerAnimationStatesController::Update(float timeStep)
                     animation_[PlayerAnimation::JUMP_LAND]->SetTime(0);
 
             if(currentLocalVelocity_.y_ == 0.0f) // landed
+            {
                 state_ = JUMP_LAND;
+                if(debug)
+                    debug->Print("JUMP_LAND");
+            }
 
             break;
 
@@ -128,7 +171,18 @@ void PlayerAnimationStatesController::Update(float timeStep)
             if(animation_[PlayerAnimation::JUMP_LAND] == NULL ||
                 animation_[PlayerAnimation::JUMP_LAND]->GetTime() >= animation_[PlayerAnimation::JUMP_LAND]->GetLength())
             {
-                state_ = ON_GROUND;
+                if(isCrouching_)
+                {
+                    state_ = CROUCHING;
+                    if(debug)
+                        debug->Print("CROUCHING");
+                }
+                else
+                {
+                    state_ = ON_GROUND;
+                    if(debug)
+                        debug->Print("ON_GROUND");
+                }
             }
 
             break;
@@ -202,8 +256,5 @@ void PlayerAnimationStatesController::HandleLocalMovementVelocityChanged(Urho3D:
 void PlayerAnimationStatesController::HandleCrouchStateChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
 {
     using namespace CrouchStateChanged;
-    if(eventData[P_CROUCHING].GetBool())
-        state_ = CROUCHING;
-    else
-        state_ = ON_GROUND;
+    isCrouching_ = eventData[P_CROUCHING].GetBool();
 }
