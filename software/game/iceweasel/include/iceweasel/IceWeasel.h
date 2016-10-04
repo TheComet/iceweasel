@@ -30,7 +30,7 @@ public:
         GAME
     };
 
-    IceWeasel(Urho3D::Context* context, const Urho3D::String& mapName);
+    IceWeasel(Urho3D::Context* context, const Urho3D::StringVector& args);
 
     void SwitchState(GameState state);
 
@@ -59,7 +59,7 @@ private:
     void HandlePostRenderUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleFileChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    Urho3D::String mapName_;
+    Urho3D::StringVector args_;
     Urho3D::SharedPtr<Urho3D::Scene> scene_;
     Urho3D::SharedPtr<Urho3D::XMLFile> xmlScene_;
     Urho3D::SharedPtr<Urho3D::Node> cameraMoveNode_;

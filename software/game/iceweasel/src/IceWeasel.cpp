@@ -46,9 +46,9 @@ void RegisterIceWeaselMods(Urho3D::Context* context)
 }
 
 // ----------------------------------------------------------------------------
-IceWeasel::IceWeasel(Context* context, const String& mapName) :
+IceWeasel::IceWeasel(Context* context, const StringVector& args) :
     Application(context),
-    mapName_(mapName),
+    args_(args),
     debugDrawMode_(DRAW_NONE),
     gameState_(EMPTY),
     isThirdPerson_(true)
@@ -133,6 +133,10 @@ void IceWeasel::Start()
     // configure resource cache
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
+    for(int i = 0; i != args_.Size(); ++i)
+        if(args_[i] == "-r" || args_[i] == "--resource")
+            if(i + 1 < args_.Size())
+                cache->AddResourceDir(args_[i + 1]);
 
     RegisterIceWeaselMods(context_);
     RegisterSubsystems();
@@ -214,15 +218,23 @@ void IceWeasel::CreateScene()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
+    String mapName = "Scenes/TestMap.xml";
+    for(int i = 0; i != args_.Size(); ++i)
+    {
+        if(args_[i] == "-m" || args_[i] == "--map")
+            if(i + 1 < args_.Size())
+                mapName = args_[i + 1];
+    }
+
     // load scene from XML
     scene_ = new Scene(context_);
-    if(mapName_.Length() == 0)
-        mapName_ = "Scenes/TestMap.xml";
-    xmlScene_ = cache->GetResource<XMLFile>(mapName_);
+    if(mapName.Length() == 0)
+        mapName = "Scenes/TestMap.xml";
+    xmlScene_ = cache->GetResource<XMLFile>(mapName);
     if(xmlScene_)
         scene_->LoadXML(xmlScene_->GetRoot());
     else
-        ErrorExit("Failed to load map \"" + mapName_ + "\" - did you spell it correctly?");
+        ErrorExit("Failed to load map \"" + mapName + "\" - did you spell it correctly?");
 
     /*
     // HACK Add a small random offset to all gravity vectors so the

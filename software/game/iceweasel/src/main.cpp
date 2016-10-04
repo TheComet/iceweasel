@@ -15,23 +15,22 @@ struct Args
 
 int main(int argc, char** argv)
 {
-    Args args;
+    bool editor_ = false;
+    StringVector args;
     for(int i = 0; i != argc; ++i)
     {
         if(strcmp(argv[i], "-e") == 0 || strcmp(argv[i], "--editor") == 0)
-            args.editor_ = true;
+            editor_ = true;
 
-        if(strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--map") == 0)
-            if(i + 1 < argc)
-                args.mapName_ = argv[i+1];
+        args.Push(argv[i]);
     }
 
     SharedPtr<Context> context(new Context);
     SharedPtr<Application> app;
-    if(args.editor_)
+    if(editor_)
         app = new InGameEditorApplication(context);
     else
-        app = new IceWeasel(context, args.mapName_);
+        app = new IceWeasel(context, args);
 
     return app->Run();
 }
