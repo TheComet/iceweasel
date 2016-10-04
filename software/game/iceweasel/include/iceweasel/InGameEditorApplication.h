@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Urho3D/Core/Object.h>
+#include <Urho3D/Engine/Application.h>
 
 namespace Urho3D {
     class Context;
@@ -9,23 +9,22 @@ namespace Urho3D {
 }
 
 
-class InGameEditor : public Urho3D::Object
+class InGameEditorApplication : public Urho3D::Application
 {
-    URHO3D_OBJECT(InGameEditor, Urho3D::Object)
+    URHO3D_OBJECT(InGameEditorApplication, Urho3D::Object)
 
 public:
-    InGameEditor(Urho3D::Context* context);
+    InGameEditorApplication(Urho3D::Context* context);
 
-    void OpenEditor(Urho3D::Scene* scene);
-    void CloseEditor();
-    void ToggleEditor(Urho3D::Scene* scene);
-    bool IsOpen();
+    virtual void Setup() override;
+    virtual void Start() override;
 
 private:
+    void RegisterSubsystems();
+
     void HandleScriptReloadStarted(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleScriptReloadFinished(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleScriptReloadFailed(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    Urho3D::SharedPtr<Urho3D::ScriptFile> scriptFile_;
-    Urho3D::SharedPtr<Urho3D::Scene> scene_;
+    Urho3D::SharedPtr<Urho3D::ScriptFile> script_;
 };

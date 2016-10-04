@@ -33,10 +33,10 @@ protected:
     bool IsCrouching() const;
 
 private:
-    void FixedUpdate_Ground();
-    void FixedUpdate_Water();
-    void Update_Ground();
-    void Update_Water();
+    void FixedUpdate_Ground(float timeStep);
+    void FixedUpdate_Water(float timeStep);
+    void Update_Ground(float timeStep);
+    void Update_Water(float timeStep);
     void ResetDownVelocityIfOnGround();
     void UpdatePhysicsSettings();
     void SetInitialPhysicsParameters();
@@ -59,8 +59,9 @@ private:
     ExponentialCurve<Urho3D::Vector3> localPlaneAcceleration_;
 
     Urho3D::Quaternion currentRotation_;
+    Urho3D::Vector2 cameraAngle_;
     float downVelocity_;
-    float cameraAngleY_;
     float respawnDistance_;
     bool jumpKeyPressed_;
+    bool isSwimming_;
 };

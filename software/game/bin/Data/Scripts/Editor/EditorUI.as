@@ -1291,8 +1291,31 @@ void HandleHotKeysBlender( VariantMap& eventData)
     int key = eventData["Key"].GetInt();
     int viewDirection = eventData["Qualifiers"].GetInt() == QUAL_CTRL ? -1 : 1;
 
+    if (key == KEY_ESCAPE)
+    {
+        if (uiHidden)
+            UnhideUI();
+        else if (console.visible)
+            console.visible = false;
+        else if (contextMenu.visible)
+            CloseContextMenu();
+        else if (quickMenu.visible)
+        {
+            quickMenu.visible = false;
+            quickMenu.enabled = false;
+        }
+        else
+        {
+            UIElement@ front = ui.frontElement;
+            if (front is settingsDialog || front is preferencesDialog)
+            {
+                ui.focusElement = null;
+                front.visible = false;
+            }
+        }
+    }
     // Ignore other keys when UI has a modal element
-    if (ui.HasModalElement())
+    else if (ui.HasModalElement())
         return;
 
     else if (key == KEY_F1)
@@ -1458,8 +1481,32 @@ void HandleHotKeysStandard(VariantMap& eventData)
     int key = eventData["Key"].GetInt();
     int viewDirection = eventData["Qualifiers"].GetInt() == QUAL_CTRL ? -1 : 1;
 
+    if (key == KEY_ESCAPE)
+    {
+        if (uiHidden)
+            UnhideUI();
+        else if (console.visible)
+            console.visible = false;
+        else if (contextMenu.visible)
+            CloseContextMenu();
+        else if (quickMenu.visible)
+        {
+            quickMenu.visible = false;
+            quickMenu.enabled = false;
+        }
+        else
+        {
+            UIElement@ front = ui.frontElement;
+            if (front is settingsDialog || front is preferencesDialog)
+            {
+                ui.focusElement = null;
+                front.visible = false;
+            }
+        }
+    }
+
     // Ignore other keys when UI has a modal element
-    if (ui.HasModalElement())
+    else if (ui.HasModalElement())
         return;
 
     else if (key == KEY_F1)

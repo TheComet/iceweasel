@@ -6,6 +6,7 @@ namespace Urho3D {
     class Node;
     class Scene;
     class Text;
+    class XMLFile;
 }
 
 class MenuScreens;
@@ -29,7 +30,7 @@ public:
         GAME
     };
 
-    IceWeasel(Urho3D::Context* context);
+    IceWeasel(Urho3D::Context* context, const Urho3D::String& mapName);
 
     void SwitchState(GameState state);
 
@@ -56,8 +57,11 @@ private:
 
     void HandleKeyDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandlePostRenderUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleFileChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
+    Urho3D::String mapName_;
     Urho3D::SharedPtr<Urho3D::Scene> scene_;
+    Urho3D::SharedPtr<Urho3D::XMLFile> xmlScene_;
     Urho3D::SharedPtr<Urho3D::Node> cameraMoveNode_;
     Urho3D::SharedPtr<Urho3D::Node> cameraOffsetNode_;
     Urho3D::SharedPtr<Urho3D::Node> cameraRotateNode_;

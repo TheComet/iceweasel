@@ -63,6 +63,88 @@ void MovementController::Stop()
 // ----------------------------------------------------------------------------
 void MovementController::Update(float timeStep)
 {
+    Update_Ground(timeStep);
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::FixedUpdate(float timeStep)
+{
+    FixedUpdate_Ground(timeStep);
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::CreateComponents()
+{
+    // Set up player collision shapes. One for standing and one for crouching
+    collisionShapeUpright_ = moveNode_->CreateComponent<CollisionShape>();
+    collisionShapeCrouch_ = moveNode_->CreateComponent<CollisionShape>();
+    collisionShapeCrouch_->SetEnabled(false);
+
+    // Set up rigid body. Disable angular rotation and disable world gravity
+    body_ = moveNode_->CreateComponent<RigidBody>();
+    body_->SetAngularFactor(Vector3::ZERO);
+    body_->SetFriction(0.0f);
+    body_->SetUseGravity(false);
+
+    UpdatePhysicsSettings();
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::DestroyComponents()
+{
+    // Clean up the components we added
+    moveNode_->RemoveComponent<RigidBody>();
+    moveNode_->RemoveComponent<CollisionShape>();
+    moveNode_->RemoveComponent<CollisionShape>();
+}
+
+// ----------------------------------------------------------------------------
+bool MovementController::CanStandUp() const
+{
+    /*
+     * This is called when the player is crouching, but the user has let go of
+     * the crouch button. The player should only be able to stand up again if
+     * there are no obstacles in the way.
+     */
+
+    bool canStandUp = true;
+
+    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
+    const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
+
+    /*
+     * Temporarily disable collision checks for the player's rigid body, so
+     * raycasts don't collide with ourselves.
+     */
+    unsigned storeCollisionMask = body_->GetCollisionMask();
+    body_->SetCollisionMask(0);
+
+        // Cast a ray that is as long as the player's standing height
+        float rayCastLength = playerClass.body.height;
+        Vector3 upDirection = moveNode_->GetRotation() * Vector3::UP;
+        Vector3 rayOrigin = moveNode_->GetWorldPosition();
+
+        // Cast upwards. If it hits anything then we can't stand up.
+        PhysicsRaycastResult result;
+        Ray ray(rayOrigin, upDirection);
+        physicsWorld_->RaycastSingle(result, ray, rayCastLength);
+        if(result.distance_ < rayCastLength)
+            canStandUp = false;
+
+    body_->SetCollisionMask(storeCollisionMask);
+
+    return canStandUp;
+}
+
+// ----------------------------------------------------------------------------
+bool MovementController::IsCrouching() const
+{
+    return collisionShapeCrouch_->IsEnabled();
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::Update_Ground(float timeStep)
+{
     (void)timeStep;
 
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
@@ -105,7 +187,7 @@ void MovementController::Update(float timeStep)
 }
 
 // ----------------------------------------------------------------------------
-void MovementController::FixedUpdate(float timeStep)
+void MovementController::FixedUpdate_Ground(float timeStep)
 {
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
@@ -159,9 +241,9 @@ void MovementController::FixedUpdate(float timeStep)
 
     // Rotate input direction by camera angle using a 3D rotation matrix
     jounce = Matrix3(
-        -Cos(cameraAngleY_), 0, Sin(cameraAngleY_),
+        -Cos(cameraAngle_.y_), 0, Sin(cameraAngle_.y_),
         0, 1, 0,
-        Sin(cameraAngleY_), 0, Cos(cameraAngleY_)
+        Sin(cameraAngle_.y_), 0, Cos(cameraAngle_.y_)
     ) * jounce;
 
     // Approach acceleration smoothly using the input vector.
@@ -247,79 +329,84 @@ void MovementController::FixedUpdate(float timeStep)
 }
 
 // ----------------------------------------------------------------------------
-void MovementController::HandleCameraAngleChanged(StringHash /*eventType*/, VariantMap& eventData)
+void MovementController::FixedUpdate_Water(float timeStep)
 {
-    cameraAngleY_ = eventData[CameraAngleChanged::P_ANGLEY].GetFloat();
-}
-
-// ----------------------------------------------------------------------------
-void MovementController::CreateComponents()
-{
-    // Set up player collision shapes. One for standing and one for crouching
-    collisionShapeUpright_ = moveNode_->CreateComponent<CollisionShape>();
-    collisionShapeCrouch_ = moveNode_->CreateComponent<CollisionShape>();
-    collisionShapeCrouch_->SetEnabled(false);
-
-    // Set up rigid body. Disable angular rotation and disable world gravity
-    body_ = moveNode_->CreateComponent<RigidBody>();
-    body_->SetAngularFactor(Vector3::ZERO);
-    body_->SetFriction(0.0f);
-    body_->SetUseGravity(false);
-
-    UpdatePhysicsSettings();
-}
-
-// ----------------------------------------------------------------------------
-void MovementController::DestroyComponents()
-{
-    // Clean up the components we added
-    moveNode_->RemoveComponent<RigidBody>();
-    moveNode_->RemoveComponent<CollisionShape>();
-    moveNode_->RemoveComponent<CollisionShape>();
-}
-
-// ----------------------------------------------------------------------------
-bool MovementController::CanStandUp() const
-{
-    /*
-     * This is called when the player is crouching, but the user has let go of
-     * the crouch button. The player should only be able to stand up again if
-     * there are no obstacles in the way.
-     */
-
-    bool canStandUp = true;
-
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
 
     /*
-     * Temporarily disable collision checks for the player's rigid body, so
-     * raycasts don't collide with ourselves.
+     * Get input direction vector from WASD on keyboard and store in x and z
+     * components. This vector is normalized.
+     *
+     * Player speed is "walk" by default, "run" if control is pressed and
+     * "crawl" if shift is pressed (precedence on shift, you can't run and
+     * crawl).
      */
-    unsigned storeCollisionMask = body_->GetCollisionMask();
-    body_->SetCollisionMask(0);
+    float speed = playerClass.speed.walk;
+    Vector3 jounce(Vector3::ZERO);
+    if(input_->GetKeyDown(KEY_SHIFT))
+        speed = playerClass.speed.run;
+    if(input_->GetKeyDown(KEY_CTRL) || IsCrouching())
+        speed = playerClass.speed.crouch;
+    if(input_->GetKeyDown(KEY_W))     jounce.z_ += 1;
+    if(input_->GetKeyDown(KEY_S))     jounce.z_ -= 1;
+    if(input_->GetKeyDown(KEY_A))     jounce.x_ += 1;
+    if(input_->GetKeyDown(KEY_D))     jounce.x_ -= 1;
+    if(jounce.x_ != 0 || jounce.z_ != 0)
+        jounce = jounce.Normalized();
 
-        // Cast a ray that is as long as the player's standing height
-        float rayCastLength = playerClass.body.height;
-        Vector3 upDirection = moveNode_->GetRotation() * Vector3::UP;
-        Vector3 rayOrigin = moveNode_->GetWorldPosition();
+    // Rotate input direction by camera angle using a 3D rotation matrix
+    jounce = Matrix3(
+        -Cos(cameraAngle_.y_), 0, Sin(cameraAngle_.y_),
+        0, 1, 0,
+        Sin(cameraAngle_.y_), 0, Cos(cameraAngle_.y_)
+    ) * Matrix3(
+        1, 0, 0,
+        0, Cos(cameraAngle_.x_), -Sin(cameraAngle_.x_),
+        0, Sin(cameraAngle_.x_), Cos(cameraAngle_.x_)
+    ) * jounce;
 
-        // Cast upwards. If it hits anything then we can't stand up.
-        PhysicsRaycastResult result;
-        Ray ray(rayOrigin, upDirection);
-        physicsWorld_->RaycastSingle(result, ray, rayCastLength);
-        if(result.distance_ < rayCastLength)
-            canStandUp = false;
+    // Approach acceleration smoothly using the input vector.
+    localPlaneAcceleration_.SetTarget(jounce * speed);
+    localPlaneAcceleration_.Advance(timeStep * playerClass.speed.jounceSpeed);
 
-    body_->SetCollisionMask(storeCollisionMask);
+    /*
+     * Query gravity at player's 3D location and calculate the rotation matrix
+     * that would transform our local coordinate system into the gravity's
+     * coordinate system (such that "down" correlates with the direction of
+     * gravity).
+     */
+    Vector3 gravity = gravityManager_->QueryGravity(moveNode_->GetWorldPosition());
+    Quaternion gravityRotation(Vector3::DOWN, gravity);
+    Matrix3 velocityTransform = gravityRotation.RotationMatrix();
 
-    return canStandUp;
-}
+    /*
+     * Transform the body's current velocity into our local coordinate system.
+     */
+    ExponentialCurve<Vector3> localPlaneVelocity(
+        velocityTransform.Inverse() * body_->GetLinearVelocity(), Vector3::ZERO);
 
-// ----------------------------------------------------------------------------
-bool MovementController::IsCrouching() const
-{
-    return collisionShapeCrouch_->IsEnabled();
+    // Under water, own velocity is always constant
+    downVelocity_ = -0.04f * timeStep;
+    /*
+     * X/Z movement of the player is only possible when on the ground. If the
+     * player is in the air just maintain whatever velocity he currently has,
+     * but also add the target velocity on top of that so the player can
+     * slightly control his movement in the air.
+     */
+    localPlaneVelocity.SetTarget(localPlaneAcceleration_.value_);
+    localPlaneVelocity.Advance(timeStep * playerClass.speed.accelerateSpeed);
+
+    NotifyLocalMovementVelocityChange(localPlaneVelocity.value_);
+
+    // Integrate downwards velocity and apply velocity back to body.
+    downVelocity_ -= gravity.Length() * timeStep;
+    body_->SetLinearVelocity(velocityTransform * localPlaneVelocity.value_);
+
+    // Smoothly rotate to target orientation
+    static const float correctCameraAngleSpeed = 5.0f;
+    currentRotation_ = currentRotation_.Nlerp(gravityRotation, timeStep * correctCameraAngleSpeed, true);
+    moveNode_->SetRotation(-currentRotation_);
 }
 
 // ----------------------------------------------------------------------------
@@ -377,12 +464,6 @@ void MovementController::ResetDownVelocityIfOnGround()
 }
 
 // ----------------------------------------------------------------------------
-void MovementController::HandleConfigReloaded(StringHash /*eventType*/, VariantMap& /*eventData*/)
-{
-    UpdatePhysicsSettings();
-}
-
-// ----------------------------------------------------------------------------
 void MovementController::UpdatePhysicsSettings()
 {
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
@@ -405,6 +486,19 @@ void MovementController::UpdatePhysicsSettings()
 void MovementController::SetInitialPhysicsParameters()
 {
     downVelocity_ = 0.0f;
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::HandleCameraAngleChanged(StringHash /*eventType*/, VariantMap& eventData)
+{
+    cameraAngle_.x_ = eventData[CameraAngleChanged::P_ANGLEX].GetFloat();
+    cameraAngle_.y_ = eventData[CameraAngleChanged::P_ANGLEY].GetFloat();
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::HandleConfigReloaded(StringHash /*eventType*/, VariantMap& /*eventData*/)
+{
+    UpdatePhysicsSettings();
 }
 
 // ----------------------------------------------------------------------------

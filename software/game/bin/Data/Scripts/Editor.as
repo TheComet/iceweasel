@@ -24,12 +24,9 @@
 #include "Scripts/Editor/EditorViewDebugIcons.as"
 
 String configFileName;
-Scene@ rootScene;
 
-void Start(Scene@ scene)
+void Start()
 {
-    rootScene = scene;
-
     // Assign the value ASAP because configFileName is needed on exit, including exit on error
     configFileName = fileSystem.GetAppPreferencesDir("urho3d", "Editor") + "Config.xml";
     localization.LoadJSONFile("EditorStrings.json");
@@ -66,7 +63,7 @@ void Start(Scene@ scene)
 void FirstFrame()
 {
     // Create root scene node
-    CreateScene(rootScene);
+    CreateScene();
     // Load editor settings and preferences
     LoadConfig();
     // Create user interface for the editor
@@ -74,7 +71,7 @@ void FirstFrame()
     // Create root UI element where all 'editable' UI elements would be parented to
     CreateRootUIElement();
     // Load the initial scene if provided
-    // ParseArguments();   iceweasel, don't delete scene
+    ParseArguments();
     // Switch to real frame handler after initialization
     SubscribeToEvent("Update", "HandleUpdate");
     SubscribeToEvent("ReloadFinished", "HandleReloadFinished");
@@ -186,7 +183,7 @@ void LoadConfig()
     XMLElement soundTypesElem = configElem.GetChild("soundtypes");
     XMLElement cubeMapElem = configElem.GetChild("cubegen");
     XMLElement defaultTagsElem = configElem.GetChild("tags");
-
+    
     if (!cameraElem.isNull)
     {
         if (cameraElem.HasAttribute("nearclip")) viewNearClip = cameraElem.GetFloat("nearclip");
@@ -316,7 +313,7 @@ void LoadConfig()
         cubeMapGen_Path = cubemapDefaultOutputPath;
         cubeMapGen_Size = 128;
     }
-
+    
     if (!defaultTagsElem.isNull)
     {
         if (defaultTagsElem.HasAttribute("tags")) defaultTags = defaultTagsElem.GetAttribute("tags");
@@ -415,13 +412,13 @@ void SaveConfig()
     consoleElem.SetAttribute("commandinterpreter", console.commandInterpreter);
 
     varNamesElem.SetVariantMap(globalVarNames);
-
+    
     cubeGenElem.SetAttribute("name", cubeMapGen_Name);
     cubeGenElem.SetAttribute("path", cubeMapGen_Path);
     cubeGenElem.SetAttribute("size", cubeMapGen_Size);
 
     defaultTagsElem.SetAttribute("tags", defaultTags);
-
+    
     SaveSoundTypes(soundTypesElem);
 
     config.Save(File(configFileName, FILE_WRITE));

@@ -6,7 +6,6 @@
 #include "iceweasel/DebugTextScroll.h"
 #include "iceweasel/GravityManager.h"
 #include "iceweasel/GravityVector.h"
-#include "iceweasel/InGameEditor.h"
 #include "iceweasel/MenuScreens.h"
 
 #include <Urho3D/AngelScript/Script.h>
@@ -19,12 +18,14 @@
 #include <Urho3D/Graphics/Viewport.h>
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Input/Input.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/LuaScript/LuaScript.h>
 #include <Urho3D/Math/Random.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Resource/ResourceEvents.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/AngelScript/ScriptFile.h>
 #include <Urho3D/UI/UI.h>
@@ -45,8 +46,9 @@ void RegisterIceWeaselMods(Urho3D::Context* context)
 }
 
 // ----------------------------------------------------------------------------
-IceWeasel::IceWeasel(Context* context) :
+IceWeasel::IceWeasel(Context* context, const String& mapName) :
     Application(context),
+    mapName_(mapName),
     debugDrawMode_(DRAW_NONE),
     gameState_(EMPTY),
     isThirdPerson_(true)
@@ -143,14 +145,16 @@ void IceWeasel::Start()
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
+    SubscribeToEvent(E_FILECHANGED, URHO3D_HANDLER(IceWeasel, HandleFileChanged));
 }
 
 // ----------------------------------------------------------------------------
 void IceWeasel::Stop()
 {
+    SwitchState(EMPTY);
+
     cameraMoveNode_.Reset();
     cameraRotateNode_.Reset();
-
     scene_.Reset();
 }
 
@@ -160,7 +164,6 @@ void IceWeasel::RegisterSubsystems()
     context_->RegisterSubsystem(new Script(context_));
     context_->RegisterSubsystem(new LuaScript(context_));
     context_->RegisterSubsystem(new IceWeaselConfig(context_));
-    context_->RegisterSubsystem(new InGameEditor(context_));
     context_->RegisterSubsystem(new DebugTextScroll(context_));
 
     GetSubsystem<DebugTextScroll>()->SetTextCount(20);
@@ -197,21 +200,13 @@ void IceWeasel::CreateCamera()
     renderer->SetViewport(0, viewport);
 
     // Configure render path
-    /*
     SharedPtr<RenderPath> effectRenderPath(new RenderPath);
-    effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/Deferred.xml"));
-    //effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/AutoExposure.xml"));
-    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/BloomHDR.xml"));
+    effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/Forward.xml"));
     effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/FXAA2.xml"));
-
-    //effectRenderPath->SetEnabled("AutoExposure", true);
-    effectRenderPath->SetShaderParameter("BloomHDRMix", Vector2(1.0f, 0.3f));
-    effectRenderPath->SetShaderParameter("BloomHDRThreshold", float(0.3));
-    effectRenderPath->SetEnabled("BloomHDR", true);
-    effectRenderPath->SetEnabled("FXAA2", true);
+    //effectRenderPath->SetEnabled("FXAA2", true);
 
     viewport->SetRenderPath(effectRenderPath);
-    renderer->SetHDRRendering(true);*/
+    renderer->SetHDRRendering(true);
 }
 
 // ----------------------------------------------------------------------------
@@ -221,10 +216,13 @@ void IceWeasel::CreateScene()
 
     // load scene from XML
     scene_ = new Scene(context_);
-    //XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/GravityMeshTest.xml");
-    XMLFile* xmlScene = cache->GetResource<XMLFile>("Scenes/TestMap.xml");
-    if(xmlScene)
-        scene_->LoadXML(xmlScene->GetRoot());
+    if(mapName_.Length() == 0)
+        mapName_ = "Scenes/TestMap.xml";
+    xmlScene_ = cache->GetResource<XMLFile>(mapName_);
+    if(xmlScene_)
+        scene_->LoadXML(xmlScene_->GetRoot());
+    else
+        ErrorExit("Failed to load map \"" + mapName_ + "\" - did you spell it correctly?");
 
     /*
     // HACK Add a small random offset to all gravity vectors so the
@@ -274,12 +272,7 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     int key = eventData[P_KEY].GetInt();
     if(key == KEY_ESCAPE)
     {
-        InGameEditor* editor = GetSubsystem<InGameEditor>();
-        if(editor)
-        {
-            if(editor->IsOpen() == false)
-                editor->OpenEditor(scene_);
-        }
+        engine_->Exit();
     }
 
     // Toggle debug geometry
@@ -359,4 +352,16 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
 }
 
 // ----------------------------------------------------------------------------
-URHO3D_DEFINE_APPLICATION_MAIN(IceWeasel)
+void IceWeasel::HandleFileChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
+{
+    if(xmlScene_ && xmlScene_->GetName() == eventData[FileChanged::P_RESOURCENAME].GetString())
+    {
+        URHO3D_LOGINFO("[IceWeasel] Reloading scene");
+        if(scene_)
+        {
+            scene_->LoadXML(xmlScene_->GetRoot());
+            SwitchState(EMPTY);
+            SwitchState(GAME);
+        }
+    }
+}
