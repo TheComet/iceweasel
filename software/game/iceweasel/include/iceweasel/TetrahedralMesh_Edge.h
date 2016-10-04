@@ -17,7 +17,7 @@ class Vertex;
 class Edge
 {
 public:
-    Edge() { assert(false); } // Required for Vector<GravityEdge>
+    Edge() {} // Required for Vector<GravityEdge>
 
     /*!
      * @brief Constructs a triangle from 4 vertex locations in cartesian

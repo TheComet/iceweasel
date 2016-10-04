@@ -17,7 +17,7 @@ class Vertex;
 class Face
 {
 public:
-    Face() { assert(false); } // Required for Vector<GravityTriangle>
+    Face() {} // Required for Vector<GravityTriangle>
 
     /*!
      * @brief Constructs a triangle from 3 vertices.

@@ -17,7 +17,7 @@ class Tetrahedron
 {
 public:
 
-    Tetrahedron() { assert(false); } // Required for Vector<GravityTetrahedron>
+    Tetrahedron() {} // Required for Vector<GravityTetrahedron>
 
     /*!
      * @brief Constructs a tetrahedron from 4 vertex locations in cartesian
