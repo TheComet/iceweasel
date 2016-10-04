@@ -49,5 +49,6 @@ bin/*
 /CMake/Modules/FindDirectFB.cmake
 /CMake/Modules/FindVideoCore.cmake
 /CMake/Modules/CheckUrho3DLibrary.cpp
+CMake/Modules/CheckHost.cmake
 /urho3d
 
