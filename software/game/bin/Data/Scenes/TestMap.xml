@@ -7,8 +7,8 @@
 	<attribute name="Elapsed Time" value="1170.4" />
 	<attribute name="Next Replicated Node ID" value="202" />
 	<attribute name="Next Replicated Component ID" value="456" />
-	<attribute name="Next Local Node ID" value="16777246" />
-	<attribute name="Next Local Component ID" value="16777576" />
+	<attribute name="Next Local Node ID" value="16777247" />
+	<attribute name="Next Local Component ID" value="16777588" />
 	<attribute name="Variables" />
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
@@ -2944,14 +2944,14 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="Crate" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="-4.92345 1.63986 0.0470963" />
+			<attribute name="Position" value="-4.92345 1.9963 0.0470963" />
 			<attribute name="Rotation" value="0.999993 -6.88479e-06 -0.00373436 -3.55306e-05" />
-			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Scale" value="-1.65187 -1.65187 -1.65187" />
 			<attribute name="Variables" />
 			<component type="CollisionShape" id="23" />
 			<component type="RigidBody" id="24">
 				<attribute name="Physics Rotation" value="0.999993 5.9116e-05 -0.0037777 -9.74874e-05" />
-				<attribute name="Physics Position" value="-4.92345 1.63986 0.0470963" />
+				<attribute name="Physics Position" value="-4.92345 1.9963 0.0470963" />
 				<attribute name="Mass" value="20" />
 			</component>
 			<component type="StaticModel" id="25">
@@ -2963,14 +2963,14 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="Crate" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="-4.93405 1.6399 1.15662" />
+			<attribute name="Position" value="-4.93405 1.99634 1.15662" />
 			<attribute name="Rotation" value="0.999993 -0.000146744 -0.00375682 -4.94318e-05" />
-			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Scale" value="1.55042 1.55042 1.55042" />
 			<attribute name="Variables" />
 			<component type="CollisionShape" id="26" />
 			<component type="RigidBody" id="27">
 				<attribute name="Physics Rotation" value="0.999993 -0.00012686 -0.00378025 -0.000105252" />
-				<attribute name="Physics Position" value="-4.93405 1.6399 1.15662" />
+				<attribute name="Physics Position" value="-4.93405 1.99634 1.15662" />
 				<attribute name="Mass" value="20" />
 			</component>
 			<component type="StaticModel" id="28">
@@ -2982,14 +2982,14 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="Crate" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="-4.91833 2.63985 0.630962" />
+			<attribute name="Position" value="-4.91833 3.43521 0.630962" />
 			<attribute name="Rotation" value="0.999997 -4.02385e-05 -0.00239976 -3.18678e-05" />
-			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Scale" value="1.48699 1.48699 1.48699" />
 			<attribute name="Variables" />
 			<component type="CollisionShape" id="29" />
 			<component type="RigidBody" id="30">
 				<attribute name="Physics Rotation" value="0.999997 -2.18801e-05 -0.0024202 -7.77799e-05" />
-				<attribute name="Physics Position" value="-4.91833 2.63985 0.630962" />
+				<attribute name="Physics Position" value="-4.91833 3.43521 0.630962" />
 				<attribute name="Mass" value="20" />
 			</component>
 			<component type="StaticModel" id="31">
