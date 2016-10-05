@@ -1,0 +1,3 @@
+<technique vs="Phong_VS" ps="Phong_PS">
+    <pass name="light" />
+</technique>

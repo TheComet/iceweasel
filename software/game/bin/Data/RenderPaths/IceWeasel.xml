@@ -1,0 +1,5 @@
+<renderpath>
+    <command type="clear" color="fog" depth="1.0" stencil="0" />
+    <command type="scenepass" pass="base" />
+    <command type="forwardlights" pass="light" />
+</renderpath>
