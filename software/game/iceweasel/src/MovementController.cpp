@@ -39,8 +39,8 @@ void MovementController::Start()
 {
     // Cache frequently used subsystems/scene components
     input_ = GetSubsystem<Input>();
-    gravityManager_ = GetScene()->GetComponent<GravityManager>();
-    physicsWorld_ = GetScene()->GetComponent<PhysicsWorld>();
+    gravityManager_ = GetScene()->GetOrCreateComponent<GravityManager>();
+    physicsWorld_ = GetScene()->GetOrCreateComponent<PhysicsWorld>();
 
     // Set up things
     CreateComponents();

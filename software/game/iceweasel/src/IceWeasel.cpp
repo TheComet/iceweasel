@@ -205,7 +205,7 @@ void IceWeasel::CreateCamera()
 
     // Configure render path
     SharedPtr<RenderPath> effectRenderPath(new RenderPath);
-    effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/Forward.xml"));
+    effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/IceWeasel.xml"));
     effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/FXAA2.xml"));
     //effectRenderPath->SetEnabled("FXAA2", true);
 

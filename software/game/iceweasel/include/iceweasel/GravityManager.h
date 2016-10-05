@@ -67,6 +67,9 @@ public:
     void SetStrategy(Strategy strategy)
             { strategy_ = strategy; }
 
+    Strategy GetStrategy() const
+            { return strategy_; }
+
     /*!
      * @brief Queries all gravity probes and calculates the effective
      * gravitational force at the specified location in world space.

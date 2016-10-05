@@ -39,7 +39,14 @@ void GravityManager::RegisterObject(Context* context)
 {
     context->RegisterFactory<GravityManager>(ICEWEASEL_CATEGORY);
 
+    static const char* strategyNames[] = {
+        "Tetrahedral Mesh",
+        "Shortest Distance",
+        NULL
+    };
+
     URHO3D_ACCESSOR_ATTRIBUTE("Global Gravity", GetGlobalGravity, SetGlobalGravity, float, 9.81, AM_DEFAULT);
+    URHO3D_ENUM_ACCESSOR_ATTRIBUTE("Strategy", GetStrategy, SetStrategy, Strategy, strategyNames, SHORTEST_DISTANCE, AM_DEFAULT);
 }
 
 // ----------------------------------------------------------------------------
