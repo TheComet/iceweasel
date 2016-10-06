@@ -1,3 +1,4 @@
 <technique vs="Phong_VS" ps="Phong_PS">
-    <pass name="light" psdefines="NO_NORMAL_MAP" />
+    <pass name="base" />
+    <pass name="light" psdefines="NO_NORMAL_MAP" depthtest="equal" depthwrite="false" blend="add" />
 </technique>
