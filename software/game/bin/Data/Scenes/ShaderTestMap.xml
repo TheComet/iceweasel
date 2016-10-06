@@ -4,11 +4,11 @@
 	<attribute name="Time Scale" value="1" />
 	<attribute name="Smoothing Constant" value="50" />
 	<attribute name="Snap Threshold" value="5" />
-	<attribute name="Elapsed Time" value="2225" />
-	<attribute name="Next Replicated Node ID" value="13" />
-	<attribute name="Next Replicated Component ID" value="23" />
-	<attribute name="Next Local Node ID" value="16777293" />
-	<attribute name="Next Local Component ID" value="16777372" />
+	<attribute name="Elapsed Time" value="2332.7" />
+	<attribute name="Next Replicated Node ID" value="14" />
+	<attribute name="Next Replicated Component ID" value="29" />
+	<attribute name="Next Local Node ID" value="16777296" />
+	<attribute name="Next Local Component ID" value="16777408" />
 	<attribute name="Variables" />
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
@@ -28,6 +28,7 @@
 		<component type="StaticModel" id="3">
 			<attribute name="Model" value="Model;Models/ShaderTestMap.mdl" />
 			<attribute name="Material" value="Material;Materials/ShaderTestMap.xml" />
+			<attribute name="Cast Shadows" value="true" />
 		</component>
 		<component type="CollisionShape" id="5">
 			<attribute name="Shape Type" value="TriangleMesh" />
@@ -46,6 +47,7 @@
 		<component type="AnimatedModel" id="9">
 			<attribute name="Model" value="Model;Models/Binky.mdl" />
 			<attribute name="Material" value="Material;Materials/Binky.xml" />
+			<attribute name="Cast Shadows" value="true" />
 			<attribute name="Bone Animation Enabled">
 				<variant type="Bool" value="true" />
 				<variant type="Bool" value="true" />
@@ -163,6 +165,15 @@
 				<variant type="Float" value="0.148429" />
 				<variant type="Int" value="0" />
 			</attribute>
+		</component>
+		<component type="CollisionShape" id="27">
+			<attribute name="Shape Type" value="Capsule" />
+			<attribute name="Size" value="1 1.8 1" />
+			<attribute name="Offset Position" value="0 0.9 0" />
+		</component>
+		<component type="RigidBody" id="28">
+			<attribute name="Physics Rotation" value="0.249458 0 0.968386 0" />
+			<attribute name="Physics Position" value="5.80141 0 2.73239" />
 		</component>
 		<node id="16777219">
 			<attribute name="Is Enabled" value="true" />
@@ -745,13 +756,14 @@
 		<attribute name="Is Enabled" value="true" />
 		<attribute name="Name" value="Pillar" />
 		<attribute name="Tags" />
-		<attribute name="Position" value="9.26725 0 -10.4261" />
+		<attribute name="Position" value="6.7115 0 6.38421" />
 		<attribute name="Rotation" value="0.846638 0 -0.532169 0" />
 		<attribute name="Scale" value="1 1 1" />
 		<attribute name="Variables" />
 		<component type="StaticModel" id="15">
 			<attribute name="Model" value="Model;Models/StonePillar1.mdl" />
 			<attribute name="Material" value="Material;Materials/StonePillar1.xml" />
+			<attribute name="Cast Shadows" value="true" />
 		</component>
 		<component type="CollisionShape" id="16">
 			<attribute name="Shape Type" value="ConvexHull" />
@@ -759,7 +771,7 @@
 		</component>
 		<component type="RigidBody" id="17">
 			<attribute name="Physics Rotation" value="0.846638 0 -0.532169 0" />
-			<attribute name="Physics Position" value="9.26725 0 -10.4261" />
+			<attribute name="Physics Position" value="6.7115 0 6.38421" />
 		</component>
 		<node id="9">
 			<attribute name="Is Enabled" value="true" />
@@ -772,6 +784,7 @@
 			<component type="StaticModel" id="18">
 				<attribute name="Model" value="Model;Models/Sign2.mdl" />
 				<attribute name="Material" value="Material;Materials/Sign2.xml" />
+				<attribute name="Cast Shadows" value="true" />
 			</component>
 			<node id="10">
 				<attribute name="Is Enabled" value="true" />
@@ -785,6 +798,7 @@
 					<attribute name="Color" value="1 0.8 0 1" />
 					<attribute name="Range" value="30" />
 					<attribute name="Light Shape Texture" value="TextureCube;" />
+					<attribute name="Cast Shadows" value="true" />
 				</component>
 			</node>
 			<node id="11">
@@ -799,6 +813,7 @@
 					<attribute name="Color" value="1 0.8 0 1" />
 					<attribute name="Range" value="30" />
 					<attribute name="Light Shape Texture" value="TextureCube;" />
+					<attribute name="Cast Shadows" value="true" />
 				</component>
 			</node>
 		</node>
@@ -807,25 +822,81 @@
 		<attribute name="Is Enabled" value="true" />
 		<attribute name="Name" value="" />
 		<attribute name="Tags" />
-		<attribute name="Position" value="7.63445 4 -2.39064" />
+		<attribute name="Position" value="7.76791 4 -3.45101" />
 		<attribute name="Rotation" value="1 0 0 0" />
 		<attribute name="Scale" value="1 1 1" />
 		<attribute name="Variables" />
 		<component type="Light" id="21">
 			<attribute name="Specular Intensity" value="0.3" />
+			<attribute name="Brightness Multiplier" value="2" />
 			<attribute name="Range" value="30" />
 			<attribute name="Light Shape Texture" value="TextureCube;" />
+			<attribute name="Cast Shadows" value="true" />
 		</component>
 		<component type="ScriptInstance" id="22">
 			<attribute name="Delayed Method Calls" value="0" />
 			<attribute name="Script File" value="ScriptFile;Scripts/RotateLight.as" />
 			<attribute name="Class Name" value="RotateLight" />
-			<attribute name="angle_" value="17262.6" />
+			<attribute name="angle_" value="19416" />
 			<attribute name="speed_" value="20" />
 			<attribute name="center_" value="0 0" />
-			<attribute name="radius" value="8" />
+			<attribute name="radius" value="8.5" />
 			<attribute name="height" value="4" />
-			<attribute name="doRotate_" value="false" />
+			<attribute name="doRotate_" value="true" />
+		</component>
+		<component type="BillboardSet" id="23">
+			<attribute name="Material" value="Material;Materials/Particle.xml" />
+			<attribute name="Billboards">
+				<variant type="Int" value="1" />
+				<variant type="Vector3" value="0 0 0" />
+				<variant type="Vector2" value="1 1" />
+				<variant type="Vector4" value="0 0 1 1" />
+				<variant type="Color" value="1 1 1 1" />
+				<variant type="Float" value="0" />
+				<variant type="Vector3" value="1 0 0" />
+				<variant type="Bool" value="true" />
+			</attribute>
+		</component>
+	</node>
+	<node id="13">
+		<attribute name="Is Enabled" value="true" />
+		<attribute name="Name" value="" />
+		<attribute name="Tags" />
+		<attribute name="Position" value="9.96982 1 -0.776342" />
+		<attribute name="Rotation" value="1 0 0 0" />
+		<attribute name="Scale" value="1 1 1" />
+		<attribute name="Variables" />
+		<component type="Light" id="24">
+			<attribute name="Color" value="0.131565 0.75 0.64879 1" />
+			<attribute name="Specular Intensity" value="0.3" />
+			<attribute name="Brightness Multiplier" value="1.5" />
+			<attribute name="Range" value="30" />
+			<attribute name="Light Shape Texture" value="TextureCube;" />
+			<attribute name="Cast Shadows" value="true" />
+		</component>
+		<component type="ScriptInstance" id="25">
+			<attribute name="Delayed Method Calls" value="0" />
+			<attribute name="Script File" value="ScriptFile;Scripts/RotateLight.as" />
+			<attribute name="Class Name" value="RotateLight" />
+			<attribute name="angle_" value="12955.5" />
+			<attribute name="speed_" value="-40" />
+			<attribute name="center_" value="0 0" />
+			<attribute name="radius" value="10" />
+			<attribute name="height" value="1" />
+			<attribute name="doRotate_" value="true" />
+		</component>
+		<component type="BillboardSet" id="26">
+			<attribute name="Material" value="Material;Materials/Particle.xml" />
+			<attribute name="Billboards">
+				<variant type="Int" value="1" />
+				<variant type="Vector3" value="0 0 0" />
+				<variant type="Vector2" value="1 1" />
+				<variant type="Vector4" value="0 0 1 1" />
+				<variant type="Color" value="1 1 1 1" />
+				<variant type="Float" value="0" />
+				<variant type="Vector3" value="1 0 0" />
+				<variant type="Bool" value="true" />
+			</attribute>
 		</component>
 	</node>
 </scene>

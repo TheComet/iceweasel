@@ -150,6 +150,9 @@ void IceWeasel::Start()
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
     SubscribeToEvent(E_FILECHANGED, URHO3D_HANDLER(IceWeasel, HandleFileChanged));
+
+    LOG_SCROLL("Press F, G and B to toggle shaders");
+    LOG_SCROLL("Press R to rotate lights");
 }
 
 // ----------------------------------------------------------------------------
@@ -206,6 +209,15 @@ void IceWeasel::CreateCamera()
     // Configure render path
     SharedPtr<RenderPath> effectRenderPath(new RenderPath);
     effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/IceWeasel.xml"));
+
+    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/FXAA3.xml"));
+
+    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/BloomHDR.xml"));
+    effectRenderPath->SetShaderParameter("BloomHDRMix", Vector2(1.0, 0.3));
+    effectRenderPath->SetShaderParameter("BloomHDRThreshold", 0.3);
+
+    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/GammaCorrection.xml"));
+    effectRenderPath->SetEnabled("GammaCorrection", false);
 
     viewport->SetRenderPath(effectRenderPath);
     renderer->SetHDRRendering(true);
@@ -295,6 +307,30 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
             case DRAW_PHYSICS : debugDrawMode_ = DRAW_GRAVITY; break;
             case DRAW_GRAVITY : debugDrawMode_ = DRAW_NONE;    break;
         }
+    }
+
+    if(key == KEY_B)
+    {
+        RenderPath* effectRenderPath = GetSubsystem<Renderer>()->GetViewport(0)->GetRenderPath();
+        bool enable = !effectRenderPath->GetEnabled("BloomHDR");
+        effectRenderPath->SetEnabled("BloomHDR", enable);
+        LOG_SCROLL(enable ? "Enabling BloomHDR" : "Disabling BloomHDR");
+    }
+
+    if(key == KEY_F)
+    {
+        RenderPath* effectRenderPath = GetSubsystem<Renderer>()->GetViewport(0)->GetRenderPath();
+        bool enable = !effectRenderPath->GetEnabled("FXAA3");
+        effectRenderPath->SetEnabled("FXAA3", enable);
+        LOG_SCROLL(enable ? "Enabling FXAA3" : "Disabling FXAA3");
+    }
+
+    if(key == KEY_G)
+    {
+        RenderPath* effectRenderPath = GetSubsystem<Renderer>()->GetViewport(0)->GetRenderPath();
+        bool enable = !effectRenderPath->GetEnabled("GammaCorrection");
+        effectRenderPath->SetEnabled("GammaCorrection", enable);
+        LOG_SCROLL(enable ? "Enabling GammaCorrection" : "Disabling GammaCorrection");
     }
 
     // Toggle debug HUD

@@ -1,18 +1,26 @@
 #include "Uniforms.glsl"
 #include "Samplers.glsl"
+#include "Transform.glsl"
+#include "ScreenPos.glsl"
+#include "Lighting.glsl"
+#include "Fog.glsl"
 
 const float bumpBias = -0.2;
 const float bumpMagnitude = 0.02;
 float attenuationFallOff = 0.3;
 
-varying vec3 vPosition_worldSpace;
+varying vec4 vPosition_worldSpace;
 varying vec3 vNormal_worldSpace;
 varying vec3 vTangent_worldSpace;
 varying vec2 vTexCoord;
 
+#ifdef SHADOW
+varying vec4 vShadowPosition[NUMCASCADES];
+#endif
+
 void PS()
 {
-    vec3 eyeDirection_worldSpace = normalize(vPosition_worldSpace - cCameraPosPS);
+    vec3 eyeDirection_worldSpace = normalize(vPosition_worldSpace.xyz - cCameraPosPS);
 
     /*
      * If normal maps or bump maps are enabled, we need the tangent/binormal/
@@ -69,9 +77,9 @@ void PS()
     finalColor += ambientComponent;
 #else
     // Calculate light influence on diffuse
-    vec3 lightVector_worldSpace = vPosition_worldSpace - cLightPosPS.xyz;
+    vec3 lightVector_worldSpace = vPosition_worldSpace.xyz - cLightPosPS.xyz;
     vec3 lightDirection_worldSpace = normalize(lightVector_worldSpace);
-    float cosTheta = clamp(dot(normalize(-lightVector_worldSpace), normalMap_worldSpace), 0.0, 1.0);
+    float cosTheta = max(dot(normalize(-lightVector_worldSpace), normalMap_worldSpace), 0.0);
     float lightDistanceSquared = pow(dot(lightVector_worldSpace, lightVector_worldSpace), attenuationFallOff);
     vec3 diffuseComponent = cLightColor.rgb * cMatDiffColor.rgb * materialDiffuseColor * cosTheta / lightDistanceSquared;
 
@@ -87,6 +95,12 @@ void PS()
 
     finalColor += specularComponent;
 #   endif
+
+#   ifdef SHADOW
+    float shadow = GetShadow(vShadowPosition, vPosition_worldSpace.w);
+    finalColor *= shadow;
+#   endif
+
 #endif
 
     gl_FragColor = vec4(finalColor, 1);
