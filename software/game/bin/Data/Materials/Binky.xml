@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <material>
-	<technique name="Techniques/Parallax.xml" quality="0" loddistance="0" />
+	<technique name="Techniques/Fur.xml" quality="0" loddistance="0" />
 	<texture unit="diffuse" name="Textures/Binky_Diffuse.png" />
 	<shader psdefines="NO_NORMAL_MAP NO_BUMP_MAP" />
 	<parameter name="UOffset" value="1 0 0 0" />
