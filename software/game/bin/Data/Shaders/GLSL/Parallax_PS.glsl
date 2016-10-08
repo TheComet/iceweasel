@@ -6,13 +6,33 @@
 #include "Fog.glsl"
 
 const float bumpBias = -0.2;
-const float bumpMagnitude = 0.02;
+const float bumpMagnitude = 0.03;
 float attenuationFallOff = 0.3;
 
 varying vec4 vPosition_worldSpace;
 varying vec3 vNormal_worldSpace;
 varying vec3 vTangent_worldSpace;
 varying vec2 vTexCoord;
+
+#define PARALLAX_OCCLUSION_MAPPING_ITERATIONS 4
+
+/*
+ * It is possible to use a specular map instead of the bump map. Specular is
+ * stored in the alpha channel of the normal map. If there is no normal map
+ * then obviously there cannot be a specular map.
+ */
+#if defined(NO_NORMAL_MAP)
+#   if defined SPECULAR_MAP
+#       undef SPECULAR_MAP
+#   endif
+#endif
+
+#ifdef SPECULAR_MAP
+    // disable bump mapping
+#   ifndef NO_BUMP_MAP
+#       define NO_BUMP_MAP
+#   endif
+#endif
 
 #ifdef SHADOW
 varying vec4 vShadowPosition[NUMCASCADES];
@@ -45,8 +65,19 @@ void PS()
 #if !defined(NO_BUMP_MAP)
     // Height map influences UV coordinates
     vec3 eyeDirection_tangentSpace = normalize(matTBN * eyeDirection_worldSpace);
+
+#   if defined(PARALLAX_OCCLUSION_MAPPING_ITERATIONS)
+    vec2 newUV = vTexCoord;
+    for(int i = 0; i < PARALLAX_OCCLUSION_MAPPING_ITERATIONS; i++)
+    {
+        float heightOffset = texture2D(sNormalMap, newUV).a;
+        newUV -= ((heightOffset - 1) * bumpMagnitude * 1/PARALLAX_OCCLUSION_MAPPING_ITERATIONS) * eyeDirection_tangentSpace.xy;
+    }
+#   else
     float heightOffset = texture2D(sNormalMap, vTexCoord).a;
     vec2 newUV = vTexCoord - eyeDirection_tangentSpace.xy * heightOffset * bumpMagnitude;
+#   endif
+
 #else
     vec2 newUV = vTexCoord;
 #endif
@@ -63,7 +94,11 @@ void PS()
      */
 #if !defined(NO_NORMAL_MAP)
     // Sample normal vector in tangent space
-    vec3 normalMap_worldSpace = normalize(invMatTBN * (texture2D(sNormalMap, newUV).rgb * 2.0 - 1.0));
+    vec4 normalBumpColor = texture2D(sNormalMap, newUV);
+    vec3 normalMap_worldSpace = normalize(invMatTBN * (normalBumpColor.rgb * 2.0 - 1.0));
+#   if defined(SPECULAR_MAP)
+    float specularMap = normalBumpColor.a;
+#   endif
 #else
     vec3 normalMap_worldSpace = normalize(vNormal_worldSpace);
 #endif
@@ -88,10 +123,13 @@ void PS()
 #   if defined(SPECULAR)
     // Calculate specular component
     float specularPower = cMatSpecColor.a;
-    float specularIntensity = cLightColor.a;
     vec3 lightReflectDirection_worldSpace = reflect(-eyeDirection_worldSpace, normalMap_worldSpace);
     float cosAlpha = max(dot(lightDirection_worldSpace, lightReflectDirection_worldSpace), 0.0);
     vec3 specularComponent = cLightColor.rgb * cMatSpecColor.rgb * materialDiffuseColor * pow(cosAlpha, specularPower);
+
+#       if defined(SPECULAR_MAP)
+    specularComponent *= specularMap;
+#       endif
 
     finalColor += specularComponent;
 #   endif

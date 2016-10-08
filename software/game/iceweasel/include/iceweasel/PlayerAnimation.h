@@ -14,6 +14,7 @@ public:
         CROUCH_WALK,
         JUMP_OFF,
         JUMP_LAND,
+        SWIM_IDLE,
 
         NUM_ANIMATIONS
     };

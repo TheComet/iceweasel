@@ -64,12 +64,14 @@ void MovementController::Stop()
 void MovementController::Update(float timeStep)
 {
     Update_Ground(timeStep);
+    //Update_Water(timeStep);
 }
 
 // ----------------------------------------------------------------------------
 void MovementController::FixedUpdate(float timeStep)
 {
     FixedUpdate_Ground(timeStep);
+    //FixedUpdate_Water(timeStep);
 }
 
 // ----------------------------------------------------------------------------
@@ -326,6 +328,11 @@ void MovementController::FixedUpdate_Ground(float timeStep)
     static const float correctCameraAngleSpeed = 5.0f;
     currentRotation_ = currentRotation_.Nlerp(gravityRotation, timeStep * correctCameraAngleSpeed, true);
     moveNode_->SetRotation(-currentRotation_);
+}
+
+// ----------------------------------------------------------------------------
+void MovementController::Update_Water(float timeStep)
+{
 }
 
 // ----------------------------------------------------------------------------

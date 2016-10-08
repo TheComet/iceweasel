@@ -24,7 +24,8 @@ public:
         JUMP_BEGIN,
         JUMP_OFF,
         JUMP_FALL,
-        JUMP_LAND
+        JUMP_LAND,
+        SWIMMING
     };
 
     PlayerAnimationStatesController(Urho3D::Context* context);

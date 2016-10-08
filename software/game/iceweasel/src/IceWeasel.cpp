@@ -207,6 +207,7 @@ void IceWeasel::CreateCamera()
     renderer->SetViewport(0, viewport);
 
     // Configure render path
+    /*
     SharedPtr<RenderPath> effectRenderPath(new RenderPath);
     effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/IceWeasel.xml"));
 
@@ -220,7 +221,7 @@ void IceWeasel::CreateCamera()
     effectRenderPath->SetEnabled("GammaCorrection", false);
 
     viewport->SetRenderPath(effectRenderPath);
-    renderer->SetHDRRendering(true);
+    renderer->SetHDRRendering(true);*/
 }
 
 // ----------------------------------------------------------------------------

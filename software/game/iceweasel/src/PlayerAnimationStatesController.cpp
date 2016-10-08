@@ -24,7 +24,7 @@ using namespace Urho3D;
 // ----------------------------------------------------------------------------
 PlayerAnimationStatesController::PlayerAnimationStatesController(Context* context) :
     LogicComponent(context),
-    state_(ON_GROUND),
+    state_(SWIMMING),
     isCrouching_(false)
 {
 }
@@ -172,6 +172,9 @@ void PlayerAnimationStatesController::Update(float timeStep)
                     LOG_SCROLL("ON_GROUND");
                 }
             }
+
+        case SWIMMING:
+            animationWeight_[PlayerAnimation::SWIM_IDLE].SetTarget(1);
 
             break;
     }
