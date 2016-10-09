@@ -1,22 +1,4 @@
 <technique vs="Fur_VS" ps="Fur_PS">
     <pass name="base" vsdefines="FUR_HEIGHT=0" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=1" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=2" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=3" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=4" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=5" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=6" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=7" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=8" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=9" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=10" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=11" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=12" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=13" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=14" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=15" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=16" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=17" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=18" />
-    <pass name="litalpha" depthtest="lessequal" depthwrite="true" blend="addalpha" vsdefines="FUR_HEIGHT=19" />
+    <pass name="litalpha" depthtest="lessequal" blend="addalpha" vsdefines="FUR_HEIGHT=9" />
 </technique>

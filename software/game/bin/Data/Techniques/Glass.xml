@@ -1,5 +1,0 @@
-<technique vs="Glass_VS" ps="Glass_PS">
-    <pass name="refract" />
-    <pass name="depth" vs="Depth" ps="Depth" />
-    <pass name="shadow" vs="Shadow" ps="Shadow" />
-</technique>
