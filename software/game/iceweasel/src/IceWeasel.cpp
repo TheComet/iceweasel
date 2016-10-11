@@ -1,6 +1,7 @@
 #include "iceweasel/IceWeasel.h"
 #include "iceweasel/IceWeaselConfig.h"
 
+#include "iceweasel/Args.h"
 #include "iceweasel/PlayerController.h"
 #include "iceweasel/CameraControllerFree.h"
 #include "iceweasel/DebugTextScroll.h"
@@ -46,7 +47,7 @@ void RegisterIceWeaselMods(Urho3D::Context* context)
 }
 
 // ----------------------------------------------------------------------------
-IceWeasel::IceWeasel(Context* context, const StringVector& args) :
+IceWeasel::IceWeasel(Context* context, Args* args) :
     Application(context),
     args_(args),
     debugDrawMode_(DRAW_NONE),
@@ -121,10 +122,10 @@ void IceWeasel::Setup()
     // called before engine initialization
 
     engineParameters_["WindowTitle"] = "IceWeasel";
-    engineParameters_["FullScreen"]  = false;
-    engineParameters_["Headless"]    = false;
-    engineParameters_["Multisample"] = 2;
-    engineParameters_["VSync"] = true;
+    engineParameters_["FullScreen"]  = !args_->windowed_;
+    engineParameters_["Headless"]    = args_->headless_;
+    engineParameters_["Multisample"] = args_->multisample_;
+    engineParameters_["VSync"] = args_->vsync_;
 }
 
 // ----------------------------------------------------------------------------
@@ -133,10 +134,8 @@ void IceWeasel::Start()
     // configure resource cache
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     cache->SetAutoReloadResources(true);
-    for(int i = 0; i != args_.Size(); ++i)
-        if(args_[i] == "-r" || args_[i] == "--resource")
-            if(i + 1 < args_.Size())
-                cache->AddResourceDir(args_[i + 1]);
+    for(StringVector::ConstIterator it = args_->resourcePaths_.Begin(); it != args_->resourcePaths_.End(); ++it)
+        cache->AddResourceDir(*it);
 
     RegisterIceWeaselMods(context_);
     RegisterSubsystems();
@@ -186,6 +185,8 @@ void IceWeasel::CreateCamera()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     Renderer* renderer = GetSubsystem<Renderer>();
+    if(renderer == NULL)
+        return;
 
     /*
      * The camera is attached to a "rotate node", which is in turn attached to
@@ -229,12 +230,8 @@ void IceWeasel::CreateScene()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
     String mapName = "Scenes/TestMap.xml";
-    for(int i = 0; i != args_.Size(); ++i)
-    {
-        if(args_[i] == "-m" || args_[i] == "--map")
-            if(i + 1 < args_.Size())
-                mapName = args_[i + 1];
-    }
+    if(args_->sceneName_.Length() != 0)
+        mapName = args_->sceneName_;
 
     // load scene from XML
     scene_ = new Scene(context_);
@@ -266,7 +263,8 @@ void IceWeasel::CreateDebugHud()
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     XMLFile* style = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
     debugHud_ = engine_->CreateDebugHud();
-    debugHud_->SetDefaultStyle(style);
+    if(debugHud_)
+        debugHud_->SetDefaultStyle(style);
 #endif
 }
 

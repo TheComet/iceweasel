@@ -4,7 +4,7 @@
 
 namespace Urho3D {
     class Input;
-};
+}
 
 class CameraControllerFree : public Urho3D::LogicComponent
 {

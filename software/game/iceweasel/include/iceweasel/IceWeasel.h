@@ -9,6 +9,7 @@ namespace Urho3D {
     class XMLFile;
 }
 
+class Args;
 class MenuScreens;
 
 /// Defines the category under which iceweasel specific components can be found in the editor.
@@ -30,7 +31,7 @@ public:
         GAME
     };
 
-    IceWeasel(Urho3D::Context* context, const Urho3D::StringVector& args);
+    IceWeasel(Urho3D::Context* context, Args* args);
 
     void SwitchState(GameState state);
 
@@ -59,7 +60,7 @@ private:
     void HandlePostRenderUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleFileChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    Urho3D::StringVector args_;
+    Urho3D::SharedPtr<Args> args_;
     Urho3D::SharedPtr<Urho3D::Scene> scene_;
     Urho3D::SharedPtr<Urho3D::XMLFile> xmlScene_;
     Urho3D::SharedPtr<Urho3D::Node> cameraMoveNode_;
