@@ -14,6 +14,7 @@
 #include <Urho3D/Engine/DebugHud.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Graphics/Viewport.h>
@@ -22,6 +23,8 @@
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/LuaScript/LuaScript.h>
 #include <Urho3D/Math/Random.h>
+#include <Urho3D/Network/Network.h>
+#include <Urho3D/Network/NetworkEvents.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/RigidBody.h>
@@ -107,6 +110,7 @@ void IceWeasel::StartState_Game()
 {
     CreateScene();
     CreateCamera();
+    InitialiseNetworking();
 
     //GetSubsystem<Input>()->SetMouseVisible(true);
 }
@@ -114,6 +118,8 @@ void IceWeasel::StartState_Game()
 // ----------------------------------------------------------------------------
 void IceWeasel::CleanupState_Game()
 {
+    Network* network = GetSubsystem<Network>();
+    network->StopServer();
 }
 
 // ----------------------------------------------------------------------------
@@ -122,8 +128,8 @@ void IceWeasel::Setup()
     // called before engine initialization
 
     engineParameters_["WindowTitle"] = "IceWeasel";
-    engineParameters_["FullScreen"]  = !args_->windowed_;
-    engineParameters_["Headless"]    = args_->headless_;
+    engineParameters_["FullScreen"]  = args_->fullscreen_;
+    engineParameters_["Headless"]    = args_->server_;
     engineParameters_["Multisample"] = args_->multisample_;
     engineParameters_["VSync"] = args_->vsync_;
 }
@@ -149,6 +155,13 @@ void IceWeasel::Start()
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
     SubscribeToEvent(E_FILECHANGED, URHO3D_HANDLER(IceWeasel, HandleFileChanged));
+
+    // Network events
+    SubscribeToEvent(E_SERVERCONNECTED, URHO3D_HANDLER(IceWeasel, HandleConnectionStatus));
+    SubscribeToEvent(E_SERVERDISCONNECTED, URHO3D_HANDLER(IceWeasel, HandleConnectionStatus));
+    SubscribeToEvent(E_CONNECTFAILED, URHO3D_HANDLER(IceWeasel, HandleConnectionStatus));
+    SubscribeToEvent(E_CLIENTCONNECTED, URHO3D_HANDLER(IceWeasel, HandleClientConnected));
+    SubscribeToEvent(E_CLIENTDISCONNECTED, URHO3D_HANDLER(IceWeasel, HandleClientDisconnected));
 
     LOG_SCROLL("Press F, G and B to toggle shaders");
     LOG_SCROLL("Press R to rotate lights");
@@ -181,6 +194,22 @@ void IceWeasel::RegisterComponents()
 }
 
 // ----------------------------------------------------------------------------
+void IceWeasel::InitialiseNetworking()
+{
+    Network* network = GetSubsystem<Network>();
+
+    if(args_->server_)
+    {
+        network->StartServer(args_->networkPort_);
+    }
+    else
+    {
+        network->Connect(args_->networkAddress_, args_->networkPort_, scene_);
+    }
+}
+
+
+// ----------------------------------------------------------------------------
 void IceWeasel::CreateCamera()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
@@ -193,9 +222,9 @@ void IceWeasel::CreateCamera()
      * a "move" node. The rotation controller is separate from the movement
      * controller.
      */
-    cameraMoveNode_   = scene_->CreateChild("Camera Move");
-    cameraOffsetNode_ = cameraMoveNode_->CreateChild("Camera Offset");
-    cameraRotateNode_ = cameraOffsetNode_->CreateChild("Camera Rotate");
+    cameraMoveNode_   = scene_->CreateChild("Camera Move", LOCAL);
+    cameraOffsetNode_ = cameraMoveNode_->CreateChild("Camera Offset", LOCAL);
+    cameraRotateNode_ = cameraOffsetNode_->CreateChild("Camera Rotate", LOCAL);
     Camera* camera = cameraRotateNode_->CreateComponent<Camera>(LOCAL);
     camera->SetFarClip(300.0f);
 
@@ -227,6 +256,16 @@ void IceWeasel::CreateCamera()
 // ----------------------------------------------------------------------------
 void IceWeasel::CreateScene()
 {
+    // Scene object should always exist, regardless if client or server
+    scene_ = new Scene(context_);
+
+    scene_->CreateComponent<Octree>(LOCAL);
+    scene_->CreateComponent<PhysicsWorld>(LOCAL);
+
+    // If client, don't load anything
+    if(args_->server_ == false)
+        return;
+
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
     String mapName = "Scenes/TestMap.xml";
@@ -234,14 +273,13 @@ void IceWeasel::CreateScene()
         mapName = args_->sceneName_;
 
     // load scene from XML
-    scene_ = new Scene(context_);
     if(mapName.Length() == 0)
         mapName = "Scenes/TestMap.xml";
     xmlScene_ = cache->GetResource<XMLFile>(mapName);
     if(xmlScene_)
         scene_->LoadXML(xmlScene_->GetRoot());
     else
-        ErrorExit("Failed to load map \"" + mapName + "\" - did you spell it correctly?");
+        ErrorExit("Failed to load scene \"" + mapName + "\" - did you spell it correctly?");
 
     /*
     // HACK Add a small random offset to all gravity vectors so the
@@ -408,4 +446,27 @@ void IceWeasel::HandleFileChanged(Urho3D::StringHash eventType, Urho3D::VariantM
             SwitchState(GAME);
         }
     }
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::HandleClientConnected(StringHash eventType, VariantMap& eventData)
+{
+    using namespace ClientConnected;
+
+    // When a client connects, assign to scene to begin scene replication
+    Connection* newConnection = static_cast<Connection*>(eventData[P_CONNECTION].GetPtr());
+    newConnection->SetScene(scene_);
+
+    URHO3D_LOGDEBUG("HandleClientConnected: Setting scene");
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::HandleClientDisconnected(StringHash eventType, VariantMap& eventData)
+{
+    using namespace ClientConnected;
+}
+
+// ----------------------------------------------------------------------------
+void IceWeasel::HandleConnectionStatus(StringHash eventType, VariantMap& eventData)
+{
 }

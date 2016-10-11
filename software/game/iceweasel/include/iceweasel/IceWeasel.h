@@ -49,6 +49,7 @@ private:
 
     void RegisterSubsystems();
     void RegisterComponents();
+    void InitialiseNetworking();
     void CreateCamera();
     void CreateScene();
     void CreateDebugHud();
@@ -59,6 +60,10 @@ private:
     void HandleKeyDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandlePostRenderUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleFileChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+
+    void HandleClientConnected(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleClientDisconnected(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleConnectionStatus(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
     Urho3D::SharedPtr<Args> args_;
     Urho3D::SharedPtr<Urho3D::Scene> scene_;

@@ -7,9 +7,11 @@ struct Args : public Urho3D::RefCounted
 
     Urho3D::StringVector resourcePaths_;
     Urho3D::String sceneName_;
+    Urho3D::String networkAddress_;
+    unsigned short networkPort_;
     bool editor_;
-    bool headless_;
-    bool windowed_;
+    bool server_;
+    bool fullscreen_;
     bool vsync_;
     int multisample_;
 };

@@ -74,7 +74,7 @@ void PlayerController::Start()
     CreateComponents();
 
     // Needs to always exist
-    modelNode_ = moveNode_->CreateChild("Player");
+    modelNode_ = moveNode_->CreateChild("Player", LOCAL);
 
     /*
      * The player is created in the editor and saved (with animation states)
