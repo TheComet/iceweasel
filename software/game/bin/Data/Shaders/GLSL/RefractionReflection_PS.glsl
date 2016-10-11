@@ -32,5 +32,5 @@ void PS()
     vec3 reflectColor = textureCube(sEnvCubeMap, reflect_worldSpace).rgb;
 
     //gl_FragColor = vec4(mix(diffuse, refract, refractFactor), alpha);
-    gl_FragColor = vec4(reflectColor, 1);
+    gl_FragColor = vec4(refractColor, 1);
 }

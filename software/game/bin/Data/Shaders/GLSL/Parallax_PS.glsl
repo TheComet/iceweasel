@@ -85,7 +85,11 @@ void PS()
     vec3 finalColor = vec3(0);
 
     // Sample ambient diffuse component
+#if !defined(NO_DIFFUSE_MAP)
     vec3 materialDiffuseColor = texture2D(sDiffMap, newUV).rgb;
+#else
+    vec3 materialDiffuseColor = vec3(1);
+#endif
 
     /*
      * If we have a normal map, sample that and transform it from texture space
@@ -110,6 +114,7 @@ void PS()
 #if !defined(PERPIXEL)
     vec3 ambientComponent = cAmbientColor.rgb * materialDiffuseColor;
     finalColor += ambientComponent;
+    finalColor = ambientComponent;
 #else
     // Calculate light influence on diffuse
     vec3 lightVector_worldSpace = vPosition_worldSpace.xyz - cLightPosPS.xyz;

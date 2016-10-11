@@ -24,7 +24,7 @@ using namespace Urho3D;
 // ----------------------------------------------------------------------------
 PlayerAnimationStatesController::PlayerAnimationStatesController(Context* context) :
     LogicComponent(context),
-    state_(SWIMMING),
+    state_(ON_GROUND),
     isCrouching_(false)
 {
 }
