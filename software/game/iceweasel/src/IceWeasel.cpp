@@ -8,6 +8,7 @@
 #include "iceweasel/GravityManager.h"
 #include "iceweasel/GravityVector.h"
 #include "iceweasel/MenuScreens.h"
+#include "iceweasel/MainMenu.h"
 
 #include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -93,15 +94,12 @@ void IceWeasel::CleanupState()
 // ----------------------------------------------------------------------------
 void IceWeasel::StartState_MainMenu()
 {
-    mainMenu_ = new MenuScreens(context_);
-    mainMenu_->LoadMenuFromFile("UI/MainMenu.xml");
-    GetSubsystem<UI>()->GetRoot()->AddChild(mainMenu_);
+    mainMenu_ = new MainMenu(context_);
 }
 
 // ----------------------------------------------------------------------------
 void IceWeasel::CleanupState_MainMenu()
 {
-    GetSubsystem<UI>()->GetRoot()->RemoveChild(mainMenu_);
     mainMenu_.Reset();
 }
 
@@ -110,7 +108,7 @@ void IceWeasel::StartState_Game()
 {
     CreateScene();
     CreateCamera();
-    InitialiseNetworking();
+    StartNetworking();
 
     //GetSubsystem<Input>()->SetMouseVisible(true);
 }
@@ -118,8 +116,7 @@ void IceWeasel::StartState_Game()
 // ----------------------------------------------------------------------------
 void IceWeasel::CleanupState_Game()
 {
-    Network* network = GetSubsystem<Network>();
-    network->StopServer();
+    StopNetworking();
 }
 
 // ----------------------------------------------------------------------------
@@ -150,7 +147,7 @@ void IceWeasel::Start()
 
     GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
 
-    SwitchState(GAME);
+    SwitchState(MAIN_MENU);
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
@@ -171,10 +168,6 @@ void IceWeasel::Start()
 void IceWeasel::Stop()
 {
     SwitchState(EMPTY);
-
-    cameraMoveNode_.Reset();
-    cameraRotateNode_.Reset();
-    scene_.Reset();
 }
 
 // ----------------------------------------------------------------------------
@@ -194,20 +187,26 @@ void IceWeasel::RegisterComponents()
 }
 
 // ----------------------------------------------------------------------------
-void IceWeasel::InitialiseNetworking()
+void IceWeasel::StartNetworking()
 {
     Network* network = GetSubsystem<Network>();
 
     if(args_->server_)
-    {
         network->StartServer(args_->networkPort_);
-    }
     else
-    {
         network->Connect(args_->networkAddress_, args_->networkPort_, scene_);
-    }
 }
 
+// ----------------------------------------------------------------------------
+void IceWeasel::StopNetworking()
+{
+    Network* network = GetSubsystem<Network>();
+
+    if(args_->server_)
+        network->StopServer();
+    else
+        network->Disconnect();
+}
 
 // ----------------------------------------------------------------------------
 void IceWeasel::CreateCamera()

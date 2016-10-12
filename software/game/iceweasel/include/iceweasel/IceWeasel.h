@@ -10,7 +10,7 @@ namespace Urho3D {
 }
 
 class Args;
-class MenuScreens;
+class MainMenu;
 
 /// Defines the category under which iceweasel specific components can be found in the editor.
 extern const char* ICEWEASEL_CATEGORY;
@@ -49,7 +49,8 @@ private:
 
     void RegisterSubsystems();
     void RegisterComponents();
-    void InitialiseNetworking();
+    void StartNetworking();
+    void StopNetworking();
     void CreateCamera();
     void CreateScene();
     void CreateDebugHud();
@@ -66,13 +67,13 @@ private:
     void HandleConnectionStatus(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
     Urho3D::SharedPtr<Args> args_;
+    Urho3D::SharedPtr<MainMenu> mainMenu_;
     Urho3D::SharedPtr<Urho3D::Scene> scene_;
     Urho3D::SharedPtr<Urho3D::XMLFile> xmlScene_;
     Urho3D::SharedPtr<Urho3D::Node> cameraMoveNode_;
     Urho3D::SharedPtr<Urho3D::Node> cameraOffsetNode_;
     Urho3D::SharedPtr<Urho3D::Node> cameraRotateNode_;
     Urho3D::SharedPtr<Urho3D::DebugHud> debugHud_;
-    Urho3D::SharedPtr<MenuScreens> mainMenu_;
 
     enum DebugDrawMode
     {
