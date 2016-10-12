@@ -1,63 +1,77 @@
 #include "iceweasel/MainMenu.h"
+#include "iceweasel/DebugTextScroll.h"
 
+#include <Urho3D/Engine/Engine.h>
 #include <Urho3D/Input/Input.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Resource/ResourceEvents.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/UIEvents.h>
 #include <Urho3D/UI/Button.h>
 #include <Urho3D/UI/Window.h>
 #include <Urho3D/UI/Text.h>
 
 using namespace Urho3D;
 
+enum Buttons
+{
+    BTN_LOCAL,
+    BTN_JOIN,
+    BTN_OPTIONS,
+    BTN_QUIT
+};
+
+static const char* g_buttonNames[] = {
+    "button_localGame",
+    "button_joinServer",
+    "button_options",
+    "button_quit"
+};
+
 // ----------------------------------------------------------------------------
 MainMenu::MainMenu(Context* context) :
-    UIElement(context)
+    MenuBase(context)
 {
-    Input* input = GetSubsystem<Input>();
-    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    LoadUI("UI/JoinServer.xml");
 
-    mouseWasVisible_ = input->IsMouseVisible();
-    input->SetMouseVisible(true);
+#define CONNECT_BUTTON(BTN, Handler) do {                                    \
+        UIElement* button = GetChild(g_buttonNames[BTN], true);              \
+        if(button == NULL)                                                   \
+        {                                                                    \
+            URHO3D_LOGERRORF("Couldn't find button \"%s\" in UI/MainMenu.xml", g_buttonNames[BTN]); \
+            break;                                                           \
+        }                                                                    \
+        SubscribeToEvent(button, E_CLICK, URHO3D_HANDLER(MainMenu, Handler));\
+    } while(0)
 
-    root_ = GetSubsystem<UI>()->GetRoot()->CreateChild<UIElement>("MainMenu");
-    root_->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
-
-    root_->LoadXML();
-
-}
-// ----------------------------------------------------------------------------
-MainMenu::~MainMenu()
-{
-    GetSubsystem<UI>()->GetRoot()->RemoveChild(root_);
-
-    GetSubsystem<Input>()->SetMouseVisible(mouseWasVisible_);
+    CONNECT_BUTTON(BTN_LOCAL, HandleLocalGame);
+    CONNECT_BUTTON(BTN_JOIN, HandleJoinServer);
+    CONNECT_BUTTON(BTN_OPTIONS, HandleOptions);
+    CONNECT_BUTTON(BTN_QUIT, HandleQuit);
 }
 
 // ----------------------------------------------------------------------------
-void MainMenu::SetupUI()
+void MainMenu::HandleLocalGame(StringHash eventType, VariantMap& eventData)
 {
-    Text* text_joinServer = new Text(context_);
-    text_joinServer->SetText("Join Server");
+    DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
+    if(debug) debug->Print("Local game not implemented", Color::YELLOW);
+}
 
-    Text* text_options = new Text(context_);
-    text_options->SetText("Options");
+// ----------------------------------------------------------------------------
+void MainMenu::HandleJoinServer(StringHash eventType, VariantMap& eventData)
+{
+}
 
-    Text* text_quit = new Text(context_);
-    text_quit->SetText("Quit");
+// ----------------------------------------------------------------------------
+void MainMenu::HandleOptions(StringHash eventType, VariantMap& eventData)
+{
+    DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
+    if(debug) debug->Print("Options menu not implemented", Color::YELLOW);
+}
 
-    Button* button_joinServer = new Button(context_);
-    button_joinServer->AddChild(text_joinServer);
-
-    Button* button_options = new Button(context_);
-    button_options->AddChild(text_options);
-
-    Button* button_quit = new Button(context_);
-    button_quit->AddChild(text_quit);
-
-    Window* window = new Window(context_);
-    window->AddChild(button_joinServer);
-    window->AddChild(button_options);
-    window->AddChild(button_quit);
-
-    root_->AddChild(window);
+// ----------------------------------------------------------------------------
+void MainMenu::HandleQuit(StringHash eventType, VariantMap& eventData)
+{
+    GetSubsystem<Engine>()->Exit();
 }

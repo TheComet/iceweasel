@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     SharedPtr<Context> context(new Context);
     SharedPtr<Application> app;
     if(args->editor_)
-        app = new InGameEditorApplication(context);
+        app = new InGameEditorApplication(context, args);
     else
         app = new IceWeasel(context, args);
 

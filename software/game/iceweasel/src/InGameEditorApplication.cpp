@@ -1,5 +1,6 @@
 #include "iceweasel/InGameEditorApplication.h"
 #include "iceweasel/IceWeasel.h"
+#include "iceweasel/Args.h"
 
 #include <Urho3D/AngelScript/Script.h>
 #include <Urho3D/LuaScript/LuaScript.h>
@@ -13,19 +14,20 @@
 using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
-InGameEditorApplication::InGameEditorApplication(Urho3D::Context* context) :
-    Application(context)
+InGameEditorApplication::InGameEditorApplication(Urho3D::Context* context, Args* args) :
+    Application(context),
+    args_(args)
 {
 }
 
 // ----------------------------------------------------------------------------
 void InGameEditorApplication::Setup()
 {
-    engineParameters_["WindowTitle"] = "IceWeasel Editor";
-    engineParameters_["FullScreen"]  = false;
-    engineParameters_["Headless"]    = false;
-    engineParameters_["Multisample"] = 2;
-    engineParameters_["VSync"] = true;
+    engineParameters_["WindowTitle"] = "IceWeasel";
+    engineParameters_["FullScreen"]  = args_->fullscreen_;
+    engineParameters_["Headless"]    = args_->server_;
+    engineParameters_["Multisample"] = args_->multisample_;
+    engineParameters_["VSync"] = args_->vsync_;
 }
 
 // ----------------------------------------------------------------------------

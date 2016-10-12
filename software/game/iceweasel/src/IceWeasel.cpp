@@ -95,11 +95,13 @@ void IceWeasel::CleanupState()
 void IceWeasel::StartState_MainMenu()
 {
     mainMenu_ = new MainMenu(context_);
+    GetSubsystem<UI>()->GetRoot()->AddChild(mainMenu_);
 }
 
 // ----------------------------------------------------------------------------
 void IceWeasel::CleanupState_MainMenu()
 {
+    GetSubsystem<UI>()->GetRoot()->RemoveChild(mainMenu_);
     mainMenu_.Reset();
 }
 
@@ -334,7 +336,7 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 
     // Toggle debug geometry
 #ifdef DEBUG
-    if(key == KEY_1)
+    if(key == KEY_F1)
     {
         switch(debugDrawMode_)
         {
@@ -369,7 +371,7 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     }
 
     // Toggle debug HUD
-    if(key == KEY_2)
+    if(key == KEY_F2)
     {
         if(debugHud_->GetMode() == DEBUGHUD_SHOW_NONE)
             debugHud_->SetMode(DEBUGHUD_SHOW_ALL);
@@ -380,7 +382,7 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
     }
 
     // toggle between free-cam and FPS cam
-    if(key == KEY_5)
+    if(key == KEY_F5)
     {
         isThirdPerson_ = !isThirdPerson_;
         if(isThirdPerson_)
@@ -402,6 +404,8 @@ void IceWeasel::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventDa
     (void)eventData;
 
     if(debugDrawMode_ == DRAW_NONE)
+        return;
+    if(scene_ == NULL)
         return;
 
     DebugRenderer* debugRenderer = scene_->GetComponent<DebugRenderer>();

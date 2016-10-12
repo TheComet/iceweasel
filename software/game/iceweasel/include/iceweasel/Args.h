@@ -1,8 +1,9 @@
 #pragma once
 #include <Urho3D/Core/Variant.h>
 
-struct Args : public Urho3D::RefCounted
+class Args : public Urho3D::RefCounted
 {
+public:
     Args();
 
     Urho3D::StringVector resourcePaths_;
