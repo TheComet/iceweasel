@@ -1,4 +1,5 @@
 #include "iceweasel/MainMenu.h"
+#include "iceweasel/MenuScreen.h"
 #include "iceweasel/DebugTextScroll.h"
 
 #include <Urho3D/Engine/Engine.h>
@@ -16,62 +17,103 @@ using namespace Urho3D;
 
 enum Buttons
 {
-    BTN_LOCAL,
-    BTN_JOIN,
-    BTN_OPTIONS,
-    BTN_QUIT
+    // main screen
+    BTN_MAIN_LOCAL,
+    BTN_MAIN_JOIN,
+    BTN_MAIN_OPTIONS,
+    BTN_MAIN_QUIT,
+
+    // join screen
+    BTN_JOIN_CANCEL,
+    BTN_JOIN_CONNECT
 };
 
 static const char* g_buttonNames[] = {
-    "button_localGame",
-    "button_joinServer",
-    "button_options",
-    "button_quit"
+    // main screen
+    "button_main_localGame",
+    "button_main_joinServer",
+    "button_main_options",
+    "button_main_quit",
+
+    // join screen
+    "button_join_cancel",
+    "button_join_connect"
 };
 
 // ----------------------------------------------------------------------------
 MainMenu::MainMenu(Context* context) :
-    MenuBase(context)
+    UIElement(context)
 {
-    LoadUI("UI/JoinServer.xml");
+    mainScreen_ = new MenuScreen(context_);
+    joinServerScreen_ = new MenuScreen(context_);
 
-#define CONNECT_BUTTON(BTN, Handler) do {                                    \
-        UIElement* button = GetChild(g_buttonNames[BTN], true);              \
-        if(button == NULL)                                                   \
-        {                                                                    \
+    mainScreen_->LoadUI("UI/MainMenu_MainScreen.xml");
+    joinServerScreen_->LoadUI("UI/MainMenu_JoinScreen.xml");
+
+    AddChild(mainScreen_);
+    AddChild(joinServerScreen_);
+
+    mainScreen_->SetVisible(true);
+
+#define CONNECT_BUTTON(screen, BTN, handler) do {                            \
+        if(screen == NULL || screen->ui_ == NULL) {                          \
+            URHO3D_LOGERROR("Failed to load screen");                        \
+            break;                                                           \
+        }                                                                    \
+        UIElement* button = screen->ui_->GetChild(g_buttonNames[BTN], true); \
+        if(button == NULL) {                                                 \
             URHO3D_LOGERRORF("Couldn't find button \"%s\" in UI/MainMenu.xml", g_buttonNames[BTN]); \
             break;                                                           \
         }                                                                    \
-        SubscribeToEvent(button, E_CLICK, URHO3D_HANDLER(MainMenu, Handler));\
+        SubscribeToEvent(button, E_CLICK, URHO3D_HANDLER(MainMenu, handler));\
     } while(0)
 
-    CONNECT_BUTTON(BTN_LOCAL, HandleLocalGame);
-    CONNECT_BUTTON(BTN_JOIN, HandleJoinServer);
-    CONNECT_BUTTON(BTN_OPTIONS, HandleOptions);
-    CONNECT_BUTTON(BTN_QUIT, HandleQuit);
+    CONNECT_BUTTON(mainScreen_, BTN_MAIN_LOCAL, HandleMainLocalGame);
+    CONNECT_BUTTON(mainScreen_, BTN_MAIN_JOIN, HandleMainJoinServer);
+    CONNECT_BUTTON(mainScreen_, BTN_MAIN_OPTIONS, HandleMainOptions);
+    CONNECT_BUTTON(mainScreen_, BTN_MAIN_QUIT, HandleMainQuit);
+
+    CONNECT_BUTTON(joinServerScreen_, BTN_JOIN_CANCEL, HandleJoinCancel);
+    CONNECT_BUTTON(joinServerScreen_, BTN_JOIN_CONNECT, HandleJoinConnect);
 }
 
 // ----------------------------------------------------------------------------
-void MainMenu::HandleLocalGame(StringHash eventType, VariantMap& eventData)
+void MainMenu::HandleMainLocalGame(StringHash eventType, VariantMap& eventData)
 {
     DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
     if(debug) debug->Print("Local game not implemented", Color::YELLOW);
 }
 
 // ----------------------------------------------------------------------------
-void MainMenu::HandleJoinServer(StringHash eventType, VariantMap& eventData)
+void MainMenu::HandleMainJoinServer(StringHash eventType, VariantMap& eventData)
 {
+    joinServerScreen_->SetVisible(true);
+    mainScreen_->SetVisible(false);
 }
 
 // ----------------------------------------------------------------------------
-void MainMenu::HandleOptions(StringHash eventType, VariantMap& eventData)
+void MainMenu::HandleMainOptions(StringHash eventType, VariantMap& eventData)
 {
     DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
     if(debug) debug->Print("Options menu not implemented", Color::YELLOW);
 }
 
 // ----------------------------------------------------------------------------
-void MainMenu::HandleQuit(StringHash eventType, VariantMap& eventData)
+void MainMenu::HandleMainQuit(StringHash eventType, VariantMap& eventData)
 {
     GetSubsystem<Engine>()->Exit();
 }
+
+// ----------------------------------------------------------------------------
+void MainMenu::HandleJoinCancel(StringHash eventType, VariantMap& eventData)
+{
+    joinServerScreen_->SetVisible(false);
+    mainScreen_->SetVisible(true);
+}
+
+// ----------------------------------------------------------------------------
+void MainMenu::HandleJoinConnect(StringHash eventType, VariantMap& eventData)
+{
+
+}
+

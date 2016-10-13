@@ -7,7 +7,7 @@
 	<attribute name="Layout Spacing" value="20" />
 	<attribute name="Layout Border" value="20 20 20 20" />
 	<element type="Button">
-		<attribute name="Name" value="button_localGame" />
+		<attribute name="Name" value="button_main_localGame" />
 		<attribute name="Pivot" value="0 0" />
 		<attribute name="Layout Mode" value="Horizontal" />
 		<element type="Text">
@@ -23,7 +23,7 @@
 		</element>
 	</element>
 	<element type="Button">
-		<attribute name="Name" value="button_joinServer" />
+		<attribute name="Name" value="button_main_joinServer" />
 		<attribute name="Pivot" value="0 0" />
 		<attribute name="Layout Mode" value="Horizontal" />
 		<element type="Text">
@@ -39,7 +39,7 @@
 		</element>
 	</element>
 	<element type="Button">
-		<attribute name="Name" value="button_options" />
+		<attribute name="Name" value="button_main_options" />
 		<attribute name="Pivot" value="0 0" />
 		<attribute name="Layout Mode" value="Horizontal" />
 		<element type="Text">
@@ -55,7 +55,7 @@
 		</element>
 	</element>
 	<element type="Button">
-		<attribute name="Name" value="button_quit" />
+		<attribute name="Name" value="button_main_quit" />
 		<attribute name="Pivot" value="0 0" />
 		<attribute name="Layout Mode" value="Horizontal" />
 		<element type="Text">

@@ -1,4 +1,4 @@
-#include "iceweasel/MenuBase.h"
+#include "iceweasel/MenuScreen.h"
 
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/IO/Log.h>
@@ -12,7 +12,7 @@
 using namespace Urho3D;
 
 // ----------------------------------------------------------------------------
-MenuBase::MenuBase(Context* context) :
+MenuScreen::MenuScreen(Context* context) :
     UIElement(context)
 {
     Input* input = GetSubsystem<Input>();
@@ -21,17 +21,17 @@ MenuBase::MenuBase(Context* context) :
 
     SetLayout(LM_HORIZONTAL);
 
-    SubscribeToEvent(E_FILECHANGED, URHO3D_HANDLER(MenuBase, HandleFileChanged));
+    SubscribeToEvent(E_FILECHANGED, URHO3D_HANDLER(MenuScreen, HandleFileChanged));
 }
 
 // ----------------------------------------------------------------------------
-MenuBase::~MenuBase()
+MenuScreen::~MenuScreen()
 {
     GetSubsystem<Input>()->SetMouseVisible(mouseWasVisible_);
 }
 
 // ----------------------------------------------------------------------------
-void MenuBase::LoadUI(const String& xmlFileName)
+void MenuScreen::LoadUI(const String& xmlFileName)
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
@@ -43,16 +43,17 @@ void MenuBase::LoadUI(const String& xmlFileName)
     }
 
     ReloadUI();
+    SetVisible(false);
 }
 
 // ----------------------------------------------------------------------------
-void MenuBase::ReloadUI()
+void MenuScreen::ReloadUI()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
-    if(root_)
-        RemoveChild(root_);
-    root_ = LoadChildXML(
+    if(ui_)
+        RemoveChild(ui_);
+    ui_ = LoadChildXML(
         xml_->GetRoot(),
         cache->GetResource<XMLFile>("UI/DefaultStyle.xml")
     );
@@ -69,7 +70,7 @@ void MenuBase::ReloadUI()
 }
 
 // ----------------------------------------------------------------------------
-void MenuBase::HandleFileChanged(StringHash eventType, VariantMap& eventData)
+void MenuScreen::HandleFileChanged(StringHash eventType, VariantMap& eventData)
 {
     using namespace FileChanged;
 
