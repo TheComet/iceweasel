@@ -12,6 +12,15 @@ public:
     MainMenu(Urho3D::Context* context);
 
 private:
+    enum Screen
+    {
+        SCREEN_MAIN,
+        SCREEN_JOIN_SERVER,
+        SCREEN_LOBBY
+    };
+
+    void SwitchToScreen(Screen screen);
+
     // main screen
     void HandleMainLocalGame(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleMainJoinServer(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
@@ -22,6 +31,15 @@ private:
     void HandleJoinCancel(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleJoinConnect(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
+    // Network events control the UI
+    void HandleServerConnected(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleServerDisconnected(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void HandleConnectionFailed(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+
+    // Input events
+    void HandleKeyDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+
     Urho3D::SharedPtr<MenuScreen> mainScreen_;
-    Urho3D::SharedPtr<MenuScreen> joinServerScreen_;
+    Urho3D::SharedPtr<MenuScreen> joinScreen_;
+    Urho3D::SharedPtr<MenuScreen> lobbyScreen_;
 };

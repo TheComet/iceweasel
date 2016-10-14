@@ -110,7 +110,6 @@ void IceWeasel::StartState_Game()
 {
     CreateScene();
     CreateCamera();
-    StartNetworking();
 
     //GetSubsystem<Input>()->SetMouseVisible(true);
 }
@@ -149,7 +148,10 @@ void IceWeasel::Start()
 
     GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
 
-    SwitchState(MAIN_MENU);
+    if(args_->server_)
+        StartNetworking();
+
+    SwitchState(GAME);
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
@@ -161,9 +163,6 @@ void IceWeasel::Start()
     SubscribeToEvent(E_CONNECTFAILED, URHO3D_HANDLER(IceWeasel, HandleConnectionStatus));
     SubscribeToEvent(E_CLIENTCONNECTED, URHO3D_HANDLER(IceWeasel, HandleClientConnected));
     SubscribeToEvent(E_CLIENTDISCONNECTED, URHO3D_HANDLER(IceWeasel, HandleClientDisconnected));
-
-    LOG_SCROLL("Press F, G and B to toggle shaders");
-    LOG_SCROLL("Press R to rotate lights");
 }
 
 // ----------------------------------------------------------------------------
@@ -264,8 +263,8 @@ void IceWeasel::CreateScene()
     scene_->CreateComponent<PhysicsWorld>(LOCAL);
 
     // If client, don't load anything
-    if(args_->server_ == false)
-        return;
+    //if(args_->server_ == false)
+    //    return;
 
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
@@ -336,6 +335,9 @@ void IceWeasel::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 
     // Toggle debug geometry
 #ifdef DEBUG
+    if(gameState_ != GAME)
+        return;
+
     if(key == KEY_F1)
     {
         switch(debugDrawMode_)
@@ -459,8 +461,6 @@ void IceWeasel::HandleClientConnected(StringHash eventType, VariantMap& eventDat
     // When a client connects, assign to scene to begin scene replication
     Connection* newConnection = static_cast<Connection*>(eventData[P_CONNECTION].GetPtr());
     newConnection->SetScene(scene_);
-
-    URHO3D_LOGDEBUG("HandleClientConnected: Setting scene");
 }
 
 // ----------------------------------------------------------------------------
