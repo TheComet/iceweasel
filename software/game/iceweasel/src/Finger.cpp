@@ -25,16 +25,16 @@ void Finger::SetVisible(bool visible)
 {
     if(fingerNode_)
         fingerNode_->SetEnabled(visible);
+}
 
-    /*
-    StaticModel* model = fingerNode_->GetComponent<StaticModel>();
-    if(!model)
-        return;
+// ----------------------------------------------------------------------------
+void Finger::ReloadGun()
+{
+    // Reset transform, as the script might not define position/rotation/scale
+    fingerNode_->SetTransform(Vector3::ZERO, Quaternion::IDENTITY);
 
-    if(visible)
-        model->SetViewMask(storeViewMask_);
-    else
-        model->SetViewMask(0);*/
+    if(xml_)
+        fingerNode_->LoadXML(xml_->GetRoot());
 }
 
 // ----------------------------------------------------------------------------
@@ -42,33 +42,17 @@ void Finger::Start()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
-    SubscribeToEvent(E_FILECHANGED, URHO3D_HANDLER(Finger, HandleFileChanged));
+    // Always create finger node, even if loading XML fails.
+    fingerNode_ = node_->CreateChild("Finger", LOCAL);
 
+    // Load finger prefab
     xml_ = cache->GetResource<XMLFile>("Prefabs/HEP-R34.xml");
     if(!xml_)
-    {
         URHO3D_LOGERROR("Couldn't find Prefabs/HEP-R34.xml. Can't load gun.");
-        return;
-    }
 
-    fingerNode_ = node_->CreateChild("Finger", LOCAL);
-    fingerNode_->LoadXML(xml_->GetRoot());
+    ReloadGun();
 
-    /*
-    Quaternion rotation = Quaternion();
-    rotation.FromAngleAxis(80, Vector3(0, 1, 0));
-    fingerNode_->SetTransform(Vector3(0.5, -0.5, 1.0), rotation, 1.2);
-
-    model_ = cache->GetResource<Model>("Models/Hand_01.mdl");
-    if (!model_)
-    {
-        URHO3D_LOGERROR("Model not found, cannot initialize example scene");
-        return;
-    }
-
-    StaticModel* staticModel = fingerNode_->CreateComponent<StaticModel>();
-    staticModel->SetModel(model_);
-    storeViewMask_ = staticModel->GetViewMask();*/
+    SubscribeToEvent(E_FILECHANGED, URHO3D_HANDLER(Finger, HandleFileChanged));
 }
 
 // ----------------------------------------------------------------------------
@@ -86,7 +70,6 @@ void Finger::HandleFileChanged(StringHash eventType, VariantMap& eventData)
 
     if(xml_ && xml_->GetName() == eventData[P_RESOURCENAME].GetString())
     {
-        if(fingerNode_)
-            fingerNode_->LoadXML(xml_->GetRoot());
+        ReloadGun();
     }
 }

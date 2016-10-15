@@ -3,7 +3,7 @@
 	<attribute name="Is Enabled" value="true" />
 	<attribute name="Name" value="" />
 	<attribute name="Tags" />
-	<attribute name="Position" value="0 0 0" />
+	<attribute name="Position" value="0.5 -0.5 1" />
 	<attribute name="Rotation" value="0.707107 0 0.707107 0" />
 	<attribute name="Scale" value="1 1 1" />
 	<attribute name="Variables" />
@@ -13,5 +13,7 @@
 	</component>
 	<component type="ScriptInstance" id="16777229">
 		<attribute name="Delayed Method Calls" value="0" />
+		<attribute name="Script File" value="ScriptFile;Scripts/Gun.as" />
+		<attribute name="Class Name" value="Gun" />
 	</component>
 </node>

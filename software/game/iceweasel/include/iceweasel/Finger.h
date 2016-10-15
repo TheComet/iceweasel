@@ -16,6 +16,8 @@ public:
     void SetVisible(bool visible);
 
 private:
+    void ReloadGun();
+
     virtual void Start() override;
     virtual void Stop() override;
 
