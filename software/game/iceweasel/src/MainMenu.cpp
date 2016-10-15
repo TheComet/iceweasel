@@ -28,7 +28,10 @@ enum Buttons
 
     // join screen
     BTN_JOIN_CANCEL,
-    BTN_JOIN_CONNECT
+    BTN_JOIN_CONNECT,
+
+    // connection failed screen
+    BTN_CON_FAILED_OK
 };
 
 static const char* g_buttonNames[] = {
@@ -40,34 +43,38 @@ static const char* g_buttonNames[] = {
 
     // join screen
     "button_join_cancel",
-    "button_join_connect"
+    "button_join_connect",
+
+    // connection failed
+    "button_ok"
 };
 
 // ----------------------------------------------------------------------------
 MainMenu::MainMenu(Context* context) :
     UIElement(context)
 {
-    mainScreen_ = new MenuScreen(context_);
-    joinScreen_ = new MenuScreen(context_);
-    lobbyScreen_ = new MenuScreen(context_);
+    for(unsigned i = 0; i != NUM_SCREENS; ++i)
+    {
+        screens_[i] = new MenuScreen(context_);
+        AddChild(screens_[i]);
+    }
 
-    mainScreen_->LoadUI("UI/MainMenu_MainScreen.xml");
-    joinScreen_->LoadUI("UI/MainMenu_JoinScreen.xml");
-    lobbyScreen_->LoadUI("UI/MainMenu_Lobby.xml");
-
-    AddChild(mainScreen_);
-    AddChild(joinScreen_);
-    AddChild(lobbyScreen_);
+    screens_[SCREEN_MAIN]->LoadUI("UI/MainMenu_Main.xml");
+    screens_[SCREEN_JOIN_SERVER]->LoadUI("UI/MainMenu_JoinServer.xml");
+    screens_[SCREEN_CONNECTING]->LoadUI("UI/MainMenu_Connecting.xml");
+    screens_[SCREEN_CONNECTION_FAILED]->LoadUI("UI/MainMenu_ConnectionFailed.xml");
+    screens_[SCREEN_LOBBY_CHAR_SELECT]->LoadUI("UI/MainMenu_Lobby_CharacterSelect.xml");
+    screens_[SCREEN_LOBBY_MAP_SELECT]->LoadUI("UI/MainMenu_Lobby_MapSelect.xml");
 
     SwitchToScreen(SCREEN_MAIN);
 
     // initial address
-    if(joinScreen_)
+    if(screens_[SCREEN_JOIN_SERVER])
     {
-        UIElement* elem = joinScreen_->GetChild("lineEdit_address", true);
+        UIElement* elem = screens_[SCREEN_JOIN_SERVER]->GetChild("lineEdit_address", true);
         if(elem && elem->GetTypeName() == "LineEdit")
         {
-            static_cast<LineEdit*>(elem)->SetText("mak89.ch");
+            static_cast<LineEdit*>(elem)->SetText("127.0.0.1");
         }
     }
 
@@ -84,13 +91,15 @@ MainMenu::MainMenu(Context* context) :
         SubscribeToEvent(button, E_CLICK, URHO3D_HANDLER(MainMenu, handler));\
     } while(0)
 
-    CONNECT_BUTTON(mainScreen_, BTN_MAIN_LOCAL, HandleMainLocalGame);
-    CONNECT_BUTTON(mainScreen_, BTN_MAIN_JOIN, HandleMainJoinServer);
-    CONNECT_BUTTON(mainScreen_, BTN_MAIN_OPTIONS, HandleMainOptions);
-    CONNECT_BUTTON(mainScreen_, BTN_MAIN_QUIT, HandleMainQuit);
+    CONNECT_BUTTON(screens_[SCREEN_MAIN], BTN_MAIN_LOCAL, HandleMainLocalGame);
+    CONNECT_BUTTON(screens_[SCREEN_MAIN], BTN_MAIN_JOIN, HandleMainJoinServer);
+    CONNECT_BUTTON(screens_[SCREEN_MAIN], BTN_MAIN_OPTIONS, HandleMainOptions);
+    CONNECT_BUTTON(screens_[SCREEN_MAIN], BTN_MAIN_QUIT, HandleMainQuit);
 
-    CONNECT_BUTTON(joinScreen_, BTN_JOIN_CANCEL, HandleJoinCancel);
-    CONNECT_BUTTON(joinScreen_, BTN_JOIN_CONNECT, HandleJoinConnect);
+    CONNECT_BUTTON(screens_[SCREEN_JOIN_SERVER], BTN_JOIN_CANCEL, HandleJoinCancel);
+    CONNECT_BUTTON(screens_[SCREEN_JOIN_SERVER], BTN_JOIN_CONNECT, HandleJoinConnect);
+
+    CONNECT_BUTTON(screens_[SCREEN_CONNECTION_FAILED], BTN_CON_FAILED_OK, HandleConnectionFailedOK);
 
     SubscribeToEvent(E_SERVERCONNECTED, URHO3D_HANDLER(MainMenu, HandleServerConnected));
     SubscribeToEvent(E_SERVERDISCONNECTED, URHO3D_HANDLER(MainMenu, HandleServerDisconnected));
@@ -101,25 +110,19 @@ MainMenu::MainMenu(Context* context) :
 // ----------------------------------------------------------------------------
 void MainMenu::SwitchToScreen(MainMenu::Screen screen)
 {
+    for(unsigned i = 0; i != NUM_SCREENS; ++i)
+        screens_[i]->SetVisible(false);
+
     switch(screen)
     {
-        case SCREEN_MAIN:
-            mainScreen_->SetVisible(true);
-            joinScreen_->SetVisible(false);
-            lobbyScreen_->SetVisible(false);
+        case SCREEN_LOBBY_MAP_SELECT:
+        case SCREEN_LOBBY_CHAR_SELECT:
+            screens_[SCREEN_LOBBY_CHAR_SELECT]->SetVisible(true);
+            screens_[SCREEN_LOBBY_MAP_SELECT]->SetVisible(true);
             break;
 
-        case SCREEN_JOIN_SERVER:
-            mainScreen_->SetVisible(false);
-            joinScreen_->SetVisible(true);
-            lobbyScreen_->SetVisible(false);
-            break;
-
-        case SCREEN_LOBBY:
-            mainScreen_->SetVisible(false);
-            joinScreen_->SetVisible(false);
-            lobbyScreen_->SetVisible(true);
-            break;
+        default:
+            screens_[screen]->SetVisible(true);
     }
 }
 
@@ -162,7 +165,7 @@ void MainMenu::HandleJoinConnect(StringHash eventType, VariantMap& eventData)
     unsigned short port = 1834;
 
     // Get the text entered into the line edit
-    UIElement* elem = joinScreen_->GetChild("lineEdit_address", true);
+    UIElement* elem = screens_[SCREEN_JOIN_SERVER]->GetChild("lineEdit_address", true);
     if(elem && elem->GetTypeName() == "LineEdit")
     {
         address = static_cast<LineEdit*>(elem)->GetText();
@@ -175,50 +178,48 @@ void MainMenu::HandleJoinConnect(StringHash eventType, VariantMap& eventData)
     address = addressPort[0];
 
     // Attempt to connect
-    DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
-    if(debug) debug->Print(String("Connecting to \"") + address + "\" on port " + String(port));
-
+    SwitchToScreen(SCREEN_CONNECTING);
     Network* network = GetSubsystem<Network>();
     network->Connect(address, port, NULL);
 }
 
 // ----------------------------------------------------------------------------
+void MainMenu::HandleConnectionFailedOK(StringHash eventType, VariantMap& eventData)
+{
+    SwitchToScreen(SCREEN_JOIN_SERVER);
+}
+
+// ----------------------------------------------------------------------------
 void MainMenu::HandleServerConnected(StringHash eventType, VariantMap& eventData)
 {
-    DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
-    if(debug) debug->Print("Connected to server");
-
-    SwitchToScreen(SCREEN_LOBBY);
+    SwitchToScreen(SCREEN_LOBBY_CHAR_SELECT);
 }
 
 // ----------------------------------------------------------------------------
 void MainMenu::HandleServerDisconnected(StringHash eventType, VariantMap& eventData)
 {
-    DebugTextScroll* debug = GetSubsystem<DebugTextScroll>();
-    if(debug) debug->Print("Disconnected");
-
     SwitchToScreen(SCREEN_JOIN_SERVER);
 }
 
 // ----------------------------------------------------------------------------
 void MainMenu::HandleConnectionFailed(StringHash eventType, VariantMap& eventData)
 {
-    SwitchToScreen(SCREEN_JOIN_SERVER);
+    SwitchToScreen(SCREEN_CONNECTION_FAILED);
 }
-
 
 // ----------------------------------------------------------------------------
 void MainMenu::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 {
     using namespace KeyDown;
 
-    if(joinScreen_ && joinScreen_->IsVisible())
+    if(screens_[SCREEN_JOIN_SERVER]->IsVisible())
     {
         if(eventData[P_KEY].GetInt() == KEY_RETURN)
         {
             /*
              * This isn't really a good solution, but as long as the handler
-             * doesn't use any of the event data we can get away with this.
+             * doesn't use any of the event data we can get away with calling
+             * the handler directly.
              */
             HandleJoinConnect(0, GetEventDataMap());
         }

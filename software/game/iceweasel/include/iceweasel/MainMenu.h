@@ -16,7 +16,12 @@ private:
     {
         SCREEN_MAIN,
         SCREEN_JOIN_SERVER,
-        SCREEN_LOBBY
+        SCREEN_CONNECTING,
+        SCREEN_CONNECTION_FAILED,
+        SCREEN_LOBBY_CHAR_SELECT,
+        SCREEN_LOBBY_MAP_SELECT,
+
+        NUM_SCREENS
     };
 
     void SwitchToScreen(Screen screen);
@@ -31,6 +36,9 @@ private:
     void HandleJoinCancel(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleJoinConnect(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
+    // connection failed screen
+    void HandleConnectionFailedOK(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+
     // Network events control the UI
     void HandleServerConnected(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void HandleServerDisconnected(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
@@ -39,7 +47,5 @@ private:
     // Input events
     void HandleKeyDown(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
-    Urho3D::SharedPtr<MenuScreen> mainScreen_;
-    Urho3D::SharedPtr<MenuScreen> joinScreen_;
-    Urho3D::SharedPtr<MenuScreen> lobbyScreen_;
+    Urho3D::SharedPtr<MenuScreen> screens_[NUM_SCREENS];
 };

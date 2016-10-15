@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <element type="Window">
-	<attribute name="Position" value="0 100" />
-	<attribute name="Size" value="350 250" />
+	<attribute name="Position" value="100 100" />
+	<attribute name="Size" value="148 176" />
 	<attribute name="Pivot" value="0 0" />
 	<attribute name="Layout Mode" value="Vertical" />
 	<attribute name="Layout Spacing" value="20" />
@@ -10,6 +10,7 @@
 		<attribute name="Name" value="button_main_localGame" />
 		<attribute name="Pivot" value="0 0" />
 		<attribute name="Layout Mode" value="Horizontal" />
+		<attribute name="Layout Border" value="10 2 10 2" />
 		<element type="Text">
 			<attribute name="Min Anchor" value="0 0.5" />
 			<attribute name="Max Anchor" value="0 0.5" />
@@ -26,6 +27,7 @@
 		<attribute name="Name" value="button_main_joinServer" />
 		<attribute name="Pivot" value="0 0" />
 		<attribute name="Layout Mode" value="Horizontal" />
+		<attribute name="Layout Border" value="10 2 10 2" />
 		<element type="Text">
 			<attribute name="Min Anchor" value="0 0.5" />
 			<attribute name="Max Anchor" value="0 0.5" />
@@ -42,6 +44,7 @@
 		<attribute name="Name" value="button_main_options" />
 		<attribute name="Pivot" value="0 0" />
 		<attribute name="Layout Mode" value="Horizontal" />
+		<attribute name="Layout Border" value="10 2 10 2" />
 		<element type="Text">
 			<attribute name="Min Anchor" value="0 0.5" />
 			<attribute name="Max Anchor" value="0 0.5" />
@@ -58,6 +61,7 @@
 		<attribute name="Name" value="button_main_quit" />
 		<attribute name="Pivot" value="0 0" />
 		<attribute name="Layout Mode" value="Horizontal" />
+		<attribute name="Layout Border" value="10 2 10 2" />
 		<element type="Text">
 			<attribute name="Min Anchor" value="0 0.5" />
 			<attribute name="Max Anchor" value="0 0.5" />

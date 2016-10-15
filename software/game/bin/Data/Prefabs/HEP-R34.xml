@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<node id="16777217">
+	<attribute name="Is Enabled" value="true" />
+	<attribute name="Name" value="" />
+	<attribute name="Tags" />
+	<attribute name="Position" value="0 0 0" />
+	<attribute name="Rotation" value="0.707107 0 0.707107 0" />
+	<attribute name="Scale" value="1 1 1" />
+	<attribute name="Variables" />
+	<component type="StaticModel" id="16777228">
+		<attribute name="Model" value="Model;Models/Hand_01.mdl" />
+		<attribute name="Material" value="Material;" />
+	</component>
+	<component type="ScriptInstance" id="16777229">
+		<attribute name="Delayed Method Calls" value="0" />
+	</component>
+</node>
