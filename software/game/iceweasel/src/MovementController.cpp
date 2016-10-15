@@ -24,7 +24,10 @@ MovementController::MovementController(Context* context, Node* moveNode, Node* o
     LogicComponent(context),
     moveNode_(moveNode),
     offsetNode_(offsetNode),
-    respawnDistance_(200.0f)
+    respawnDistance_(100.0f),
+    jumpKeyPressed_(false),
+    crouchKeyPressed_(false),
+    isSwimming_(false)
 {
 }
 
@@ -151,25 +154,6 @@ void MovementController::Update_Ground(float timeStep)
 
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
 
-    // Change collision shape depending on whether the player is crouching
-    if(input_->GetKeyPress(KEY_CTRL))
-    {
-        collisionShapeCrouch_->SetEnabled(true);
-        collisionShapeUpright_->SetEnabled(false);
-
-        NotifyCrouchStateChange(true);
-    }
-    if(IsCrouching() && input_->GetKeyDown(KEY_CTRL) == false)
-    {
-        if(CanStandUp())
-        {
-            collisionShapeCrouch_->SetEnabled(false);
-            collisionShapeUpright_->SetEnabled(true);
-
-            NotifyCrouchStateChange(false);
-        }
-    }
-
     // Change height offset if crouching
     float targetHeight = config.playerClass(0).body.height;
     if(IsCrouching())
@@ -212,13 +196,40 @@ void MovementController::FixedUpdate_Ground(float timeStep)
      *      - It's a little more realistic.
      */
 
+    // Change collision shape depending on whether the player is crouching
+    // This needs to happen in FixedUpdate().
+    if(input_->GetKeyDown(KEY_CTRL))
+    {
+        if(crouchKeyPressed_ == false)
+        {
+            crouchKeyPressed_ = true;
+            collisionShapeCrouch_->SetEnabled(true);
+            collisionShapeUpright_->SetEnabled(false);
+
+            NotifyCrouchStateChange(true);
+        }
+    }
+    else
+        crouchKeyPressed_ = false;
+
+    if(IsCrouching() && crouchKeyPressed_ == false)
+    {
+        if(CanStandUp())
+        {
+            collisionShapeCrouch_->SetEnabled(false);
+            collisionShapeUpright_->SetEnabled(true);
+
+            NotifyCrouchStateChange(false);
+        }
+    }
+
     /*
      * Do some raycasts to figure out if we are on the ground (or hitting our
      * head on something). If so, reset the down velocity to 0.0f.
      *
      * A down velocity of 0.0f means we are on the ground.
      */
-    ResetDownVelocityIfOnGround();
+    bool isOnGround = ResetDownVelocityIfOnGround();
 
     /*
      * Get input direction vector from WASD on keyboard and store in x and z
@@ -279,7 +290,7 @@ void MovementController::FixedUpdate_Ground(float timeStep)
     if(!jumpKeyPressed_ && input_->GetKeyDown(KEY_SPACE))
     {
         jumpKeyPressed_ = true;
-        if(downVelocity_ == 0.0f)
+        if(isOnGround)
         {
             downVelocity_ = playerClass.jump.force;
             // Give the player a slight speed boost so he moves faster than usual
@@ -314,8 +325,10 @@ void MovementController::FixedUpdate_Ground(float timeStep)
         localPlaneVelocity.value_.z_
     ));
 
-    // Integrate downwards velocity and apply velocity back to body.
-    downVelocity_ -= gravity.Length() * timeStep;
+    // Integrate downwards velocity if in air and apply velocity back to body.
+    // We don't integrate if on the ground so the player doesn't slide slowly.
+    if(isOnGround == false)
+        downVelocity_ -= gravity.Length() * timeStep;
     body_->SetLinearVelocity(velocityTransform *
             Vector3(
                 localPlaneVelocity.value_.x_,
@@ -417,21 +430,14 @@ void MovementController::FixedUpdate_Water(float timeStep)
 }
 
 // ----------------------------------------------------------------------------
-void MovementController::ResetDownVelocityIfOnGround()
+bool MovementController::ResetDownVelocityIfOnGround()
 {
-    /*
-     * The point of this event handler is to reset the player's downVelocity to
-     * 0.0f if the player hits anything along the axis of the "down velocity
-     * vector" (so either the ground or the roof). This axis changes depending
-     * on the current gravity vector.
-     *
-     * Other code relies on downVelocity_ == 0.0f (such as initiating a jump).
-     */
-
     using namespace NodeCollision;
 
     const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
     const IceWeaselConfig::Data::PlayerClass& playerClass = config.playerClass(0);
+
+    bool isOnGround = false;
 
     /*
      * Temporarily disable collision checks for the player's rigid body, so
@@ -441,23 +447,53 @@ void MovementController::ResetDownVelocityIfOnGround()
     body_->SetCollisionMask(0);
 
         // Ray length depends on whether player is standing or crouching
-        float rayCastLength = playerClass.body.height;
+        float bodyHeight = playerClass.body.height;
+        float bodyRadius = playerClass.body.width / 2;
         if(IsCrouching())
-            rayCastLength = playerClass.body.crouchHeight;
-        Vector3 downDirection = moveNode_->GetRotation() * Vector3::DOWN;
-        Vector3 rayOrigin(moveNode_->GetWorldPosition() + -downDirection * rayCastLength);
+            bodyHeight = playerClass.body.crouchHeight;
+        if(IsCrouching())
+            bodyRadius = playerClass.body.crouchWidth / 2;
+
+        // Radius slightly less than body width/2
+        float castRadius = bodyRadius / 1.1f;
+
+        // Because we're sphere casting, and the ray length goes to the center
+        // of the sphere and not to the edge, subtract cast width from the
+        // length
+        float rayCastLength = bodyHeight - castRadius;
 
         // Cast slightly beyond
-        static const float extendFactor = 1.1f;
+        const float extendFactor = 1.1f;
         rayCastLength *= extendFactor;
 
         // Cast a ray down and check if we're on the ground
         PhysicsRaycastResult result;
+        Vector3 downDirection = moveNode_->GetRotation() * Vector3::DOWN;
+        Vector3 rayOrigin(moveNode_->GetWorldPosition() - downDirection * bodyHeight); // cast from top of capsule
         Ray ray(rayOrigin, downDirection);
-        physicsWorld_->RaycastSingle(result, ray, rayCastLength);
+        physicsWorld_->SphereCast(result, ray, castRadius, rayCastLength);
         if(result.distance_ < rayCastLength)
+        {
+            isOnGround = true;
+
             if(downVelocity_ <= 0.0f)
                 downVelocity_ = 0.0f;
+
+            /*
+             * When the player is running down a slope, he will start
+             * oscillating between falling/landing. Since we know we're
+             * touching the ground, just translate the player downwards so he's
+             * actually touching the ground.
+             * Note that this shouldn't be done if the player's velocity is
+             * moving upwards.
+             */
+            if(downVelocity_ <= 0.0f)
+            {
+                physicsWorld_->RaycastSingle(result, ray, bodyHeight*1.1f);
+                if(result.distance_ < bodyHeight * 1.1f)
+                    moveNode_->Translate(Vector3(0, bodyHeight - result.distance_, 0));
+            }
+        }
 
         // Cast a ray up and check if we're hitting anything with our head
         ray = Ray(moveNode_->GetWorldPosition(), -downDirection);
@@ -468,6 +504,8 @@ void MovementController::ResetDownVelocityIfOnGround()
 
     // Restore collision mask
     body_->SetCollisionMask(storeCollisionMask);
+
+    return isOnGround;
 }
 
 // ----------------------------------------------------------------------------

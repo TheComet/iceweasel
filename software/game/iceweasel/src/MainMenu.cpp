@@ -1,5 +1,6 @@
 #include "iceweasel/MainMenu.h"
 #include "iceweasel/MenuScreen.h"
+#include "iceweasel/LobbyScreen.h"
 #include "iceweasel/DebugTextScroll.h"
 
 #include <Urho3D/Engine/Engine.h>
@@ -50,12 +51,32 @@ static const char* g_buttonNames[] = {
 };
 
 // ----------------------------------------------------------------------------
+template <class T>
+T* GetUIChild(UIElement* ui, const String& name)
+{
+    UIElement* elem = ui->GetChild(name, true);
+    if(elem && elem->GetType() == T::GetTypeStatic())
+        return static_cast<T*>(elem);
+    return NULL;
+}
+
+// ----------------------------------------------------------------------------
 MainMenu::MainMenu(Context* context) :
     UIElement(context)
 {
     for(unsigned i = 0; i != NUM_SCREENS; ++i)
     {
-        screens_[i] = new MenuScreen(context_);
+        switch(i)
+        {
+            case SCREEN_LOBBY:
+                screens_[i] = new LobbyScreen(context_);
+                break;
+
+            default:
+                screens_[i] = new MenuScreen(context_);
+                break;
+        }
+
         AddChild(screens_[i]);
     }
 
@@ -63,19 +84,28 @@ MainMenu::MainMenu(Context* context) :
     screens_[SCREEN_JOIN_SERVER]->LoadUI("UI/MainMenu_JoinServer.xml");
     screens_[SCREEN_CONNECTING]->LoadUI("UI/MainMenu_Connecting.xml");
     screens_[SCREEN_CONNECTION_FAILED]->LoadUI("UI/MainMenu_ConnectionFailed.xml");
-    screens_[SCREEN_LOBBY_CHAR_SELECT]->LoadUI("UI/MainMenu_Lobby_CharacterSelect.xml");
-    screens_[SCREEN_LOBBY_MAP_SELECT]->LoadUI("UI/MainMenu_Lobby_MapSelect.xml");
+
+    /*
+     * Update our layout so the UI elements defined in the layout are able to
+     * calculate their preferred sizes, then position ourselves in the centre
+     * of the screen.
+     */
+    UpdateLayout();
+    for(unsigned i = 0; i != NUM_SCREENS; ++i)
+    {
+        const IntVector2& rootSize = GetSubsystem<UI>()->GetRoot()->GetSize();
+        const IntVector2& elementSize = screens_[i]->GetSize();
+        screens_[i]->SetPosition((rootSize - elementSize) / 2);
+    }
 
     SwitchToScreen(SCREEN_MAIN);
 
     // initial address
     if(screens_[SCREEN_JOIN_SERVER])
     {
-        UIElement* elem = screens_[SCREEN_JOIN_SERVER]->GetChild("lineEdit_address", true);
-        if(elem && elem->GetTypeName() == "LineEdit")
-        {
-            static_cast<LineEdit*>(elem)->SetText("127.0.0.1");
-        }
+        LineEdit* line = GetUIChild<LineEdit>(screens_[SCREEN_JOIN_SERVER], "lineEdit_address");
+        if(line)
+            line->SetText("127.0.0.1");
     }
 
 #define CONNECT_BUTTON(screen, BTN, handler) do {                            \
@@ -113,17 +143,7 @@ void MainMenu::SwitchToScreen(MainMenu::Screen screen)
     for(unsigned i = 0; i != NUM_SCREENS; ++i)
         screens_[i]->SetVisible(false);
 
-    switch(screen)
-    {
-        case SCREEN_LOBBY_MAP_SELECT:
-        case SCREEN_LOBBY_CHAR_SELECT:
-            screens_[SCREEN_LOBBY_CHAR_SELECT]->SetVisible(true);
-            screens_[SCREEN_LOBBY_MAP_SELECT]->SetVisible(true);
-            break;
-
-        default:
-            screens_[screen]->SetVisible(true);
-    }
+    screens_[screen]->SetVisible(true);
 }
 
 // ----------------------------------------------------------------------------
@@ -165,11 +185,9 @@ void MainMenu::HandleJoinConnect(StringHash eventType, VariantMap& eventData)
     unsigned short port = 1834;
 
     // Get the text entered into the line edit
-    UIElement* elem = screens_[SCREEN_JOIN_SERVER]->GetChild("lineEdit_address", true);
-    if(elem && elem->GetTypeName() == "LineEdit")
-    {
-        address = static_cast<LineEdit*>(elem)->GetText();
-    }
+    LineEdit* line = GetUIChild<LineEdit>(screens_[SCREEN_JOIN_SERVER], "lineEdit_address");
+    if(line)
+        address = line->GetText();
 
     // Split address + port
     StringVector addressPort = address.Split(':');
@@ -192,7 +210,7 @@ void MainMenu::HandleConnectionFailedOK(StringHash eventType, VariantMap& eventD
 // ----------------------------------------------------------------------------
 void MainMenu::HandleServerConnected(StringHash eventType, VariantMap& eventData)
 {
-    SwitchToScreen(SCREEN_LOBBY_CHAR_SELECT);
+    SwitchToScreen(SCREEN_LOBBY);
 }
 
 // ----------------------------------------------------------------------------

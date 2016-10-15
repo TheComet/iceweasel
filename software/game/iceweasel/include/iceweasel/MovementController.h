@@ -37,7 +37,8 @@ private:
     void FixedUpdate_Water(float timeStep);
     void Update_Ground(float timeStep);
     void Update_Water(float timeStep);
-    void ResetDownVelocityIfOnGround();
+    // Returns true if the player is on the ground
+    bool ResetDownVelocityIfOnGround();
     void UpdatePhysicsSettings();
     void SetInitialPhysicsParameters();
 
@@ -63,5 +64,6 @@ private:
     float downVelocity_;
     float respawnDistance_;
     bool jumpKeyPressed_;
+    bool crouchKeyPressed_;
     bool isSwimming_;
 };

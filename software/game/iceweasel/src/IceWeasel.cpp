@@ -7,7 +7,6 @@
 #include "iceweasel/DebugTextScroll.h"
 #include "iceweasel/GravityManager.h"
 #include "iceweasel/GravityVector.h"
-#include "iceweasel/MenuScreens.h"
 #include "iceweasel/MainMenu.h"
 
 #include <Urho3D/AngelScript/Script.h>
@@ -130,6 +129,8 @@ void IceWeasel::Setup()
     engineParameters_["Headless"]    = args_->server_;
     engineParameters_["Multisample"] = args_->multisample_;
     engineParameters_["VSync"] = args_->vsync_;
+
+    engineParameters_["WindowResizable"] = true;
 }
 
 // ----------------------------------------------------------------------------
@@ -148,13 +149,18 @@ void IceWeasel::Start()
 
     GetSubsystem<IceWeaselConfig>()->Load("Config/IceWeaselConfig.xml");
 
-    if(args_->server_)
-        StartNetworking();
-
     SwitchState(GAME);
 
-    SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
-    SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
+    if(args_->server_)
+    {
+        StartNetworking();
+    }
+    else
+    {
+        SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(IceWeasel, HandleKeyDown));
+        SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(IceWeasel, HandlePostRenderUpdate));
+    }
+
     SubscribeToEvent(E_FILECHANGED, URHO3D_HANDLER(IceWeasel, HandleFileChanged));
 
     // Network events

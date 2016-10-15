@@ -10,6 +10,7 @@
 #include <Urho3D/Resource/ResourceEvents.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/Graphics/Graphics.h>
 
 using namespace Urho3D;
 
@@ -23,11 +24,15 @@ InGameEditorApplication::InGameEditorApplication(Urho3D::Context* context, Args*
 // ----------------------------------------------------------------------------
 void InGameEditorApplication::Setup()
 {
+    IntVector2 desktopResolution = GetSubsystem<Graphics>()->GetDesktopResolution();
+
     engineParameters_["WindowTitle"] = "IceWeasel";
     engineParameters_["FullScreen"]  = args_->fullscreen_;
     engineParameters_["Headless"]    = args_->server_;
     engineParameters_["Multisample"] = args_->multisample_;
     engineParameters_["VSync"] = args_->vsync_;
+
+    engineParameters_["WindowResizable"] = true;
 }
 
 // ----------------------------------------------------------------------------

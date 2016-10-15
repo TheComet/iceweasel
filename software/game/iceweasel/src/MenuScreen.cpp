@@ -43,7 +43,6 @@ void MenuScreen::LoadUI(const String& xmlFileName)
     }
 
     ReloadUI();
-    SetVisible(false);
 }
 
 // ----------------------------------------------------------------------------
@@ -57,16 +56,6 @@ void MenuScreen::ReloadUI()
         xml_->GetRoot(),
         cache->GetResource<XMLFile>("UI/DefaultStyle.xml")
     );
-
-    /*
-     * Update our layout so the UI elements defined in the layout are able to
-     * calculate their preferred sizes, then position ourselves in the centre
-     * of the screen.
-     */
-    UpdateLayout();
-    const IntVector2& rootSize = GetSubsystem<UI>()->GetRoot()->GetSize();
-    const IntVector2& thisSize = GetSize();
-    SetPosition((rootSize - thisSize) / 2);
 }
 
 // ----------------------------------------------------------------------------

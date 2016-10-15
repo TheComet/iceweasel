@@ -7,8 +7,8 @@
 	<attribute name="Elapsed Time" value="1170.4" />
 	<attribute name="Next Replicated Node ID" value="202" />
 	<attribute name="Next Replicated Component ID" value="456" />
-	<attribute name="Next Local Node ID" value="16777249" />
-	<attribute name="Next Local Component ID" value="16777600" />
+	<attribute name="Next Local Node ID" value="16777250" />
+	<attribute name="Next Local Component ID" value="16777612" />
 	<attribute name="Variables" />
 	<attribute name="Variable Names" value="" />
 	<component type="Octree" id="1" />
@@ -3030,9 +3030,9 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="Stairs1" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="-5.57187 0.0611889 4.13165" />
+			<attribute name="Position" value="-10.3932 -0.387925 4.13165" />
 			<attribute name="Rotation" value="-4.37114e-08 0 1 0" />
-			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Scale" value="2 2 1" />
 			<attribute name="Variables" />
 			<component type="StaticModel" id="41">
 				<attribute name="Model" value="Model;Models/Stairs1.mdl" />
@@ -3044,7 +3044,7 @@
 			</component>
 			<component type="RigidBody" id="43">
 				<attribute name="Physics Rotation" value="-4.37114e-08 0 1 0" />
-				<attribute name="Physics Position" value="-5.57187 0.0611889 4.13165" />
+				<attribute name="Physics Position" value="-10.3932 -0.387925 4.13165" />
 				<attribute name="Friction" value="0" />
 			</component>
 		</node>
@@ -3052,9 +3052,9 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="Stairs2" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="-5.57187 0.0611889 6.36715" />
+			<attribute name="Position" value="-10.3958 -0.545429 6.36715" />
 			<attribute name="Rotation" value="-4.37114e-08 0 1 0" />
-			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Scale" value="2 2 1" />
 			<attribute name="Variables" />
 			<component type="StaticModel" id="44">
 				<attribute name="Model" value="Model;Models/Stairs2.mdl" />
@@ -3062,7 +3062,7 @@
 			</component>
 			<component type="RigidBody" id="46">
 				<attribute name="Physics Rotation" value="-4.37114e-08 0 1 0" />
-				<attribute name="Physics Position" value="-5.57187 0.0611889 6.36715" />
+				<attribute name="Physics Position" value="-10.3958 -0.545429 6.36715" />
 				<attribute name="Friction" value="0" />
 			</component>
 			<component type="CollisionShape" id="51">
@@ -3074,9 +3074,9 @@
 			<attribute name="Is Enabled" value="true" />
 			<attribute name="Name" value="Stairs3" />
 			<attribute name="Tags" />
-			<attribute name="Position" value="-5.57187 0.0611889 8.48435" />
+			<attribute name="Position" value="-10.3566 -0.798482 8.48435" />
 			<attribute name="Rotation" value="-4.37114e-08 0 1 0" />
-			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Scale" value="2 2 1" />
 			<attribute name="Variables" />
 			<component type="StaticModel" id="47">
 				<attribute name="Model" value="Model;Models/Stairs3.mdl" />
@@ -3084,7 +3084,7 @@
 			</component>
 			<component type="RigidBody" id="49">
 				<attribute name="Physics Rotation" value="-4.37114e-08 0 1 0" />
-				<attribute name="Physics Position" value="-5.57187 0.0611889 8.48435" />
+				<attribute name="Physics Position" value="-10.3566 -0.798482 8.48435" />
 				<attribute name="Friction" value="0" />
 			</component>
 			<component type="CollisionShape" id="52">
