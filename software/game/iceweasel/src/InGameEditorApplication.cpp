@@ -44,6 +44,9 @@ void InGameEditorApplication::Start()
     RegisterSubsystems();
 
     ResourceCache* cache = GetSubsystem<ResourceCache>();
+    for(StringVector::ConstIterator it = args_->resourcePaths_.Begin(); it != args_->resourcePaths_.End(); ++it)
+        cache->AddResourceDir(*it);
+
     script_ = cache->GetResource<ScriptFile>("Scripts/Editor.as");
     if(script_ && script_->Execute("void Start()"))
     {
