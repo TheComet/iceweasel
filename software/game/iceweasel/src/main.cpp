@@ -32,7 +32,7 @@ int main(int argc, char** argv)
             return 0;
         }
 
-        if(strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--resuorce") == 0)
+        if(strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--resource") == 0)
             if(i + 1 < argc)
                 args->resourcePaths_.Push(argv[i + 1]);
         if(strcmp(argv[i], "-e") == 0 || strcmp(argv[i], "--editor") == 0)
