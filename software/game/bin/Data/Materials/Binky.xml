@@ -2,7 +2,7 @@
 <material>
 	<technique name="Techniques/Parallax.xml" quality="0" loddistance="0" />
 	<texture unit="diffuse" name="Textures/Binky_Diffuse.png" />
-	<shader psdefines="NO_NORMAL_MAP NO_BUMP_MAP" />
+	<shader psdefines="NO_NORMAL_MAP NO_BUMP_MAP NO_EMISSIVE_MAP" />
 	<parameter name="UOffset" value="1 0 0 0" />
 	<parameter name="VOffset" value="0 1 0 0" />
 	<parameter name="MatDiffColor" value="0.5 0.55 0.6 1" />
