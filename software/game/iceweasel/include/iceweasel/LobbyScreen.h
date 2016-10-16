@@ -10,6 +10,8 @@ public:
     LobbyScreen(Urho3D::Context* context);
 
 private:
+    void ScanForMaps();
+
     Urho3D::SharedPtr<MenuScreen> mapSelect_;
     Urho3D::SharedPtr<MenuScreen> characterSelect_;
 };

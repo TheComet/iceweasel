@@ -2,6 +2,7 @@
 #include "iceweasel/MenuScreen.h"
 #include "iceweasel/LobbyScreen.h"
 #include "iceweasel/DebugTextScroll.h"
+#include "iceweasel/Util.h"
 
 #include <Urho3D/Engine/Engine.h>
 #include <Urho3D/Input/Input.h>
@@ -49,16 +50,6 @@ static const char* g_buttonNames[] = {
     // connection failed
     "button_ok"
 };
-
-// ----------------------------------------------------------------------------
-template <class T>
-T* GetUIChild(UIElement* ui, const String& name)
-{
-    UIElement* elem = ui->GetChild(name, true);
-    if(elem && elem->GetType() == T::GetTypeStatic())
-        return static_cast<T*>(elem);
-    return NULL;
-}
 
 // ----------------------------------------------------------------------------
 MainMenu::MainMenu(Context* context) :

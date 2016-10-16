@@ -16,8 +16,11 @@
 		<attribute name="Text" value="Available Maps" />
 	</element>
 	<element type="ListView">
+		<attribute name="Name" value="listView_maps" />
 		<attribute name="Min Size" value="300 300" />
 		<attribute name="Pivot" value="0 0" />
+		<attribute name="Is Editable" value="false" />
+		<attribute name="Select On Click End" value="true" />
 		<element type="ScrollBar" internal="true" style="none">
 			<attribute name="Size" value="300 16" />
 			<attribute name="Min Anchor" value="0 1" />
@@ -46,9 +49,7 @@
 		</element>
 		<element type="ScrollBar" internal="true" style="none">
 			<attribute name="Size" value="16 300" />
-			<attribute name="Min Anchor" value="1 0" />
-			<attribute name="Max Anchor" value="1 0" />
-			<attribute name="Pivot" value="1 0" />
+			<attribute name="Pivot" value="0 0" />
 			<attribute name="Color" value="0 0 0 0" />
 			<attribute name="Top Left Color" value="0 0 0 0" />
 			<attribute name="Top Right Color" value="0 0 0 0" />
@@ -92,6 +93,7 @@
 			<attribute name="Text" value="Selected Map" />
 		</element>
 		<element type="LineEdit">
+			<attribute name="Name" value="lineEdit_selectedMap" />
 			<attribute name="Pivot" value="0 0" />
 			<attribute name="Is Editable" value="false" />
 			<element type="Text" internal="true" style="none">
