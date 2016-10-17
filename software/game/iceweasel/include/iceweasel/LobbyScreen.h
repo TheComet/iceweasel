@@ -12,6 +12,8 @@ public:
 private:
     void ScanForMaps();
 
+    void HandleMapSelectionChanged(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+
     Urho3D::SharedPtr<MenuScreen> mapSelect_;
     Urho3D::SharedPtr<MenuScreen> characterSelect_;
 };

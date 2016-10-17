@@ -3,6 +3,7 @@
 
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/UIEvents.h>
 #include <Urho3D/UI/LineEdit.h>
 #include <Urho3D/UI/ListView.h>
 #include <Urho3D/UI/Text.h>
@@ -22,6 +23,10 @@ LobbyScreen::LobbyScreen(Context* context) :
 
     mapSelect_->LoadUI("UI/MainMenu_Lobby_MapSelect.xml");
     characterSelect_->LoadUI("UI/MainMenu_Lobby_CharacterSelect.xml");
+
+    ListView* mapsList = GetUIChild<ListView>(mapSelect_, "listView_maps");
+    if(mapsList)
+    SubscribeToEvent(mapsList, E_SELECTIONCHANGED, URHO3D_HANDLER(LobbyScreen, HandleMapSelectionChanged));
 
     ScanForMaps();
 
@@ -66,9 +71,24 @@ void LobbyScreen::ScanForMaps()
             URHO3D_LOGDEBUGF("Found map %s", sceneFile->CString());
             StringVector split = sceneFile->Split('/');
             Text* text = new Text(context_);
-            text->SetStyleAuto();
+            text->SetStyle("FileSelectorListText");
             text->SetText(*(split.End() - 1));
             mapsList->AddItem(text);
         }
+    }
+}
+
+// ----------------------------------------------------------------------------
+void LobbyScreen::HandleMapSelectionChanged(StringHash eventType, VariantMap& eventData)
+{
+    using namespace SelectionChanged;
+
+    UIElement* elem = static_cast<UIElement*>(eventData[P_ELEMENT].GetPtr());
+    LineEdit* selectedMap = GetUIChild<LineEdit>(mapSelect_, "lineEdit_selectedMap");
+
+    if(elem && elem->GetTypeName() == "Text" && selectedMap)
+    {
+        Text* text = static_cast<Text*>(elem);
+        selectedMap->SetText(text->GetText());
     }
 }
