@@ -1,7 +1,7 @@
 #include "Uniforms.glsl"
 #include "Samplers.glsl"
 
-const float bumpyness = 0.0;
+const float bumpyness = 0.03;
 const float refractFactor = 0.9;
 
 varying vec3 vPosition_worldSpace;
@@ -20,7 +20,7 @@ void PS()
 
     vec3 distort = normal_textureSpace * bumpyness;
     vec2 nuv = vProjection.xy / vProjection.z + distort.xy;
-    vec3 refractColor = texture2D(sEnvMap, nuv).rgb * cMatDiffColor.rgb * 0.5;
+    vec3 refractColor = texture2D(sEnvMap, nuv).rgb * cMatDiffColor.rgb * 1.5;
 
     mat3 invTBN = mat3(
         normalize(vTangent_worldSpace),

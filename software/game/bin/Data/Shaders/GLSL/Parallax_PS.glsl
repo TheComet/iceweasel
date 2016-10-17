@@ -18,15 +18,8 @@ varying vec2 vTexCoord;
 
 /*
  * It is possible to use a specular map instead of the bump map. Specular is
- * stored in the alpha channel of the normal map. If there is no normal map
- * then obviously there cannot be a specular map.
+ * stored in the alpha channel of the normal map.
  */
-#if defined(NO_NORMAL_MAP)
-#   if defined SPECULAR_MAP
-#       undef SPECULAR_MAP
-#   endif
-#endif
-
 #ifdef SPECULAR_MAP
     // disable bump mapping
 #   ifndef NO_BUMP_MAP
@@ -86,7 +79,11 @@ void PS()
 
     // Sample ambient diffuse component
 #if !defined(NO_DIFFUSE_MAP)
-    vec3 materialDiffuseColor = texture2D(sDiffMap, newUV).rgb;
+    vec4 diffuseSample = texture2D(sDiffMap, newUV);
+    vec3 materialDiffuseColor = diffuseSample.rgb;
+#   if !defined(NO_EMISSIVE_MAP)
+    materialDiffuseColor += materialDiffuseColor * diffuseSample.a * 8;
+#   endif
 #else
     vec3 materialDiffuseColor = vec3(1);
 #endif
@@ -114,7 +111,6 @@ void PS()
 #if !defined(PERPIXEL)
     vec3 ambientComponent = cAmbientColor.rgb * materialDiffuseColor;
     finalColor += ambientComponent;
-    finalColor = ambientComponent;
 #else
     // Calculate light influence on diffuse
     vec3 lightVector_worldSpace = vPosition_worldSpace.xyz - cLightPosPS.xyz;
