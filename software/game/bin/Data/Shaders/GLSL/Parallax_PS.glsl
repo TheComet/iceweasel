@@ -81,9 +81,9 @@ void PS()
 #if !defined(NO_DIFFUSE_MAP)
     vec4 diffuseSample = texture2D(sDiffMap, newUV);
     vec3 materialDiffuseColor = diffuseSample.rgb;
-#   if !defined(NO_EMISSIVE_MAP)
-    materialDiffuseColor += materialDiffuseColor * diffuseSample.a * 8;
-#   endif
+#if defined(PREPASS)
+    gl_FragData[1] = vec4(materialDiffuseColor /* diffuseSample.a*/, 1);
+#endif
 #else
     vec3 materialDiffuseColor = vec3(1);
 #endif
@@ -142,5 +142,5 @@ void PS()
 
 #endif
 
-    gl_FragColor = vec4(finalColor, 1);
+    gl_FragData[0] = vec4(finalColor, 1);
 }
