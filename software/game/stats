@@ -5,6 +5,7 @@ import operator
 import re
 
 aliases = {
+    # alias
     "TheComet": "Alex Murray"
 }
 
@@ -60,8 +61,5 @@ def insertions_deletions():
 
 if __name__ == '__main__':
     commit_counts()
-    try:
-        insertions_deletions()
-    except:
-        pass
+    insertions_deletions()
 

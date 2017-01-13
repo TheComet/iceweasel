@@ -19,7 +19,6 @@ CameraControllerRotation::CameraControllerRotation(Urho3D::Context* context) :
 void CameraControllerRotation::Start()
 {
     input_ = GetSubsystem<Input>();
-    const IceWeaselConfig::Data& config = GetSubsystem<IceWeaselConfig>()->GetConfig();
 
     // Set initial rotation to current camera angle
     const Vector3& cameraRotationEuler = node_->GetRotation().EulerAngles();

@@ -24,8 +24,6 @@ InGameEditorApplication::InGameEditorApplication(Urho3D::Context* context, Args*
 // ----------------------------------------------------------------------------
 void InGameEditorApplication::Setup()
 {
-    IntVector2 desktopResolution = GetSubsystem<Graphics>()->GetDesktopResolution();
-
     engineParameters_["WindowTitle"] = "IceWeasel";
     engineParameters_["FullScreen"]  = args_->fullscreen_;
     engineParameters_["Headless"]    = args_->server_;

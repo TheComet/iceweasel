@@ -110,7 +110,7 @@ void IceWeasel::StartState_Game()
     CreateScene();
     CreateCamera();
 
-    //GetSubsystem<Input>()->SetMouseVisible(true);
+    GetSubsystem<Input>()->SetMouseVisible(true);
 }
 
 // ----------------------------------------------------------------------------
