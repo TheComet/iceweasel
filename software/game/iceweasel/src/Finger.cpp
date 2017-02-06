@@ -46,9 +46,9 @@ void Finger::Start()
     fingerNode_ = node_->CreateChild("Finger", LOCAL);
 
     // Load finger prefab
-    xml_ = cache->GetResource<XMLFile>("Prefabs/HEP-R34.xml");
+    xml_ = cache->GetResource<XMLFile>("Prefabs/FuckYouFinger.xml");
     if(!xml_)
-        URHO3D_LOGERROR("Couldn't find Prefabs/HEP-R34.xml. Can't load gun.");
+        URHO3D_LOGERROR("Couldn't find Prefabs/FuckYouFinger.xml. Can't load gun.");
 
     ReloadGun();
 

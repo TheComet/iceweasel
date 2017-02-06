@@ -245,7 +245,7 @@ void IceWeasel::CreateCamera()
     // Configure render path
     SharedPtr<RenderPath> effectRenderPath(new RenderPath);
     effectRenderPath->Load(cache->GetResource<XMLFile>("RenderPaths/IceWeasel.xml"));
-
+/*
     effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/FXAA3.xml"));
 
     effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/BloomHDR.xml"));
@@ -256,7 +256,7 @@ void IceWeasel::CreateCamera()
     effectRenderPath->SetEnabled("GammaCorrection", false);
 
     viewport->SetRenderPath(effectRenderPath);
-    renderer->SetHDRRendering(true);
+    renderer->SetHDRRendering(true);*/
 }
 
 // ----------------------------------------------------------------------------

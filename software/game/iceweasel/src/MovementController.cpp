@@ -406,7 +406,7 @@ void MovementController::FixedUpdate_Water(float timeStep)
     ExponentialCurve<Vector3> localPlaneVelocity(
         velocityTransform.Inverse() * body_->GetLinearVelocity(), Vector3::ZERO);
 
-    // Under water, own velocity is always constant
+    // Under water, down velocity is always constant
     downVelocity_ = -0.04f * timeStep;
     /*
      * X/Z movement of the player is only possible when on the ground. If the
@@ -491,7 +491,7 @@ bool MovementController::ResetDownVelocityIfOnGround()
             {
                 physicsWorld_->RaycastSingle(result, ray, bodyHeight*1.1f);
                 if(result.distance_ < bodyHeight * 1.1f)
-                    moveNode_->Translate(Vector3(0, bodyHeight - result.distance_, 0));
+                    moveNode_->SetPosition(result.position_);
             }
         }
 
