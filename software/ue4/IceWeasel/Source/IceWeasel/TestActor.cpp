@@ -24,5 +24,9 @@ void ATestActor::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	FVector NewLocation = FVector(0.0f, 0.0f, 0.0f);
+	NewLocation = GetActorLocation() * 1 * DeltaTime;
+
+	SetActorLocation(NewLocation);
 }
 
