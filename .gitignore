@@ -68,7 +68,3 @@ software/ue4/IceWeasel/Intermediate/*
 
 # Cache files for the editor to use
 software/ue4/IceWeasel/DerivedDataCache/*
-
-# Custom Gravity Plugin's binary files
-software/ue4/IceWeasel/Plugins/CustomGravityPlugin/Binaries
-software/ue4/IceWeasel/Plugins/CustomGravityPlugin/Intermediate
