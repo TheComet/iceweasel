@@ -2,15 +2,5 @@
 	"FileVersion": 3,
 	"EngineAssociation": "4.14",
 	"Category": "",
-	"Description": "",
-	"Modules": [
-		{
-			"Name": "IceWeasel",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine"
-			]
-		}
-	]
+	"Description": ""
 }
