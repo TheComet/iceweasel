@@ -10,12 +10,9 @@ class ICEWEASEL_API ABaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-
-
 public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -27,7 +24,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 
 protected:
 	//ThirdPerson Camera
@@ -43,6 +39,12 @@ protected:
 	UPROPERTY(Replicated)
 	bool bJumpButtonDown;
 
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool bIsSprinting;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float AimPitch;
+
 protected:
 	//WSAD input movements
 	void MoveForward(float AxisValue);
@@ -52,6 +54,8 @@ protected:
 	void Turn(float AxisValue);
 	void LookUp(float AxisValue);
 
+	void Sprint(float AxisValue);
+
 	//To be called on Server by Client
 	UFUNCTION(Server, Reliable, WithValidation)
 	void SetCrouchButtonDown(bool IsDown);
@@ -60,7 +64,14 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void SetJumpButtonDown(bool IsDown);
 
-	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SetIsSprinting(bool IsSprinting);
+
+
+	inline bool CanCharacterCrouch()const;
+	inline bool CanCharacterJump()const;
+	inline bool CanCharacterSprint()const;
+
 private:
 	void CrouchButtonPressed();
 	void CrouchButtonReleased();
@@ -68,8 +79,10 @@ private:
 	void JumpButtonPressed();
 	void JumpButtonReleased();
 
+	//Calculate Pitch to be used inside Animation Blueprint for aimoffsets
+	void CalculatePitch();
 
-	bool CanCharacterCrouch()const;
-	bool CanCharacterJump()const;
-	
+	//To be called on Server by Client
+	UFUNCTION(Server, UnReliable, WithValidation)
+	void Server_CalculatePitch();
 };

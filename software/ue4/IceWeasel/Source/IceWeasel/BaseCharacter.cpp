@@ -9,7 +9,7 @@ ABaseCharacter::ABaseCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 	
 	//Create and set SpringArm component as our RootComponent
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -21,6 +21,8 @@ ABaseCharacter::ABaseCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
+
+	AimPitch = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -46,6 +48,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::LookUp);
+	PlayerInputComponent->BindAxis("Sprint", this, &ABaseCharacter::Sprint);
 	
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABaseCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ABaseCharacter::CrouchButtonReleased);
@@ -59,18 +62,29 @@ void ABaseCharacter::SetCrouchButtonDown_Implementation(bool IsDown)
 {
 	bCrouchButtonDown = IsDown;
 }
-//to validate the RPC function call - this is always required otherwise you get compiler error
+
 bool ABaseCharacter::SetCrouchButtonDown_Validate(bool IsDown)
 {
 	return true;
 }
-
+//RPC that is Run on Server
 void ABaseCharacter::SetJumpButtonDown_Implementation(bool IsDown)
 {
-	bJumpButtonDown= IsDown;
+	bJumpButtonDown = IsDown;
 }
 
 bool ABaseCharacter::SetJumpButtonDown_Validate(bool IsDown)
+{
+	return true;
+}
+
+//RPC that is Run on Server
+void ABaseCharacter::SetIsSprinting_Implementation(bool IsSprinting)
+{
+	bIsSprinting = IsSprinting;
+}
+
+bool ABaseCharacter::SetIsSprinting_Validate(bool IsSprinting)
 {
 	return true;
 }
@@ -130,7 +144,7 @@ void ABaseCharacter::JumpButtonReleased()
 
 bool ABaseCharacter::CanCharacterCrouch()const
 {
-	return true;
+	return !GetCharacterMovement()->IsFalling();
 }
 
 bool ABaseCharacter::CanCharacterJump()const
@@ -138,11 +152,55 @@ bool ABaseCharacter::CanCharacterJump()const
 	return CanJump() && !bCrouchButtonDown;
 }
 
+bool ABaseCharacter::CanCharacterSprint()const
+{
+	FVector ForwardVector = GetActorForwardVector().SafeNormal(); //forward direction of the player
+	FVector VelocityVector = GetCharacterMovement()->Velocity.SafeNormal(); //the direction in which the player is moving
+	
+	bool IsMovingForward = false;
+	bool IsMovingRight = false;
 
+	float p = FVector::DotProduct(ForwardVector, VelocityVector);
+
+	if (p > 0.7f) //is dot product positive i.e cosine of angle between forward vector and velocity vector
+		IsMovingForward = true;
+
+	if (p < 0.1f)
+		IsMovingRight = true;
+	
+
+	return !bCrouchButtonDown && //Is not crouching
+		!GetCharacterMovement()->IsFalling() && //Is not Falling
+		(GetCharacterMovement()->Velocity.SizeSquared() != 0.0f) && //Is not sationary
+		IsMovingForward &&
+		!IsMovingRight;
+}
+
+void ABaseCharacter::Sprint(float AxisValue)
+{
+
+	if (AxisValue != 0.0f && //is sprint button down
+		 CanCharacterSprint() //make sure it's in valid state to sprint. Example - you shouldn't be able to sprint while crouching
+		)
+	{
+		bIsSprinting = true;
+
+		if (!HasAuthority())
+			SetIsSprinting(true);
+	}
+	else
+	{
+		bIsSprinting = false;
+
+		if (!HasAuthority())
+			SetIsSprinting(false);
+
+
+	}
+}
 
 void ABaseCharacter::MoveForward(float AxisValue)
 {
-
 	if ((Controller != nullptr) && (AxisValue != 0.0f))
 	{
 		const FRotator ControlRotation = Controller->GetControlRotation();
@@ -182,15 +240,53 @@ void ABaseCharacter::LookUp(float AxisValue)
 {
 	if (AxisValue != 0.0f)
 	{
+		if (HasAuthority()) //if server
+		{
+			CalculatePitch();  //calculate the pitch and send it to all other clients
+		}
+		else //if client
+		{
+			CalculatePitch(); //first do it locally
+			Server_CalculatePitch(); //then let others get our updated pitch
+		}
+
 		AddControllerPitchInput(AxisValue);
 	}
 }
 
+//RPC that is Run on Server
+void ABaseCharacter::Server_CalculatePitch_Implementation()
+{
+	CalculatePitch();
+}
 
+bool ABaseCharacter::Server_CalculatePitch_Validate()
+{
+	return true;
+}
+//Calculate AimPitch to be used inside animation blueprint for aimoffsets
+void ABaseCharacter::CalculatePitch()
+{
+	FRotator ControlRotation = Controller->GetControlRotation();
+	FRotator ActorRotation = GetActorRotation();
+
+	FRotator Delta = ControlRotation - ActorRotation;
+
+	FRotator Pitch(AimPitch, 0.0f, 0.0f);
+
+	FRotator Final =FMath::RInterpTo(Pitch, Delta, GetWorld()->DeltaTimeSeconds, 0.0f);
+
+	AimPitch = FMath::ClampAngle(Final.Pitch, -90.0f, 90.0f);
+}
+
+//Replicate variables
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bCrouchButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bJumpButtonDown, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsSprinting, COND_SkipOwner);
+
+	DOREPLIFETIME_CONDITION(ABaseCharacter, AimPitch, COND_SkipOwner);
 }
