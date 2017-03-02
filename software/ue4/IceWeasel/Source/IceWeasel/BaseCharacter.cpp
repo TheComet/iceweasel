@@ -30,6 +30,7 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	CharacterWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 // Called every frame
@@ -37,6 +38,10 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	if (bIsSprinting)
+		GetCharacterMovement()->MaxWalkSpeed = CharacterWalkSpeed * 2.0f;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = CharacterWalkSpeed;
 }
 
 // Called to bind functionality to input
@@ -154,26 +159,32 @@ bool ABaseCharacter::CanCharacterJump()const
 
 bool ABaseCharacter::CanCharacterSprint()const
 {
-	FVector ForwardVector = GetActorForwardVector().SafeNormal(); //forward direction of the player
-	FVector VelocityVector = GetCharacterMovement()->Velocity.SafeNormal(); //the direction in which the player is moving
+	FVector ForwardVector = GetActorForwardVector(); //normalized forward direction of the player
+	FVector VelocityVector = GetCharacterMovement()->Velocity.GetSafeNormal(); //the normalized direction in which the player is moving
 	
 	bool IsMovingForward = false;
-	bool IsMovingRight = false;
+	bool IsMovingOnRightVector = false;
 
-	float p = FVector::DotProduct(ForwardVector, VelocityVector);
+	float p = FVector::DotProduct(ForwardVector, VelocityVector); //cosine of angle between forward vector and velocity vector
 
-	if (p > 0.7f) //is dot product positive i.e cosine of angle between forward vector and velocity vector
+	//p = 1 if player is moving forward
+	//p = -1 if player is moving backward
+	//p = 0 if player is moving right or left
+
+	//we don't get exact values due to limited precision so check if p is nearly equal to 1, -1 or 0
+
+	if (p > 0.7f) //check if dot product is nearly one
 		IsMovingForward = true;
 
-	if (p < 0.1f)
-		IsMovingRight = true;
+	if (p < 0.1f) //check if dot product is nearly zero
+		IsMovingOnRightVector = true;
 	
 
 	return !bCrouchButtonDown && //Is not crouching
 		!GetCharacterMovement()->IsFalling() && //Is not Falling
 		(GetCharacterMovement()->Velocity.SizeSquared() != 0.0f) && //Is not sationary
-		IsMovingForward &&
-		!IsMovingRight;
+		IsMovingForward && //Is moving forward and not backward
+		!IsMovingOnRightVector; //Is NOT moving right or left
 }
 
 void ABaseCharacter::Sprint(float AxisValue)
@@ -195,7 +206,6 @@ void ABaseCharacter::Sprint(float AxisValue)
 		if (!HasAuthority())
 			SetIsSprinting(false);
 
-
 	}
 }
 
@@ -215,6 +225,10 @@ void ABaseCharacter::MoveForward(float AxisValue)
 
 void ABaseCharacter::MoveRight(float AxisValue)
 {
+	//don't move right or left while sprinting
+	if (bIsSprinting)
+		return;
+
 	if ((Controller != nullptr) && (AxisValue != 0.0f))
 	{
 		const FRotator ControlRotation = Controller->GetControlRotation();

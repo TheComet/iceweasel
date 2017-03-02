@@ -85,4 +85,8 @@ private:
 	//To be called on Server by Client
 	UFUNCTION(Server, UnReliable, WithValidation)
 	void Server_CalculatePitch();
+
+
+private:
+	float CharacterWalkSpeed;
 };
