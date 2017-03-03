@@ -27,10 +27,10 @@ public:
 
 protected:
 	//ThirdPerson Camera
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
 	//Spring arm component to hold and position the camera
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
@@ -41,6 +41,15 @@ protected:
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsSprinting;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool bIsAimingDownSights;
+
+	UPROPERTY(BlueprintReadOnly)
+	float ADSBlend; //[0, 1] - how much to blend between [AimOffsets, Aimoffsets_Ironsights], [BS_Jog, BS_Jog_Ironsights] and [BS_CrouchWalk, BS_CrouchWalk_Ironsights]
+
+	UPROPERTY(EditAnywhere, Category = PlayerProperties)
+	float ADSBlendInterpSpeed;
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	float AimPitch;
@@ -64,9 +73,11 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void SetJumpButtonDown(bool IsDown);
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, UnReliable, WithValidation)
 	void SetIsSprinting(bool IsSprinting);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SetIsAimingDownSights(bool IsADS);
 
 	inline bool CanCharacterCrouch()const;
 	inline bool CanCharacterJump()const;
@@ -78,6 +89,9 @@ private:
 
 	void JumpButtonPressed();
 	void JumpButtonReleased();
+
+	void ADSButtonPressed();
+	void ADSButtonReleased();
 
 	//Calculate Pitch to be used inside Animation Blueprint for aimoffsets
 	void CalculatePitch();

@@ -23,6 +23,7 @@ ABaseCharacter::ABaseCharacter()
 	Camera->bUsePawnControlRotation = false;
 
 	AimPitch = 0.0f;
+	ADSBlendInterpSpeed = 10.0f;
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +43,13 @@ void ABaseCharacter::Tick(float DeltaTime)
 		GetCharacterMovement()->MaxWalkSpeed = CharacterWalkSpeed * 2.0f;
 	else
 		GetCharacterMovement()->MaxWalkSpeed = CharacterWalkSpeed;
+
+	if (bIsAimingDownSights)
+		ADSBlend = FMath::FInterpTo(ADSBlend, 1.0f, DeltaTime, ADSBlendInterpSpeed);
+	else
+		ADSBlend = FMath::FInterpTo(ADSBlend, 0.0f, DeltaTime, ADSBlendInterpSpeed);
+
+	
 }
 
 // Called to bind functionality to input
@@ -60,6 +68,9 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABaseCharacter::JumpButtonPressed);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABaseCharacter::JumpButtonReleased);
+
+	PlayerInputComponent->BindAction("ADS", IE_Pressed, this, &ABaseCharacter::ADSButtonPressed);
+	PlayerInputComponent->BindAction("ADS", IE_Released, this, &ABaseCharacter::ADSButtonReleased);
 }
 
 //RPC that is Run on Server
@@ -90,6 +101,17 @@ void ABaseCharacter::SetIsSprinting_Implementation(bool IsSprinting)
 }
 
 bool ABaseCharacter::SetIsSprinting_Validate(bool IsSprinting)
+{
+	return true;
+}
+
+//RPC that is Run on Server
+void ABaseCharacter::SetIsAimingDownSights_Implementation(bool IsADS)
+{
+	bIsAimingDownSights = IsADS;
+}
+
+bool ABaseCharacter::SetIsAimingDownSights_Validate(bool IsADS)
 {
 	return true;
 }
@@ -144,6 +166,22 @@ void ABaseCharacter::JumpButtonReleased()
 		SetJumpButtonDown(false);
 
 	StopJumping();
+}
+
+void ABaseCharacter::ADSButtonPressed()
+{
+	bIsAimingDownSights = true;
+
+	if (!HasAuthority())
+		SetIsAimingDownSights(true);
+}
+
+void ABaseCharacter::ADSButtonReleased()
+{
+	bIsAimingDownSights = false;
+
+	if (!HasAuthority())
+		SetIsAimingDownSights(false);
 }
 
 
@@ -301,6 +339,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bCrouchButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bJumpButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsSprinting, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsAimingDownSights, COND_SkipOwner);
 
 	DOREPLIFETIME_CONDITION(ABaseCharacter, AimPitch, COND_SkipOwner);
 }
