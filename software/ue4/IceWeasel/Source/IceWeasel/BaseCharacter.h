@@ -33,6 +33,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* WeaponMesh;
+
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bCrouchButtonDown;
 
@@ -45,14 +48,26 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsAimingDownSights;
 
+	//[0, 1] - how much to blend between [AimOffsets, Aimoffsets_Ironsights], [BS_Jog, BS_Jog_Ironsights] and [BS_CrouchWalk, BS_CrouchWalk_Ironsights]
+	//I interpolate from 0 to 1 to give a smooth tranisition of aiming down sight when bIsAimingDownSights == true
 	UPROPERTY(BlueprintReadOnly)
-	float ADSBlend; //[0, 1] - how much to blend between [AimOffsets, Aimoffsets_Ironsights], [BS_Jog, BS_Jog_Ironsights] and [BS_CrouchWalk, BS_CrouchWalk_Ironsights]
+	float ADSBlend;
 
+	//Speed of interpolating ADSBlend 
 	UPROPERTY(EditAnywhere, Category = PlayerProperties)
 	float ADSBlendInterpSpeed;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, Category = PlayerProperties)
+	float CameraFOV;
+
+	UPROPERTY(EditAnywhere, Category = PlayerProperties)
+	float ADSCameraFOV;
+
+	UPROPERTY(ReplicatedUsing = OnRep_AimPitch, BlueprintReadOnly)
 	float AimPitch;
+
+	UPROPERTY(BlueprintReadOnly)
+	float SmoothAimPitch;
 
 protected:
 	//WSAD input movements
@@ -73,11 +88,17 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void SetJumpButtonDown(bool IsDown);
 
+	//To be called on Server by Client - Unreliable because I call it every frame
 	UFUNCTION(Server, UnReliable, WithValidation)
 	void SetIsSprinting(bool IsSprinting);
 
+	//To be called on Server by Client
 	UFUNCTION(Server, Reliable, WithValidation)
 	void SetIsAimingDownSights(bool IsADS);
+
+
+	UFUNCTION()
+	void OnRep_AimPitch(float oldValue);
 
 	inline bool CanCharacterCrouch()const;
 	inline bool CanCharacterJump()const;

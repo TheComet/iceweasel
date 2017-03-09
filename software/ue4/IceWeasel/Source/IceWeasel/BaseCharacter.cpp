@@ -22,8 +22,15 @@ ABaseCharacter::ABaseCharacter()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	WeaponMesh->SetupAttachment(GetMesh());
+
+
 	AimPitch = 0.0f;
+	SmoothAimPitch = 0.0f;
 	ADSBlendInterpSpeed = 10.0f;
+	CameraFOV = 90.0f;
+	ADSCameraFOV = 60.0f;
 }
 
 // Called when the game starts or when spawned
@@ -38,16 +45,28 @@ void ABaseCharacter::BeginPlay()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	if (bIsSprinting)
+	{
 		GetCharacterMovement()->MaxWalkSpeed = CharacterWalkSpeed * 2.0f;
+		GetCharacterMovement()->MaxFlySpeed = CharacterWalkSpeed * 2.0f;
+	}
 	else
+	{
 		GetCharacterMovement()->MaxWalkSpeed = CharacterWalkSpeed;
+		GetCharacterMovement()->MaxFlySpeed = CharacterWalkSpeed;
+	}
 
 	if (bIsAimingDownSights)
+	{
 		ADSBlend = FMath::FInterpTo(ADSBlend, 1.0f, DeltaTime, ADSBlendInterpSpeed);
+		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, ADSCameraFOV, DeltaTime, 15.0f);
+	}
 	else
+	{
 		ADSBlend = FMath::FInterpTo(ADSBlend, 0.0f, DeltaTime, ADSBlendInterpSpeed);
+		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, CameraFOV, DeltaTime, 15.0f);
+	}
 
 	
 }
@@ -116,6 +135,14 @@ bool ABaseCharacter::SetIsAimingDownSights_Validate(bool IsADS)
 	return true;
 }
 
+void ABaseCharacter::OnRep_AimPitch(float oldAimPitch)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("IsServer: %i OldAimPitch: %f, AimPitch: %f"), (int)HasAuthority(), oldAimPitch, AimPitch));
+	
+	SmoothAimPitch = FMath::FInterpTo(oldAimPitch, AimPitch, GetWorld()->DeltaTimeSeconds, 15.0f);
+	
+}
+
 
 void ABaseCharacter::CrouchButtonPressed()
 {
@@ -126,9 +153,12 @@ void ABaseCharacter::CrouchButtonPressed()
 	//If this is server, then the variable will be replicated to everyone else
 	bCrouchButtonDown = true;
 
+	Crouch();
+
 	//in case this is not the server, then request the server to replicate the variable to everyone else except us (COND_SkipOwner)
 	if (!HasAuthority())
 		SetCrouchButtonDown(true);
+
 }
 
 void ABaseCharacter::CrouchButtonReleased()
@@ -138,8 +168,11 @@ void ABaseCharacter::CrouchButtonReleased()
 
 	bCrouchButtonDown = false;
 
+	UnCrouch();
+
 	if (!HasAuthority())
 		SetCrouchButtonDown(false);
+
 }
 
 void ABaseCharacter::JumpButtonPressed()
@@ -236,6 +269,7 @@ void ABaseCharacter::Sprint(float AxisValue)
 
 		if (!HasAuthority())
 			SetIsSprinting(true);
+
 	}
 	else
 	{
@@ -326,9 +360,15 @@ void ABaseCharacter::CalculatePitch()
 
 	FRotator Pitch(AimPitch, 0.0f, 0.0f);
 
-	FRotator Final =FMath::RInterpTo(Pitch, Delta, GetWorld()->DeltaTimeSeconds, 0.0f);
+	FRotator Final = FMath::RInterpTo(Pitch, Delta, GetWorld()->DeltaTimeSeconds, 15.0f);
 
-	AimPitch = FMath::ClampAngle(Final.Pitch, -90.0f, 90.0f);
+	float OldAimPitch = AimPitch;
+	float NewAimPitch = FMath::ClampAngle(Final.Pitch, -90.0f, 90.0f);
+	
+	AimPitch = NewAimPitch;
+
+	if (HasAuthority())
+		OnRep_AimPitch(OldAimPitch);
 }
 
 //Replicate variables
