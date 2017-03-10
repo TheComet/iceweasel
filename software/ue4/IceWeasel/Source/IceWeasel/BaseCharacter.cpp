@@ -25,7 +25,7 @@ ABaseCharacter::ABaseCharacter()
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(GetMesh());
 
-
+	//Initialize default values
 	AimPitch = 0.0f;
 	SmoothAimPitch = 0.0f;
 	ADSBlendInterpSpeed = 10.0f;
@@ -90,6 +90,22 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("ADS", IE_Pressed, this, &ABaseCharacter::ADSButtonPressed);
 	PlayerInputComponent->BindAction("ADS", IE_Released, this, &ABaseCharacter::ADSButtonReleased);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::FireButtonReleased);
+}
+
+#pragma region RPC Functions
+
+//RPC that is Run on Server
+void ABaseCharacter::Server_CalculatePitch_Implementation()
+{
+	CalculatePitch();
+}
+
+bool ABaseCharacter::Server_CalculatePitch_Validate()
+{
+	return true;
 }
 
 //RPC that is Run on Server
@@ -109,6 +125,17 @@ void ABaseCharacter::SetJumpButtonDown_Implementation(bool IsDown)
 }
 
 bool ABaseCharacter::SetJumpButtonDown_Validate(bool IsDown)
+{
+	return true;
+}
+
+//RPC that is Run on Server
+void ABaseCharacter::SetFireButtonDown_Implementation(bool IsDown)
+{
+	bFireButtonDown = IsDown;
+}
+
+bool ABaseCharacter::SetFireButtonDown_Validate(bool IsDown)
 {
 	return true;
 }
@@ -135,14 +162,9 @@ bool ABaseCharacter::SetIsAimingDownSights_Validate(bool IsADS)
 	return true;
 }
 
-void ABaseCharacter::OnRep_AimPitch(float oldAimPitch)
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("IsServer: %i OldAimPitch: %f, AimPitch: %f"), (int)HasAuthority(), oldAimPitch, AimPitch));
-	
-	SmoothAimPitch = FMath::FInterpTo(oldAimPitch, AimPitch, GetWorld()->DeltaTimeSeconds, 15.0f);
-	
-}
+#pragma endregion 
 
+#pragma region Action Mapping
 
 void ABaseCharacter::CrouchButtonPressed()
 {
@@ -157,7 +179,7 @@ void ABaseCharacter::CrouchButtonPressed()
 
 	//in case this is not the server, then request the server to replicate the variable to everyone else except us (COND_SkipOwner)
 	if (!HasAuthority())
-		SetCrouchButtonDown(true);
+		SetCrouchButtonDown(bCrouchButtonDown);
 
 }
 
@@ -171,7 +193,7 @@ void ABaseCharacter::CrouchButtonReleased()
 	UnCrouch();
 
 	if (!HasAuthority())
-		SetCrouchButtonDown(false);
+		SetCrouchButtonDown(bCrouchButtonDown);
 
 }
 
@@ -183,7 +205,7 @@ void ABaseCharacter::JumpButtonPressed()
 	bJumpButtonDown = true;
 
 	if (!HasAuthority())
-		SetJumpButtonDown(true);
+		SetJumpButtonDown(bJumpButtonDown);
 
 	Jump();
 }
@@ -196,7 +218,7 @@ void ABaseCharacter::JumpButtonReleased()
 	bJumpButtonDown = false;
 
 	if (!HasAuthority())
-		SetJumpButtonDown(false);
+		SetJumpButtonDown(bJumpButtonDown);
 
 	StopJumping();
 }
@@ -206,7 +228,7 @@ void ABaseCharacter::ADSButtonPressed()
 	bIsAimingDownSights = true;
 
 	if (!HasAuthority())
-		SetIsAimingDownSights(true);
+		SetIsAimingDownSights(bIsAimingDownSights);
 }
 
 void ABaseCharacter::ADSButtonReleased()
@@ -214,9 +236,34 @@ void ABaseCharacter::ADSButtonReleased()
 	bIsAimingDownSights = false;
 
 	if (!HasAuthority())
-		SetIsAimingDownSights(false);
+		SetIsAimingDownSights(bIsAimingDownSights);
 }
 
+void ABaseCharacter::FireButtonPressed()
+{
+	bFireButtonDown = true;
+
+	if (!HasAuthority())
+		SetFireButtonDown(bFireButtonDown);
+}
+
+void ABaseCharacter::FireButtonReleased()
+{
+	bFireButtonDown = false;
+
+	if (!HasAuthority())
+		SetFireButtonDown(bFireButtonDown);
+}
+
+#pragma endregion
+
+void ABaseCharacter::OnRep_AimPitch(float oldAimPitch)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("IsServer: %i OldAimPitch: %f, AimPitch: %f"), (int)HasAuthority(), oldAimPitch, AimPitch));
+	
+	SmoothAimPitch = FMath::FInterpTo(oldAimPitch, AimPitch, GetWorld()->DeltaTimeSeconds, 15.0f);
+	
+}
 
 bool ABaseCharacter::CanCharacterCrouch()const
 {
@@ -340,16 +387,6 @@ void ABaseCharacter::LookUp(float AxisValue)
 	}
 }
 
-//RPC that is Run on Server
-void ABaseCharacter::Server_CalculatePitch_Implementation()
-{
-	CalculatePitch();
-}
-
-bool ABaseCharacter::Server_CalculatePitch_Validate()
-{
-	return true;
-}
 //Calculate AimPitch to be used inside animation blueprint for aimoffsets
 void ABaseCharacter::CalculatePitch()
 {
@@ -378,6 +415,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bCrouchButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bJumpButtonDown, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, bFireButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsSprinting, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsAimingDownSights, COND_SkipOwner);
 

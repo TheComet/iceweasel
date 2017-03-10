@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bCrouchButtonDown;
 
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool bFireButtonDown;
+
 	UPROPERTY(Replicated)
 	bool bJumpButtonDown;
 
@@ -81,27 +84,34 @@ protected:
 	void Sprint(float AxisValue);
 
 	//To be called on Server by Client
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void SetCrouchButtonDown(bool IsDown);
 
 	//To be called on Server by Client
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void SetJumpButtonDown(bool IsDown);
 
+	//To be called on Server by Client
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void SetFireButtonDown(bool IsDown);
+
 	//To be called on Server by Client - Unreliable because I call it every frame
-	UFUNCTION(Server, UnReliable, WithValidation)
+	UFUNCTION(Server, UnReliable, WithValidation, BlueprintCallable)
 	void SetIsSprinting(bool IsSprinting);
 
 	//To be called on Server by Client
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void SetIsAimingDownSights(bool IsADS);
 
 
 	UFUNCTION()
 	void OnRep_AimPitch(float oldValue);
 
+	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterCrouch()const;
+	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterJump()const;
+	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterSprint()const;
 
 private:
@@ -113,6 +123,9 @@ private:
 
 	void ADSButtonPressed();
 	void ADSButtonReleased();
+
+	void FireButtonPressed();
+	void FireButtonReleased();
 
 	//Calculate Pitch to be used inside Animation Blueprint for aimoffsets
 	void CalculatePitch();
