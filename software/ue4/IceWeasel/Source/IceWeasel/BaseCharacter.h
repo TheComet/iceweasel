@@ -66,7 +66,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = PlayerProperties)
 	float ADSCameraFOV;
 
-	UPROPERTY(ReplicatedUsing = OnRep_AimPitch, BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing = OnRep_AimPitch, BlueprintReadWrite)
 	float AimPitch;
 
 	UPROPERTY(BlueprintReadOnly)

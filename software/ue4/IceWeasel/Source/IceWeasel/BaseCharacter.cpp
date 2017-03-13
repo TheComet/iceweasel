@@ -60,12 +60,12 @@ void ABaseCharacter::Tick(float DeltaTime)
 	if (bIsAimingDownSights)
 	{
 		ADSBlend = FMath::FInterpTo(ADSBlend, 1.0f, DeltaTime, ADSBlendInterpSpeed);
-		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, ADSCameraFOV, DeltaTime, 15.0f);
+		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, ADSCameraFOV, DeltaTime, ADSBlendInterpSpeed);
 	}
 	else
 	{
 		ADSBlend = FMath::FInterpTo(ADSBlend, 0.0f, DeltaTime, ADSBlendInterpSpeed);
-		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, CameraFOV, DeltaTime, 15.0f);
+		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, CameraFOV, DeltaTime, ADSBlendInterpSpeed);
 	}
 
 	
@@ -375,12 +375,12 @@ void ABaseCharacter::LookUp(float AxisValue)
 	{
 		if (HasAuthority()) //if server
 		{
-			CalculatePitch();  //calculate the pitch and send it to all other clients
+			//CalculatePitch();  //calculate the pitch and send it to all other clients
 		}
 		else //if client
 		{
-			CalculatePitch(); //first do it locally
-			Server_CalculatePitch(); //then let others get our updated pitch
+			//CalculatePitch(); //first do it locally
+			//Server_CalculatePitch(); //then let others get our updated pitch
 		}
 
 		AddControllerPitchInput(AxisValue);
@@ -397,7 +397,7 @@ void ABaseCharacter::CalculatePitch()
 
 	FRotator Pitch(AimPitch, 0.0f, 0.0f);
 
-	FRotator Final = FMath::RInterpTo(Pitch, Delta, GetWorld()->DeltaTimeSeconds, 15.0f);
+	FRotator Final = FMath::RInterpTo(Pitch, Delta, GetWorld()->DeltaTimeSeconds, 0.0f);
 
 	float OldAimPitch = AimPitch;
 	float NewAimPitch = FMath::ClampAngle(Final.Pitch, -90.0f, 90.0f);
