@@ -8,6 +8,9 @@ You may have to run this command to avoid having to enter your password at every
 ```
 git config --global credential.helper cache
 ```
+WARNING
+--------
+This guide is old. We have switched engine to UE4 from Urho3D.
 
 Building
 --------
