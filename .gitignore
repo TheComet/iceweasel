@@ -69,3 +69,6 @@ software/ue4/IceWeasel/Intermediate/*
 
 # Cache files for the editor to use
 software/ue4/IceWeasel/DerivedDataCache/*
+
+# Starter Content
+software/ue4/IceWeasel/StarterContent/*
