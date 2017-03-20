@@ -257,13 +257,7 @@ void ABaseCharacter::FireButtonReleased()
 
 #pragma endregion
 
-void ABaseCharacter::OnRep_AimPitch(float oldAimPitch)
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("IsServer: %i OldAimPitch: %f, AimPitch: %f"), (int)HasAuthority(), oldAimPitch, AimPitch));
-	
-	SmoothAimPitch = FMath::FInterpTo(oldAimPitch, AimPitch, GetWorld()->DeltaTimeSeconds, 15.0f);
-	
-}
+
 
 bool ABaseCharacter::CanCharacterCrouch()const
 {
@@ -404,8 +398,6 @@ void ABaseCharacter::CalculatePitch()
 	
 	AimPitch = NewAimPitch;
 
-	if (HasAuthority())
-		OnRep_AimPitch(OldAimPitch);
 }
 
 //Replicate variables

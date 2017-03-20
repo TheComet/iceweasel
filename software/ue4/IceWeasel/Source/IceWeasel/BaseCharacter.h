@@ -66,7 +66,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = PlayerProperties)
 	float ADSCameraFOV;
 
-	UPROPERTY(ReplicatedUsing = OnRep_AimPitch, BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	float AimPitch;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -103,9 +103,6 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void SetIsAimingDownSights(bool IsADS);
 
-
-	UFUNCTION()
-	void OnRep_AimPitch(float oldValue);
 
 	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterCrouch()const;
