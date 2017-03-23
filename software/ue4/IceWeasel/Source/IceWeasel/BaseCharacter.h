@@ -104,11 +104,9 @@ protected:
 	void SetIsAimingDownSights(bool IsADS);
 
 
-	UFUNCTION(BlueprintPure)
+
 	inline bool CanCharacterCrouch()const;
-	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterJump()const;
-	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterSprint()const;
 
 private:
