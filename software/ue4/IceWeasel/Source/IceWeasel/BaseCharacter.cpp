@@ -31,6 +31,7 @@ ABaseCharacter::ABaseCharacter()
 	ADSBlendInterpSpeed = 10.0f;
 	CameraFOV = 90.0f;
 	ADSCameraFOV = 60.0f;
+	bAlwaysADS = false;
 }
 
 // Called when the game starts or when spawned
@@ -57,14 +58,26 @@ void ABaseCharacter::Tick(float DeltaTime)
 		GetCharacterMovement()->MaxFlySpeed = CharacterWalkSpeed;
 	}
 
+	//can aim down sight on third person
+	bool CanAdsOnTP = !bAlwaysADS && !IsLocallyControlled();
+
+	if (!CanAdsOnTP)
+	{
+		ADSBlend = 1.0f;
+	}
+
 	if (bIsAimingDownSights)
 	{
-		ADSBlend = FMath::FInterpTo(ADSBlend, 1.0f, DeltaTime, ADSBlendInterpSpeed);
+		if (CanAdsOnTP)
+			ADSBlend = FMath::FInterpTo(ADSBlend, 1.0f, DeltaTime, ADSBlendInterpSpeed);
+		
 		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, ADSCameraFOV, DeltaTime, ADSBlendInterpSpeed);
 	}
 	else
 	{
-		ADSBlend = FMath::FInterpTo(ADSBlend, 0.0f, DeltaTime, ADSBlendInterpSpeed);
+		if (CanAdsOnTP)
+			ADSBlend = FMath::FInterpTo(ADSBlend, 0.0f, DeltaTime, ADSBlendInterpSpeed);
+		
 		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, CameraFOV, DeltaTime, ADSBlendInterpSpeed);
 	}
 
