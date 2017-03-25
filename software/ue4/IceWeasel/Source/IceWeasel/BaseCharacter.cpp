@@ -81,7 +81,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, CameraFOV, DeltaTime, ADSBlendInterpSpeed);
 	}
 
-	
 }
 
 // Called to bind functionality to input
