@@ -51,22 +51,27 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsAimingDownSights;
 
+	//Do others see you (as third person) always aiming down sight on their local screen?
+	//if true, your third person character is always aiming down sight regardless of your first person character (first person hands)
+	UPROPERTY(EditAnywhere, Category = "Third Person Properties")
+	bool bAlwaysADS;
+
 	//[0, 1] - how much to blend between [AimOffsets, Aimoffsets_Ironsights], [BS_Jog, BS_Jog_Ironsights] and [BS_CrouchWalk, BS_CrouchWalk_Ironsights]
 	//I interpolate from 0 to 1 to give a smooth tranisition of aiming down sight when bIsAimingDownSights == true
 	UPROPERTY(BlueprintReadOnly)
 	float ADSBlend;
 
-	//Speed of interpolating ADSBlend 
-	UPROPERTY(EditAnywhere, Category = PlayerProperties)
+	//Speed of interpolating ADSBlend i.e Speed of aiming down sight
+	UPROPERTY(EditAnywhere, Category = "Player Properties")
 	float ADSBlendInterpSpeed;
 
-	UPROPERTY(EditAnywhere, Category = PlayerProperties)
+	UPROPERTY(EditAnywhere, Category = "First Person Properties")
 	float CameraFOV;
 
-	UPROPERTY(EditAnywhere, Category = PlayerProperties)
+	UPROPERTY(EditAnywhere, Category = "First Person Properties")
 	float ADSCameraFOV;
 
-	UPROPERTY(ReplicatedUsing = OnRep_AimPitch, BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	float AimPitch;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -104,14 +109,9 @@ protected:
 	void SetIsAimingDownSights(bool IsADS);
 
 
-	UFUNCTION()
-	void OnRep_AimPitch(float oldValue);
 
-	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterCrouch()const;
-	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterJump()const;
-	UFUNCTION(BlueprintPure)
 	inline bool CanCharacterSprint()const;
 
 private:
