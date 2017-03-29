@@ -36,19 +36,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* WeaponMesh;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bCrouchButtonDown;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bFireButtonDown;
 
 	UPROPERTY(Replicated)
 	bool bJumpButtonDown;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bIsSprinting;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bIsAimingDownSights;
 
 	//Do others see you (as third person) always aiming down sight on their local screen?
@@ -79,13 +79,15 @@ protected:
 
 protected:
 	//WSAD input movements
-	void MoveForward(float AxisValue);
-	void MoveRight(float AxisValue);
+	//void MoveForward(float AxisValue);
+	//void MoveRight(float AxisValue);
 
 	//Mouse input movements
-	void Turn(float AxisValue);
-	void LookUp(float AxisValue);
+	//void Turn(float AxisValue);
+	//void LookUp(float AxisValue);
 
+
+	UFUNCTION(BlueprintCallable)
 	void Sprint(float AxisValue);
 
 	//To be called on Server by Client
@@ -100,7 +102,7 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void SetFireButtonDown(bool IsDown);
 
-	//To be called on Server by Client - Unreliable because I call it every frame
+	//To be called on Server by Client - Unreliable because it's called every frame
 	UFUNCTION(Server, UnReliable, WithValidation, BlueprintCallable)
 	void SetIsSprinting(bool IsSprinting);
 
@@ -109,10 +111,12 @@ protected:
 	void SetIsAimingDownSights(bool IsADS);
 
 
-
-	inline bool CanCharacterCrouch()const;
-	inline bool CanCharacterJump()const;
-	inline bool CanCharacterSprint()const;
+	UFUNCTION(BlueprintPure)
+	bool CanCharacterCrouch()const;
+	UFUNCTION(BlueprintPure)
+	bool CanCharacterJump()const;
+	UFUNCTION(BlueprintPure)
+	bool CanCharacterSprint()const;
 
 private:
 	void CrouchButtonPressed();
@@ -128,11 +132,11 @@ private:
 	void FireButtonReleased();
 
 	//Calculate Pitch to be used inside Animation Blueprint for aimoffsets
-	void CalculatePitch();
+	//void CalculatePitch();
 
 	//To be called on Server by Client
-	UFUNCTION(Server, UnReliable, WithValidation)
-	void Server_CalculatePitch();
+	//UFUNCTION(Server, UnReliable, WithValidation)
+	//void Server_CalculatePitch();
 
 
 private:

@@ -16,5 +16,7 @@ class ICEWEASEL_API ABasePlayerState : public APlayerState
 public:
 	ABasePlayerState();
 	
+
+
 	
 };
