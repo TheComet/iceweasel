@@ -88,10 +88,10 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::Turn);
-	PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::LookUp);
+	//PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
+	//PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
+	//PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::Turn);
+	//PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::LookUp);
 	PlayerInputComponent->BindAxis("Sprint", this, &ABaseCharacter::Sprint);
 	
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABaseCharacter::CrouchButtonPressed);
@@ -109,16 +109,18 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 #pragma region RPC Functions
 
+/*
 //RPC that is Run on Server
 void ABaseCharacter::Server_CalculatePitch_Implementation()
 {
 	CalculatePitch();
 }
 
+
 bool ABaseCharacter::Server_CalculatePitch_Validate()
 {
 	return true;
-}
+} */
 
 //RPC that is Run on Server
 void ABaseCharacter::SetCrouchButtonDown_Implementation(bool IsDown)
@@ -309,6 +311,7 @@ bool ABaseCharacter::CanCharacterSprint()const
 		(GetCharacterMovement()->Velocity.SizeSquared() != 0.0f) && //Is not sationary
 		IsMovingForward && //Is moving forward and not backward
 		!IsMovingOnRightVector; //Is NOT moving right or left
+	
 }
 
 void ABaseCharacter::Sprint(float AxisValue)
@@ -334,6 +337,7 @@ void ABaseCharacter::Sprint(float AxisValue)
 	}
 }
 
+/*
 void ABaseCharacter::MoveForward(float AxisValue)
 {
 	if ((Controller != nullptr) && (AxisValue != 0.0f))
@@ -366,7 +370,6 @@ void ABaseCharacter::MoveRight(float AxisValue)
 	}
 }
 
-
 void ABaseCharacter::Turn(float AxisValue)
 {
 	if (AxisValue != 0.0f)
@@ -393,6 +396,7 @@ void ABaseCharacter::LookUp(float AxisValue)
 	}
 }
 
+
 //Calculate AimPitch to be used inside animation blueprint for aimoffsets
 void ABaseCharacter::CalculatePitch()
 {
@@ -410,7 +414,7 @@ void ABaseCharacter::CalculatePitch()
 	
 	AimPitch = NewAimPitch;
 
-}
+}*/
 
 //Replicate variables
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
