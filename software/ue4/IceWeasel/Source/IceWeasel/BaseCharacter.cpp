@@ -325,7 +325,7 @@ void ABaseCharacter::Sprint(float AxisValue)
 
 		if (!HasAuthority())
 			SetIsSprinting(true);
-
+		
 	}
 	else
 	{

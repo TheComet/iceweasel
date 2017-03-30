@@ -3,20 +3,9 @@
 #include "IceWeasel.h"
 #include "BasePlayerController.h"
 
+
 ABasePlayerController::ABasePlayerController()
 {
-	PrimaryActorTick.bCanEverTick = true;
-}
-
-
-void ABasePlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void ABasePlayerController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
 }
 

@@ -17,10 +17,7 @@ public:
 	ABasePlayerController();
 	
 protected:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
-
 
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
