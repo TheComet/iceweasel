@@ -16,12 +16,9 @@ This project requires you to add Starter Content manually after successfully clo
 
 After adding Starter Content, you can open any map successfully.
 
-Building (for the Urho3D Engine)
+Building (Old Guide - for the Urho3D Engine)
 --------
------
-This guide is old because we have now switched the engine to UE4
------
------
+
 This  project  depends  on  a   custom   version   of   Urho3D.  Clone  it  from
 [https://github.com/TheComet93/Urho3D](https://github.com/TheComet93/Urho3D).   
 You will need to checkout the ```iceweasel``` branch.
