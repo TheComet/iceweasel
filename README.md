@@ -10,11 +10,15 @@ git config --global credential.helper cache
 ```
 Project Guide (For UE4) :
 --------
+
 This project requires you to add Starter Content manually after successfully cloning the project. 
 ![alt tag](https://cdn.discordapp.com/attachments/190780544051707904/290512683755634688/Capture.PNG)
 ![alt tag](https://cdn.discordapp.com/attachments/190780544051707904/290512783865544704/Capture2.PNG)
 
 After adding Starter Content, you can open any map successfully.
+The project is currently compatible with Unreal 4.15.0 and 4.15.1 so it's recommended to open it using any of those versions.
+ 
+
 
 Building (Old Guide - for the Urho3D Engine)
 --------
