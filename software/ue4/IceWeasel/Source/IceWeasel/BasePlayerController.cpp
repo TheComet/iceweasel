@@ -17,6 +17,9 @@ void ABasePlayerController::SetupInputComponent()
 	InputComponent->BindAxis("MoveRight", this, &ABasePlayerController::MoveRight);
 	InputComponent->BindAxis("Turn", this, &ABasePlayerController::Turn);
 	InputComponent->BindAxis("LookUp", this, &ABasePlayerController::LookUp);
+
+	InputComponent->BindAction("Jump", IE_Pressed, this, &ABasePlayerController::JumpButtonDown);
+	InputComponent->BindAction("Jump", IE_Released, this, &ABasePlayerController::JumpButtonReleased);
 }
 
 
@@ -60,5 +63,25 @@ void ABasePlayerController::Turn(float AxisValue)
 	if (AxisValue != 0.0f)
 	{
 		AddYawInput(AxisValue);
+	}
+}
+
+void ABasePlayerController::JumpButtonDown()
+{
+	ACharacter* character = GetCharacter();
+
+	if (character)
+	{
+		character->Jump();
+	}
+}
+
+void ABasePlayerController::JumpButtonReleased()
+{
+	ACharacter* character = GetCharacter();
+
+	if (character)
+	{
+		character->StopJumping();
 	}
 }

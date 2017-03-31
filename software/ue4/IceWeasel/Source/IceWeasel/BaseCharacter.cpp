@@ -27,7 +27,6 @@ ABaseCharacter::ABaseCharacter()
 
 	//Initialize default values
 	AimPitch = 0.0f;
-	SmoothAimPitch = 0.0f;
 	ADSBlendInterpSpeed = 10.0f;
 	CameraFOV = 90.0f;
 	ADSCameraFOV = 60.0f;
@@ -88,17 +87,10 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
-	//PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
-	//PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::Turn);
-	//PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::LookUp);
 	PlayerInputComponent->BindAxis("Sprint", this, &ABaseCharacter::Sprint);
 	
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABaseCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ABaseCharacter::CrouchButtonReleased);
-
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABaseCharacter::JumpButtonPressed);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABaseCharacter::JumpButtonReleased);
 
 	PlayerInputComponent->BindAction("ADS", IE_Pressed, this, &ABaseCharacter::ADSButtonPressed);
 	PlayerInputComponent->BindAction("ADS", IE_Released, this, &ABaseCharacter::ADSButtonReleased);
@@ -107,7 +99,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::FireButtonReleased);
 }
 
-#pragma region RPC Functions
+#pragma region Server RPCs
 
 /*
 //RPC that is Run on Server
@@ -123,63 +115,52 @@ bool ABaseCharacter::Server_CalculatePitch_Validate()
 } */
 
 //RPC that is Run on Server
-void ABaseCharacter::SetCrouchButtonDown_Implementation(bool IsDown)
+void ABaseCharacter::ServerSetCrouchButtonDown_Implementation(bool IsDown)
 {
 	bCrouchButtonDown = IsDown;
 }
 
-bool ABaseCharacter::SetCrouchButtonDown_Validate(bool IsDown)
-{
-	return true;
-}
-//RPC that is Run on Server
-void ABaseCharacter::SetJumpButtonDown_Implementation(bool IsDown)
-{
-	bJumpButtonDown = IsDown;
-}
-
-bool ABaseCharacter::SetJumpButtonDown_Validate(bool IsDown)
+bool ABaseCharacter::ServerSetCrouchButtonDown_Validate(bool IsDown)
 {
 	return true;
 }
 
 //RPC that is Run on Server
-void ABaseCharacter::SetFireButtonDown_Implementation(bool IsDown)
+void ABaseCharacter::ServerSetFireButtonDown_Implementation(bool IsDown)
 {
 	bFireButtonDown = IsDown;
 }
 
-bool ABaseCharacter::SetFireButtonDown_Validate(bool IsDown)
+bool ABaseCharacter::ServerSetFireButtonDown_Validate(bool IsDown)
 {
 	return true;
 }
 
 //RPC that is Run on Server
-void ABaseCharacter::SetIsSprinting_Implementation(bool IsSprinting)
+void ABaseCharacter::ServerSetIsSprinting_Implementation(bool IsSprinting)
 {
 	bIsSprinting = IsSprinting;
 }
 
-bool ABaseCharacter::SetIsSprinting_Validate(bool IsSprinting)
+bool ABaseCharacter::ServerSetIsSprinting_Validate(bool IsSprinting)
 {
 	return true;
 }
 
 //RPC that is Run on Server
-void ABaseCharacter::SetIsAimingDownSights_Implementation(bool IsADS)
+void ABaseCharacter::ServerSetIsAimingDownSights_Implementation(bool IsADS)
 {
 	bIsAimingDownSights = IsADS;
 }
 
-bool ABaseCharacter::SetIsAimingDownSights_Validate(bool IsADS)
+bool ABaseCharacter::ServerSetIsAimingDownSights_Validate(bool IsADS)
 {
 	return true;
 }
-
 #pragma endregion 
 
-#pragma region Action Mapping
 
+#pragma region Action Mapping
 void ABaseCharacter::CrouchButtonPressed()
 {
 	if (!CanCharacterCrouch())
@@ -193,7 +174,7 @@ void ABaseCharacter::CrouchButtonPressed()
 
 	//in case this is not the server, then request the server to replicate the variable to everyone else except us (COND_SkipOwner)
 	if (!HasAuthority())
-		SetCrouchButtonDown(bCrouchButtonDown);
+		ServerSetCrouchButtonDown(bCrouchButtonDown);
 
 }
 
@@ -207,34 +188,8 @@ void ABaseCharacter::CrouchButtonReleased()
 	UnCrouch();
 
 	if (!HasAuthority())
-		SetCrouchButtonDown(bCrouchButtonDown);
+		ServerSetCrouchButtonDown(bCrouchButtonDown);
 
-}
-
-void ABaseCharacter::JumpButtonPressed()
-{
-	if (!CanCharacterJump())
-		return;
-
-	bJumpButtonDown = true;
-
-	if (!HasAuthority())
-		SetJumpButtonDown(bJumpButtonDown);
-
-	Jump();
-}
-
-void ABaseCharacter::JumpButtonReleased()
-{
-	if (!CanCharacterJump())
-		return;
-
-	bJumpButtonDown = false;
-
-	if (!HasAuthority())
-		SetJumpButtonDown(bJumpButtonDown);
-
-	StopJumping();
 }
 
 void ABaseCharacter::ADSButtonPressed()
@@ -242,7 +197,7 @@ void ABaseCharacter::ADSButtonPressed()
 	bIsAimingDownSights = true;
 
 	if (!HasAuthority())
-		SetIsAimingDownSights(bIsAimingDownSights);
+		ServerSetIsAimingDownSights(bIsAimingDownSights);
 }
 
 void ABaseCharacter::ADSButtonReleased()
@@ -250,7 +205,7 @@ void ABaseCharacter::ADSButtonReleased()
 	bIsAimingDownSights = false;
 
 	if (!HasAuthority())
-		SetIsAimingDownSights(bIsAimingDownSights);
+		ServerSetIsAimingDownSights(bIsAimingDownSights);
 }
 
 void ABaseCharacter::FireButtonPressed()
@@ -258,7 +213,7 @@ void ABaseCharacter::FireButtonPressed()
 	bFireButtonDown = true;
 
 	if (!HasAuthority())
-		SetFireButtonDown(bFireButtonDown);
+		ServerSetFireButtonDown(bFireButtonDown);
 }
 
 void ABaseCharacter::FireButtonReleased()
@@ -266,11 +221,10 @@ void ABaseCharacter::FireButtonReleased()
 	bFireButtonDown = false;
 
 	if (!HasAuthority())
-		SetFireButtonDown(bFireButtonDown);
+		ServerSetFireButtonDown(bFireButtonDown);
 }
 
 #pragma endregion
-
 
 
 bool ABaseCharacter::CanCharacterCrouch()const
@@ -324,7 +278,7 @@ void ABaseCharacter::Sprint(float AxisValue)
 		bIsSprinting = true;
 
 		if (!HasAuthority())
-			SetIsSprinting(true);
+			ServerSetIsSprinting(true);
 		
 	}
 	else
@@ -332,71 +286,12 @@ void ABaseCharacter::Sprint(float AxisValue)
 		bIsSprinting = false;
 
 		if (!HasAuthority())
-			SetIsSprinting(false);
+			ServerSetIsSprinting(false);
 
 	}
 }
 
 /*
-void ABaseCharacter::MoveForward(float AxisValue)
-{
-	if ((Controller != nullptr) && (AxisValue != 0.0f))
-	{
-		const FRotator ControlRotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, ControlRotation.Yaw, 0);
-
-		//get forward vector
-		const FVector ForwardVector = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-		AddMovementInput(ForwardVector, AxisValue);
-	}
-}
-
-void ABaseCharacter::MoveRight(float AxisValue)
-{
-	//don't move right or left while sprinting
-	if (bIsSprinting)
-		return;
-
-	if ((Controller != nullptr) && (AxisValue != 0.0f))
-	{
-		const FRotator ControlRotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, ControlRotation.Yaw, 0);
-
-		//get right vector
-		const FVector RightVector = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		AddMovementInput(RightVector, AxisValue);
-	}
-}
-
-void ABaseCharacter::Turn(float AxisValue)
-{
-	if (AxisValue != 0.0f)
-	{
-		AddControllerYawInput(AxisValue);
-	}
-}
-
-void ABaseCharacter::LookUp(float AxisValue)
-{
-	if (AxisValue != 0.0f)
-	{
-		if (HasAuthority()) //if server
-		{
-			//CalculatePitch();  //calculate the pitch and send it to all other clients
-		}
-		else //if client
-		{
-			//CalculatePitch(); //first do it locally
-			//Server_CalculatePitch(); //then let others get our updated pitch
-		}
-
-		AddControllerPitchInput(AxisValue);
-	}
-}
-
-
 //Calculate AimPitch to be used inside animation blueprint for aimoffsets
 void ABaseCharacter::CalculatePitch()
 {
@@ -422,7 +317,6 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bCrouchButtonDown, COND_SkipOwner);
-	DOREPLIFETIME_CONDITION(ABaseCharacter, bJumpButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bFireButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsSprinting, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsAimingDownSights, COND_SkipOwner);

@@ -16,17 +16,14 @@ class ICEWEASEL_API ABasePlayerState : public APlayerState
 public:
 	ABasePlayerState();
 	
-
 	UFUNCTION(BlueprintCallable)
 	void SetTeamId(int Id);
-
 
 	FORCEINLINE INT GetTeamId()const;
 
 private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSetTeamId(int Id);
-
 
 protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)

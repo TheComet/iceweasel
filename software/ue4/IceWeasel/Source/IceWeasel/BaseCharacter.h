@@ -32,18 +32,16 @@ protected:
 	//Spring arm component to hold and position the camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
-
+	//Weapon that player holds in his hands
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* WeaponMesh;
+
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bCrouchButtonDown;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bFireButtonDown;
-
-	UPROPERTY(Replicated)
-	bool bJumpButtonDown;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bIsSprinting;
@@ -65,65 +63,47 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Player Properties")
 	float ADSBlendInterpSpeed;
 
+	//Normal camera FOV
 	UPROPERTY(EditAnywhere, Category = "First Person Properties")
 	float CameraFOV;
 
+	//Camera FOV when aiming down sights
 	UPROPERTY(EditAnywhere, Category = "First Person Properties")
 	float ADSCameraFOV;
 
+	//Pitch Rotation of where player is currently looking
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	float AimPitch;
 
-	UPROPERTY(BlueprintReadOnly)
-	float SmoothAimPitch;
-
 protected:
-	//WSAD input movements
-	//void MoveForward(float AxisValue);
-	//void MoveRight(float AxisValue);
-
-	//Mouse input movements
-	//void Turn(float AxisValue);
-	//void LookUp(float AxisValue);
-
-
-	UFUNCTION(BlueprintCallable)
 	void Sprint(float AxisValue);
 
-	//To be called on Server by Client
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	void SetCrouchButtonDown(bool IsDown);
+	void ServerSetCrouchButtonDown(bool IsDown);
 
-	//To be called on Server by Client
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	void SetJumpButtonDown(bool IsDown);
+	void ServerSetFireButtonDown(bool IsDown);
 
-	//To be called on Server by Client
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	void SetFireButtonDown(bool IsDown);
-
-	//To be called on Server by Client - Unreliable because it's called every frame
+	//Unreliable because it's called every frame
 	UFUNCTION(Server, UnReliable, WithValidation, BlueprintCallable)
-	void SetIsSprinting(bool IsSprinting);
+	void ServerSetIsSprinting(bool IsSprinting);
 
-	//To be called on Server by Client
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	void SetIsAimingDownSights(bool IsADS);
+	void ServerSetIsAimingDownSights(bool IsADS);
 
 
 	UFUNCTION(BlueprintPure)
 	bool CanCharacterCrouch()const;
+
 	UFUNCTION(BlueprintPure)
 	bool CanCharacterJump()const;
+
 	UFUNCTION(BlueprintPure)
 	bool CanCharacterSprint()const;
 
 private:
 	void CrouchButtonPressed();
 	void CrouchButtonReleased();
-
-	void JumpButtonPressed();
-	void JumpButtonReleased();
 
 	void ADSButtonPressed();
 	void ADSButtonReleased();
@@ -137,7 +117,6 @@ private:
 	//To be called on Server by Client
 	//UFUNCTION(Server, UnReliable, WithValidation)
 	//void Server_CalculatePitch();
-
 
 private:
 	float CharacterWalkSpeed;

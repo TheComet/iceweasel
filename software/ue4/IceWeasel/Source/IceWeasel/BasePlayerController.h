@@ -23,4 +23,7 @@ protected:
 	void MoveRight(float AxisValue);
 	void Turn(float AxisValue);
 	void LookUp(float AxisValue);
+
+	void JumpButtonDown();
+	void JumpButtonReleased();
 };
