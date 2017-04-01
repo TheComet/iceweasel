@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	int MaxPlayers;
 
+	UPROPERTY(BlueprintReadWrite)
+	int MaxSessionResults;
+
 	UPROPERTY(BlueprintReadOnly)
 	EFindSessionResult FindSessionResult;
 
