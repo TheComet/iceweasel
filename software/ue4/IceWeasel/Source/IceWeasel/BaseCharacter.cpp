@@ -26,7 +26,6 @@ ABaseCharacter::ABaseCharacter()
 	WeaponMesh->SetupAttachment(GetMesh());
 
 	//Initialize default values
-	AimPitch = 0.0f;
 	ADSBlendInterpSpeed = 10.0f;
 	CameraFOV = 90.0f;
 	ADSCameraFOV = 60.0f;
@@ -100,20 +99,6 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 }
 
 #pragma region Server RPCs
-
-/*
-//RPC that is Run on Server
-void ABaseCharacter::Server_CalculatePitch_Implementation()
-{
-	CalculatePitch();
-}
-
-
-bool ABaseCharacter::Server_CalculatePitch_Validate()
-{
-	return true;
-} */
-
 //RPC that is Run on Server
 void ABaseCharacter::ServerSetCrouchButtonDown_Implementation(bool IsDown)
 {
@@ -291,25 +276,7 @@ void ABaseCharacter::Sprint(float AxisValue)
 	}
 }
 
-/*
-//Calculate AimPitch to be used inside animation blueprint for aimoffsets
-void ABaseCharacter::CalculatePitch()
-{
-	FRotator ControlRotation = Controller->GetControlRotation();
-	FRotator ActorRotation = GetActorRotation();
 
-	FRotator Delta = ControlRotation - ActorRotation;
-
-	FRotator Pitch(AimPitch, 0.0f, 0.0f);
-
-	FRotator Final = FMath::RInterpTo(Pitch, Delta, GetWorld()->DeltaTimeSeconds, 0.0f);
-
-	float OldAimPitch = AimPitch;
-	float NewAimPitch = FMath::ClampAngle(Final.Pitch, -90.0f, 90.0f);
-	
-	AimPitch = NewAimPitch;
-
-}*/
 
 //Replicate variables
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
@@ -321,5 +288,4 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsSprinting, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsAimingDownSights, COND_SkipOwner);
 
-	DOREPLIFETIME_CONDITION(ABaseCharacter, AimPitch, COND_SkipOwner);
 }

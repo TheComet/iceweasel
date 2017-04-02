@@ -71,9 +71,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "First Person Properties")
 	float ADSCameraFOV;
 
-	//Pitch Rotation of where player is currently looking
-	UPROPERTY(Replicated, BlueprintReadWrite)
-	float AimPitch;
 
 protected:
 	void Sprint(float AxisValue);
@@ -90,7 +87,6 @@ protected:
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void ServerSetIsAimingDownSights(bool IsADS);
-
 
 	UFUNCTION(BlueprintPure)
 	bool CanCharacterCrouch()const;
@@ -111,12 +107,6 @@ private:
 	void FireButtonPressed();
 	void FireButtonReleased();
 
-	//Calculate Pitch to be used inside Animation Blueprint for aimoffsets
-	//void CalculatePitch();
-
-	//To be called on Server by Client
-	//UFUNCTION(Server, UnReliable, WithValidation)
-	//void Server_CalculatePitch();
 
 private:
 	float CharacterWalkSpeed;
