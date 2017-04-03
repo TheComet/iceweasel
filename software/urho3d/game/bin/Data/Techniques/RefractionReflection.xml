@@ -1,3 +1,0 @@
-<technique vs="RefractionReflection_VS" ps="RefractionReflection_PS" >
-    <pass name="refract" />
-</technique>
