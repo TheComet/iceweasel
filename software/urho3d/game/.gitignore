@@ -1,0 +1,54 @@
+# build directories
+/build*
+
+# Urho3D specific
+bin/*
+!bin/Data
+
+# temporary files
+*.kate-swp
+*.swp
+*~
+*.log
+
+# project files
+*.kdev4
+.idea/
+
+# Mac OS X
+.DS_Store
+
+# symlinks, generated using find . -type l >> .gitignore
+/CMake/Toolchains/arm-linux.toolchain.cmake
+/CMake/Toolchains/raspberrypi.toolchain.cmake
+/CMake/Toolchains/emscripten.toolchain.cmake
+/CMake/Toolchains/android.toolchain.cmake
+/CMake/Toolchains/mingw.toolchain.cmake
+/CMake/Modules/FindRoarAudio.cmake
+/CMake/Modules/FindaRts.cmake
+/CMake/Modules/CheckCompilerToolchain.cmake
+/CMake/Modules/FindPulseAudio.cmake
+/CMake/Modules/FindWayland.cmake
+/CMake/Modules/GetUrho3DRevision.cmake
+/CMake/Modules/GenerateExportHeader.cmake
+/CMake/Modules/FindUrho3D.cmake
+/CMake/Modules/FindODBC.cmake
+/CMake/Modules/AdjustPkgConfigForMSVC.cmake
+/CMake/Modules/FindMir.cmake
+/CMake/Modules/FindReadline.cmake
+/CMake/Modules/MacOSXBundleInfo.plist.template
+/CMake/Modules/FindFusionSound.cmake
+/CMake/Modules/exportheader.cmake.in
+/CMake/Modules/FindOSS.cmake
+/CMake/Modules/iOSBundleInfo.plist.template
+/CMake/Modules/FindDirect3D.cmake
+/CMake/Modules/FindEsound.cmake
+/CMake/Modules/FindNetworkAudioSystem.cmake
+/CMake/Modules/Urho3D-CMake-common.cmake
+/CMake/Modules/FindDirectX.cmake
+/CMake/Modules/FindDirectFB.cmake
+/CMake/Modules/FindVideoCore.cmake
+/CMake/Modules/CheckUrho3DLibrary.cpp
+CMake/Modules/CheckHost.cmake
+/urho3d
+

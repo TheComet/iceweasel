@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<IceWeasel>
+
+    <Input>
+        <Mouse Sensitivity="0.2" />
+    </Input>
+
+    <Player Class="Generic">
+        <Body Width="0.75" Height="1.8" Mass="80" CrouchWidth="0.75" CrouchHeight="0.8" />
+        <Jump Force="9.0" BunnyHopBoost="1.25" />
+        <Speed Crouch="2.0" Walk="8.0" Run="15.0" JounceSpeed="5.0" AccelerateSpeed="16.0" CrouchTransitionSpeed="10.0" />
+        <Turn Speed="12.0" />
+        <Lean Amount="0.6" Speed="9.0" />
+        <Animations DefaultTransitionSpeed="12.0" >
+            <Idle Speed="1.2" />
+            <Walk Speed="1.5" />
+            <Run Speed="1.5" />
+            <Sprint Speed="1.7" />
+            <Crouch Speed="1.2" />
+            <CrouchWalk Speed="2.0" />
+            <JumpOff Speed="2.0" />
+            <JumpLand Speed="2.0" TransitionSpeed="5.0" />
+        </Animations>
+    </Player>
+
+    <Camera>
+        <Transition Speed="12.0" Distance="5" />
+    </Camera>
+
+    <FreeCam>
+        <Speed Normal="0.3" Fast="1.5" Smoothness="5.0" />
+    </FreeCam>
+</IceWeasel>

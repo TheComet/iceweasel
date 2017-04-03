@@ -1,0 +1,29 @@
+<renderpath>
+    <!-- The emissive maps are rendered to this target -->
+    <rendertarget name="RTEmissive" sizedivisor="1 1" format="rgba16f" />
+
+    <command type="clear" color="fog" depth="1.0" stencil="0" output="viewport" />
+    <command type="clear" color="fog" depth="1.0" output="RTEmissive" />
+
+    <!-- Render scene normally, then do a pass for every light -->
+    <command type="scenepass" pass="base">
+        <output index="1" name="viewport" />
+        <output index="0" name="RTEmissive" />
+    </command>
+    <command type="forwardlights" pass="light" />
+
+    <!-- Alpha is currently not needed
+    <command type="scenepass" pass="alpha" vertexlights="true" sort="backtofront" metadata="alpha" />
+    <command type="scenepass" pass="postalpha" sort="backtofront" />
+    -->
+
+    <command type="scenepass" pass="refract">
+        <texture unit="environment" name="viewport" />
+    </command>
+
+    <!--  -->
+    <command type="quad" vs="BloomEmissive" ps="BloomEmissive" output="viewport">
+        <texture unit="diffuse" name="RTEmissive" />
+    </command>
+
+</renderpath>

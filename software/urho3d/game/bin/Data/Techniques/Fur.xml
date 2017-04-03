@@ -1,0 +1,4 @@
+<technique vs="Fur_VS" ps="Fur_PS">
+    <pass name="refract" vsdefines="FUR_HEIGHT=9" vsdefines="FUR_BASE" psdefines="FUR_BASE" />
+    <pass name="litalpha" vsdefines="FUR_HEIGHT=9" depthtest="equal" blend="add" />
+</technique>
