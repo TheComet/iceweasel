@@ -29,15 +29,6 @@ protected:
 	void Turn(float AxisValue);
 	void LookUp(float AxisValue);
 
-	void CalculatePitch();
-
-	//UFUNCTION(Server, UnReliable, WithValidation)
-	//void ServerCalculatePitch();
-
-protected:
-	UPROPERTY(BlueprintReadWrite)
-	float AimPitch;
-
 
 private:
 	void JumpButtonDown();

@@ -12,12 +12,12 @@ ABaseCharacter::ABaseCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 	
 	//Create and set SpringArm component as our RootComponent
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
-	//Create a Camera Component and attach it to our SpringArm Component "CameraBoom"
+	//Create a Camera Component and attach it to our SpringArm Component "CameraSpringArm"
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
@@ -251,6 +251,16 @@ bool ABaseCharacter::CanCharacterSprint()const
 		IsMovingForward && //Is moving forward and not backward
 		!IsMovingOnRightVector; //Is NOT moving right or left
 	
+}
+
+FRotator ABaseCharacter::GetAimOffsets() const
+{
+	const FVector AimDirWS = GetBaseAimRotation().Vector();
+	const FVector AimDirLS = ActorToWorld().InverseTransformVectorNoScale(AimDirWS);
+	const FRotator AimRotLS = AimDirLS.Rotation();
+
+
+	return AimRotLS;
 }
 
 void ABaseCharacter::Sprint(float AxisValue)

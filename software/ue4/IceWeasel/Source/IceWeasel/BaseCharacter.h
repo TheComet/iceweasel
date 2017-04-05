@@ -29,24 +29,28 @@ protected:
 	//ThirdPerson Camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
+
+
 	//Spring arm component to hold and position the camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
+
+
 	//Weapon that player holds in his hands
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* WeaponMesh;
 
 
-	UPROPERTY(Replicated, BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
 	bool bCrouchButtonDown;
 
-	UPROPERTY(Replicated, BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
 	bool bFireButtonDown;
 
-	UPROPERTY(Replicated, BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
 	bool bIsSprinting;
 
-	UPROPERTY(Replicated, BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
 	bool bIsAimingDownSights;
 
 	//Do others see you (as third person) always aiming down sight on their local screen?
@@ -75,27 +79,30 @@ protected:
 protected:
 	void Sprint(float AxisValue);
 
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Character|Server RPCs")
 	void ServerSetCrouchButtonDown(bool IsDown);
 
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Character|Server RPCs")
 	void ServerSetFireButtonDown(bool IsDown);
 
 	//Unreliable because it's called every frame
-	UFUNCTION(Server, UnReliable, WithValidation, BlueprintCallable)
+	UFUNCTION(Server, UnReliable, WithValidation, BlueprintCallable, Category = "Character|Server RPCs")
 	void ServerSetIsSprinting(bool IsSprinting);
 
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Character|Server RPCs")
 	void ServerSetIsAimingDownSights(bool IsADS);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Character|States")
 	bool CanCharacterCrouch()const;
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Character|States")
 	bool CanCharacterJump()const;
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Character|States")
 	bool CanCharacterSprint()const;
+
+	UFUNCTION(BlueprintCallable, Category = "Character|Aiming")
+	FRotator GetAimOffsets()const;
 
 private:
 	void CrouchButtonPressed();
