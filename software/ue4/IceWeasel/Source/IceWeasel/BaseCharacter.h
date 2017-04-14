@@ -30,19 +30,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
 
-
 	//Spring arm component to hold and position the camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
-
 	//Weapon that player holds in his hands
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* WeaponMesh;
-
-
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
-	bool bCrouchButtonDown;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
 	bool bFireButtonDown;
@@ -75,12 +69,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "First Person Properties")
 	float ADSCameraFOV;
 
-
 protected:
 	void Sprint(float AxisValue);
 
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Character|Server RPCs")
-	void ServerSetCrouchButtonDown(bool IsDown);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Character|Server RPCs")
 	void ServerSetFireButtonDown(bool IsDown);
@@ -104,10 +95,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Character|Aiming")
 	FRotator GetAimOffsets()const;
 
-private:
-	void CrouchButtonPressed();
-	void CrouchButtonReleased();
+	UFUNCTION(BlueprintCallable, Category = "Character|Movement")
+	void DoCrouch();
 
+	UFUNCTION(BlueprintCallable, Category = "Character|Movement")
+	void DoUnCrouch();
+
+
+private:
 	void ADSButtonPressed();
 	void ADSButtonReleased();
 
@@ -117,4 +112,5 @@ private:
 
 private:
 	float CharacterWalkSpeed;
+	float DefaultBaseEyeHeight;
 };

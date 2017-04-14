@@ -6,30 +6,30 @@
 
 ABasePlayerState::ABasePlayerState()
 {
-	TeamId = -1;
+	TeamNum = -1;
 }
 
-void ABasePlayerState::SetTeamId(int Id)
+void ABasePlayerState::SetTeamNumber(int TeamNumber)
 {
-	TeamId = Id;
+	TeamNum = TeamNumber;
 
 	if (!HasAuthority())
-		ServerSetTeamId(Id);
+		ServerSetTeamNumber(TeamNumber);
 }
 
 
-int ABasePlayerState::GetTeamId()const
+int ABasePlayerState::GetTeamNumber()const
 {
-	return TeamId;
+	return TeamNum;
 }
 
 #pragma region Server RPCs 
-void ABasePlayerState::ServerSetTeamId_Implementation(int id)
+void ABasePlayerState::ServerSetTeamNumber_Implementation(int TeamNumber)
 {
-	TeamId = id;
+	TeamNum = TeamNumber;
 }
 
-bool ABasePlayerState::ServerSetTeamId_Validate(int id)
+bool ABasePlayerState::ServerSetTeamNumber_Validate(int TeamNumber)
 {
 	return true;
 }
@@ -41,6 +41,6 @@ void ABasePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(ABasePlayerState, TeamId, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ABasePlayerState, TeamNum, COND_SkipOwner);
 
 }

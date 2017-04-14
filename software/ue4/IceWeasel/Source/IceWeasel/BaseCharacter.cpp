@@ -30,6 +30,7 @@ ABaseCharacter::ABaseCharacter()
 	CameraFOV = 90.0f;
 	ADSCameraFOV = 60.0f;
 	bAlwaysADS = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +39,7 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	CharacterWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	DefaultBaseEyeHeight = BaseEyeHeight;
 }
 
 // Called every frame
@@ -79,6 +81,29 @@ void ABaseCharacter::Tick(float DeltaTime)
 		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, CameraFOV, DeltaTime, ADSBlendInterpSpeed);
 	}
 
+
+/*	const float TargetBEH = bIsCrouching ? CrouchedEyeHeight : DefaultBaseEyeHeight;
+	const float TargetCapsuleSize = bIsCrouching ? GetCharacterMovement()->CrouchedHalfHeight : GetDefaultHalfHeight();
+
+	if (Controller != NULL)
+	{
+		BaseEyeHeight = FMath::FInterpTo(BaseEyeHeight, TargetBEH, DeltaTime, 10.0f);
+
+		GetCapsuleComponent()->SetCapsuleHalfHeight(FMath::FInterpTo(GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight(), 
+			TargetCapsuleSize, DeltaTime, 10.0f), true);
+
+		// Dist and DeltaMovCaps are used for the interpolation value added to RelativeLocation.Z
+		const float Dist = TargetCapsuleSize - GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+		const float DeltaMovCaps = Dist * FMath::Clamp<float>(DeltaTime*10.0f, 0.f, 1.f);
+
+		GetCapsuleComponent()->SetRelativeLocation(
+		FVector(GetCapsuleComponent()->RelativeLocation.X, 
+		GetCapsuleComponent()->RelativeLocation.Y, 
+		(GetCapsuleComponent()->RelativeLocation.Z + DeltaMovCaps)), true);
+
+		
+	}
+	*/
 }
 
 // Called to bind functionality to input
@@ -88,8 +113,8 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAxis("Sprint", this, &ABaseCharacter::Sprint);
 	
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABaseCharacter::CrouchButtonPressed);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ABaseCharacter::CrouchButtonReleased);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABaseCharacter::DoCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ABaseCharacter::DoUnCrouch);
 
 	PlayerInputComponent->BindAction("ADS", IE_Pressed, this, &ABaseCharacter::ADSButtonPressed);
 	PlayerInputComponent->BindAction("ADS", IE_Released, this, &ABaseCharacter::ADSButtonReleased);
@@ -99,17 +124,6 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 }
 
 #pragma region Server RPCs
-//RPC that is Run on Server
-void ABaseCharacter::ServerSetCrouchButtonDown_Implementation(bool IsDown)
-{
-	bCrouchButtonDown = IsDown;
-}
-
-bool ABaseCharacter::ServerSetCrouchButtonDown_Validate(bool IsDown)
-{
-	return true;
-}
-
 //RPC that is Run on Server
 void ABaseCharacter::ServerSetFireButtonDown_Implementation(bool IsDown)
 {
@@ -146,36 +160,6 @@ bool ABaseCharacter::ServerSetIsAimingDownSights_Validate(bool IsADS)
 
 
 #pragma region Action Mapping
-void ABaseCharacter::CrouchButtonPressed()
-{
-	if (!CanCharacterCrouch())
-		return;
-
-	//Set the value locally first
-	//If this is server, then the variable will be replicated to everyone else
-	bCrouchButtonDown = true;
-
-	Crouch();
-
-	//in case this is not the server, then request the server to replicate the variable to everyone else except us (COND_SkipOwner)
-	if (!HasAuthority())
-		ServerSetCrouchButtonDown(bCrouchButtonDown);
-
-}
-
-void ABaseCharacter::CrouchButtonReleased()
-{
-	if (!CanCharacterCrouch())
-		return;
-
-	bCrouchButtonDown = false;
-
-	UnCrouch();
-
-	if (!HasAuthority())
-		ServerSetCrouchButtonDown(bCrouchButtonDown);
-
-}
 
 void ABaseCharacter::ADSButtonPressed()
 {
@@ -219,7 +203,7 @@ bool ABaseCharacter::CanCharacterCrouch()const
 
 bool ABaseCharacter::CanCharacterJump()const
 {
-	return CanJump() && !bCrouchButtonDown;
+	return CanJump() && !bIsCrouched;
 }
 
 bool ABaseCharacter::CanCharacterSprint()const
@@ -245,7 +229,7 @@ bool ABaseCharacter::CanCharacterSprint()const
 		IsMovingOnRightVector = true;
 	
 
-	return !bCrouchButtonDown && //Is not crouching
+	return !bIsCrouched && //Is not crouching
 		!GetCharacterMovement()->IsFalling() && //Is not Falling
 		(GetCharacterMovement()->Velocity.SizeSquared() != 0.0f) && //Is not sationary
 		IsMovingForward && //Is moving forward and not backward
@@ -286,6 +270,16 @@ void ABaseCharacter::Sprint(float AxisValue)
 	}
 }
 
+void ABaseCharacter::DoCrouch()
+{
+	Crouch();
+}
+
+
+void ABaseCharacter::DoUnCrouch()
+{
+	UnCrouch();
+}
 
 
 //Replicate variables
@@ -293,9 +287,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(ABaseCharacter, bCrouchButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bFireButtonDown, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsSprinting, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsAimingDownSights, COND_SkipOwner);
-
 }
