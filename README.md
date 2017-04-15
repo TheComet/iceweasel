@@ -1,13 +1,3 @@
-Git Stuff
----------
-We use  [git  LFS](https://git-lfs.github.com/) for managing large files. Please
-download and  install  it,  otherwise  you won't be able to access certain files
-(like resources).
-
-You may have to run this command to avoid having to enter your password at every file:
-```
-git config --global credential.helper cache
-```
 Project Guide (For UE4) :
 --------
 
@@ -18,7 +8,6 @@ This project requires you to add Starter Content after successfully cloning the 
 After adding Starter Content, you can open any map successfully which references assets from it.
 
 (This project requires Unreal Engine of version 4.15.)
- 
 
 
 Building (Old Guide - for the Urho3D Engine)
