@@ -33,4 +33,10 @@ protected:
 private:
 	void JumpButtonDown();
 	void JumpButtonReleased();
+
+
+protected:
+	/** Character to spawn when this player is connected to the server */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Character")
+	TSubclassOf<ACharacter> PlayerCharacter;
 };

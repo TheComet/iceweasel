@@ -6,7 +6,7 @@
 
 ABasePlayerController::ABasePlayerController()
 {
-	
+	//Initialize defaults
 }
 
 void ABasePlayerController::SetupInputComponent()
