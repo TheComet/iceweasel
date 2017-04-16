@@ -24,7 +24,7 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 		return;
 	}
 
-
+	//Loop through every TeamPlayerStart in the world and save it to an array
 	for (TActorIterator<ATeamPlayerStart> PlayerStartItr(GetWorld()); PlayerStartItr; ++PlayerStartItr)
 	{
 		ATeamPlayerStart* TPS = *PlayerStartItr;
@@ -38,13 +38,16 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 
 	if (PlayerStarts.Num() > 0)
 	{
+		//Loop through all PlayerStarts
 		for (int32 i = 0; i < PlayerStarts.Num(); ++i)
 		{
 			ATeamPlayerStart* TeamPlayerStart = Cast<ATeamPlayerStart>(PlayerStarts[i]);
 
+			//Collect TEAM_A PlayerStarts Transform into a separate array
 			if (TeamPlayerStart->TeamNumber == TEAM_A)
 				TeamASpawns.Add(TeamPlayerStart->GetTransform());
 
+			//Collect TEAM_B PlayerStarts Transform into a separate array
 			if (TeamPlayerStart->TeamNumber == TEAM_B)
 				TeamBSpawns.Add(TeamPlayerStart->GetTransform());
 		}
@@ -62,11 +65,12 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 	{
 		if (PC->SelectedCharacter)
 		{
-			//UnPosses the default pawn if there is one
+			//UnPosses and destroy the default pawn spawned by GameMode if there is one
 			if (PC->GetPawn())
 			{
+				PC->GetPawn()->Destroy();
 				PC->UnPossess();
-				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("UnPossed Existing pawn."));
+				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("UnPossed and Destroying Existing pawn."));
 			}
 
 			ACharacter* SpawnedCharacter = nullptr;
