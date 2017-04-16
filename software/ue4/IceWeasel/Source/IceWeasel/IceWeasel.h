@@ -5,3 +5,8 @@
 #include "Engine.h"
 #include "UnrealNetwork.h"
 #include "Online.h"
+
+
+#define TEAM_DEFAULT -1
+#define TEAM_A 0
+#define TEAM_B 1

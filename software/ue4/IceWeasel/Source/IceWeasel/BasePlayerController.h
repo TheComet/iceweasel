@@ -22,6 +22,7 @@ public:
 	ABasePlayerController();
 	
 protected:
+	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
 	void MoveForward(float AxisValue);
@@ -29,14 +30,14 @@ protected:
 	void Turn(float AxisValue);
 	void LookUp(float AxisValue);
 
-
 private:
 	void JumpButtonDown();
 	void JumpButtonReleased();
 
 
-protected:
-	/** Character to spawn when this player is connected to the server */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Character")
-	TSubclassOf<ACharacter> PlayerCharacter;
+public:
+	/** Character to spawn and posses when this player is connected to a server */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, DisplayName="Player Character", Category = "Player Character")
+	const TSubclassOf<ACharacter> SelectedCharacter;
+
 };

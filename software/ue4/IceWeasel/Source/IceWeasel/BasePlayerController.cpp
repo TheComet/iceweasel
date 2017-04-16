@@ -9,6 +9,12 @@ ABasePlayerController::ABasePlayerController()
 	//Initialize defaults
 }
 
+void ABasePlayerController::BeginPlay()
+{
+
+}
+
+
 void ABasePlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -25,7 +31,7 @@ void ABasePlayerController::SetupInputComponent()
 
 void ABasePlayerController::MoveForward(float AxisValue)
 {
-	if (AxisValue != 0.0f)
+	if (AxisValue != 0.0f && GetPawn())
 	{
 		const FRotator YawRotation(0, ControlRotation.Yaw, 0);
 
@@ -38,7 +44,7 @@ void ABasePlayerController::MoveForward(float AxisValue)
 
 void ABasePlayerController::MoveRight(float AxisValue)
 {
-	if (AxisValue != 0.0f)
+	if (AxisValue != 0.0f && GetPawn())
 	{
 		const FRotator YawRotation(0, ControlRotation.Yaw, 0);
 
