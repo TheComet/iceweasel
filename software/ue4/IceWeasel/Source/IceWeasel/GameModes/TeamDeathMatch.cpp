@@ -6,15 +6,17 @@
 #include "BasePlayerController.h"
 #include "TeamPlayerStart.h"
 
+
 void ATeamDeathMatch::BeginPlay()
 {
 	Super::BeginPlay();
-
 
 }
 
 void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 {
+	Super::PostLogin(NewPlayer);
+
 
 	if (!ChooseTeam(NewPlayer))
 	{
@@ -33,16 +35,12 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 	TArray<FTransform> TeamASpawns;
 	TArray<FTransform> TeamBSpawns;
 
+
 	if (PlayerStarts.Num() > 0)
 	{
-		TeamASpawns.Reset();
-		TeamBSpawns.Reset();
-
 		for (int32 i = 0; i < PlayerStarts.Num(); ++i)
 		{
 			ATeamPlayerStart* TeamPlayerStart = Cast<ATeamPlayerStart>(PlayerStarts[i]);
-
-
 
 			if (TeamPlayerStart->TeamNumber == TEAM_A)
 				TeamASpawns.Add(TeamPlayerStart->GetTransform());
@@ -64,51 +62,57 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 	{
 		if (PC->SelectedCharacter)
 		{
+			//UnPosses the default pawn if there is one
 			if (PC->GetPawn())
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("UnPossed Existing pawn."));
 				PC->UnPossess();
+				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("UnPossed Existing pawn."));
 			}
 
-			decltype(PC->SelectedCharacter->GetArchetype()) SpawnedCharacter = nullptr;
+			ACharacter* SpawnedCharacter = nullptr;
 
-			if (!GetWorld())
-				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("No World."));
-
-
-	
+			//Spawn at TEAM_A PlayerStarts if the ChoosenTeam is TEAM_A
 			if (PState->GetTeamNumber() == TEAM_A && TeamASpawns.Num() > 0)
 			{
-				const FTransform RandomSpawnPoint = TeamASpawns[FMath::RandRange(0, TeamASpawns.Max() - 1)];
-				
+				uint32 ArrayIndex = FMath::RandRange(0, TeamASpawns.Max() - 1);
 
-				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter, RandomSpawnPoint);
+				if (!TeamASpawns.IsValidIndex(ArrayIndex))
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("Invalid array index in TeamASpawns"));
+					return;
+				}
 
-				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("tried Spawing"));
+				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter, TeamASpawns[ArrayIndex]);
 			}
 			
+			//Spawn at TEAM_B PlayerStarts if the ChoosenTeam is TEAM_B
 			if (PState->GetTeamNumber() == TEAM_B && TeamBSpawns.Num() > 0)
 			{
-				const FTransform RandomSpawnPoint = TeamBSpawns[FMath::RandRange(0, TeamBSpawns.Max() - 1)];
+				uint32 ArrayIndex = FMath::RandRange(0, TeamBSpawns.Max() - 1);
 
-				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter, RandomSpawnPoint);
+				if (!TeamBSpawns.IsValidIndex(ArrayIndex))
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("Invalid array index in TeamBSpawns"));
+					return;
+				}
+
+				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter, TeamBSpawns[ArrayIndex]);
 				
-				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("tried Spawing"));
 			}
 
 			if (SpawnedCharacter)
 			{
-				APawn* p = Cast<APawn>(SpawnedCharacter);
+				//This cast does not require valid check because we already check if (SpawnedCharacter) is valid
+				//ACharacter is a subclass of APawn so it's guaranteed to be valid
+				APawn* SpawnedPawn = Cast<APawn>(SpawnedCharacter);
 
-				if (p)
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("woah!"));
-					PC->Possess(p);
-				}
+				//Posses the spawned Pawn
+				PC->Possess(SpawnedPawn);
+				
 				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("Possed character!"));
 			}
 			else
-				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("No Spawned character"));
+				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("SpawnedCharacter is null."));
 		}
 		else
 			GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("No Selected Character in MyPlayerController."));
@@ -117,17 +121,15 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 		GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("Invalid player controller or player state."));
 
 
-	Super::PostLogin(NewPlayer);
-
 }
 
-/* Super basic team selection */
 bool ATeamDeathMatch::ChooseTeam(APlayerController* Player)
 {
 	int32 NumPlayersTeamA = 0;
 	int32 NumPlayersTeamB = 0;
 	int32 ChoosenTeam = TEAM_DEFAULT;
 
+	//Loop through every player's PlayerState
 	for (int32 i = 0; i < PlayerControllerArray.Num(); ++i)
 	{
 
@@ -136,17 +138,20 @@ bool ATeamDeathMatch::ChooseTeam(APlayerController* Player)
 		if (BasePState == nullptr)
 			return false;
 
+		//Count how many people are there in TEAM_A
 		if (BasePState->GetTeamNumber() == TEAM_A)
 			++NumPlayersTeamA;
 
+		//Count how many people are there in TEAM_B
 		if (BasePState->GetTeamNumber() == TEAM_B)
 			++NumPlayersTeamB;
 
 	}
 
-	ABasePlayerState* BasePS = Cast<ABasePlayerState>(Player->PlayerState);
+	//PlayerState of the player that is currently joining this match
+	ABasePlayerState* OurBasePS = Cast<ABasePlayerState>(Player->PlayerState);
 
-	if (BasePS != nullptr)
+	if (OurBasePS != nullptr)
 	{
 		//if both team have equal players then just choose a random team
 		if (NumPlayersTeamA == NumPlayersTeamB)
@@ -155,10 +160,11 @@ bool ATeamDeathMatch::ChooseTeam(APlayerController* Player)
 		//Self-explanatory
 		if (NumPlayersTeamA > NumPlayersTeamB)
 			ChoosenTeam = TEAM_B;
-		else
+		else //if (NumPlayersTeamB > NumPlayersTeamA)
 			ChoosenTeam = TEAM_A;
 
-		BasePS->SetTeamNumber(ChoosenTeam);
+		//Set the TeamNumber for this player who is joining the match
+		OurBasePS->SetTeamNumber(ChoosenTeam);
 
 		return true;
 	}

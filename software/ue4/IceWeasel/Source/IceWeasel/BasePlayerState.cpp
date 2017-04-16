@@ -11,10 +11,7 @@ ABasePlayerState::ABasePlayerState()
 
 void ABasePlayerState::SetTeamNumber(int TeamNumber)
 {
-	TeamNum = TeamNumber;
-
-	if (!HasAuthority())
-		ServerSetTeamNumber(TeamNumber);
+	ServerSetTeamNumber(TeamNumber);
 }
 
 
@@ -41,6 +38,6 @@ void ABasePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(ABasePlayerState, TeamNum, COND_SkipOwner);
+	DOREPLIFETIME(ABasePlayerState, TeamNum);
 
 }

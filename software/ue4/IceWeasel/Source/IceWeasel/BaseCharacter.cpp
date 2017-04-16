@@ -81,29 +81,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 		Camera->FieldOfView = FMath::FInterpTo(Camera->FieldOfView, CameraFOV, DeltaTime, ADSBlendInterpSpeed);
 	}
 
-
-/*	const float TargetBEH = bIsCrouching ? CrouchedEyeHeight : DefaultBaseEyeHeight;
-	const float TargetCapsuleSize = bIsCrouching ? GetCharacterMovement()->CrouchedHalfHeight : GetDefaultHalfHeight();
-
-	if (Controller != NULL)
-	{
-		BaseEyeHeight = FMath::FInterpTo(BaseEyeHeight, TargetBEH, DeltaTime, 10.0f);
-
-		GetCapsuleComponent()->SetCapsuleHalfHeight(FMath::FInterpTo(GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight(), 
-			TargetCapsuleSize, DeltaTime, 10.0f), true);
-
-		// Dist and DeltaMovCaps are used for the interpolation value added to RelativeLocation.Z
-		const float Dist = TargetCapsuleSize - GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
-		const float DeltaMovCaps = Dist * FMath::Clamp<float>(DeltaTime*10.0f, 0.f, 1.f);
-
-		GetCapsuleComponent()->SetRelativeLocation(
-		FVector(GetCapsuleComponent()->RelativeLocation.X, 
-		GetCapsuleComponent()->RelativeLocation.Y, 
-		(GetCapsuleComponent()->RelativeLocation.Z + DeltaMovCaps)), true);
-
-		
-	}
-	*/
 }
 
 // Called to bind functionality to input
