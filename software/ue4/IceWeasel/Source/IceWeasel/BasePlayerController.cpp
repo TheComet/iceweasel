@@ -9,10 +9,7 @@ ABasePlayerController::ABasePlayerController()
 	//Initialize defaults
 }
 
-void ABasePlayerController::BeginPlay()
-{
 
-}
 
 
 void ABasePlayerController::SetupInputComponent()

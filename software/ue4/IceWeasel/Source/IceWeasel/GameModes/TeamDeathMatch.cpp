@@ -15,7 +15,6 @@ void ATeamDeathMatch::BeginPlay()
 
 void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 {
-	Super::PostLogin(NewPlayer);
 
 	if (!ChooseTeam(NewPlayer))
 	{
@@ -36,9 +35,14 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 
 	if (PlayerStarts.Num() > 0)
 	{
+		TeamASpawns.Reset();
+		TeamBSpawns.Reset();
+
 		for (int32 i = 0; i < PlayerStarts.Num(); ++i)
 		{
 			ATeamPlayerStart* TeamPlayerStart = Cast<ATeamPlayerStart>(PlayerStarts[i]);
+
+
 
 			if (TeamPlayerStart->TeamNumber == TEAM_A)
 				TeamASpawns.Add(TeamPlayerStart->GetTransform());
@@ -107,10 +111,13 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("No Spawned character"));
 		}
 		else
-			GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("No Selected Character."));
+			GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("No Selected Character in MyPlayerController."));
 	}
 	else
 		GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("Invalid player controller or player state."));
+
+
+	Super::PostLogin(NewPlayer);
 
 }
 

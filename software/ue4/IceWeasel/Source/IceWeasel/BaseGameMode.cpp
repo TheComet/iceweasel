@@ -6,9 +6,10 @@
 
 void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 {
+	PlayerControllerArray.Add(NewPlayer);
+
 	Super::PostLogin(NewPlayer);
 
-	PlayerControllerArray.Add(NewPlayer);
 }
 
 void ABaseGameMode::Logout(AController* Exiting)
