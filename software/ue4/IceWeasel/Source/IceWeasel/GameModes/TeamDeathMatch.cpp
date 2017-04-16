@@ -79,7 +79,7 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 	
 			if (PState->GetTeamNumber() == TEAM_A && TeamASpawns.Num() > 0)
 			{
-				const FTransform RandomSpawnPoint = TeamASpawns[FMath::RandRange(0, TeamASpawns.Max())];
+				const FTransform RandomSpawnPoint = TeamASpawns[FMath::RandRange(0, TeamASpawns.Max() - 1)];
 				
 
 				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter, RandomSpawnPoint);
@@ -89,7 +89,7 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 			
 			if (PState->GetTeamNumber() == TEAM_B && TeamBSpawns.Num() > 0)
 			{
-				const FTransform RandomSpawnPoint = TeamBSpawns[FMath::RandRange(0, TeamBSpawns.Max())];
+				const FTransform RandomSpawnPoint = TeamBSpawns[FMath::RandRange(0, TeamBSpawns.Max() - 1)];
 
 				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter, RandomSpawnPoint);
 				
