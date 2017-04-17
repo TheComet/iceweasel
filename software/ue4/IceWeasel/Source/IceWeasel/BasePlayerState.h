@@ -16,7 +16,7 @@ class ICEWEASEL_API ABasePlayerState : public APlayerState
 public:
 	ABasePlayerState();
 	
-	UFUNCTION(BlueprintCallable, Category = "PlayerInfo")
+	UFUNCTION(BlueprintCallable, Category = "PlayerState")
 	void SetTeamNumber(int TeamNum);
 
 	__forceinline int GetTeamNumber() const;

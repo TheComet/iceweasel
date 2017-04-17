@@ -7,12 +7,6 @@
 #include "TeamPlayerStart.h"
 
 
-void ATeamDeathMatch::BeginPlay()
-{
-	Super::BeginPlay();
-
-}
-
 void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
@@ -113,7 +107,6 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 				//Posses the spawned Pawn
 				PC->Possess(SpawnedPawn);
 				
-				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("Possed character!"));
 			}
 			else
 				GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("SpawnedCharacter is null."));
@@ -159,7 +152,7 @@ bool ATeamDeathMatch::ChooseTeam(APlayerController* Player)
 	{
 		//if both team have equal players then just choose a random team
 		if (NumPlayersTeamA == NumPlayersTeamB)
-			ChoosenTeam = FMath::RandRange(TEAM_A, TEAM_B);
+			ChoosenTeam = FMath::RandRange(0, 1);
 
 		//Self-explanatory
 		if (NumPlayersTeamA > NumPlayersTeamB)

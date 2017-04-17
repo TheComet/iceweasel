@@ -14,8 +14,6 @@ class ICEWEASEL_API ATeamDeathMatch : public ABaseGameMode
 	GENERATED_BODY()
 	
 protected:
-	virtual void BeginPlay() override;
-
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	/** Choose a team for newly joined player - true if successful */
