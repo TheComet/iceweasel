@@ -12,9 +12,9 @@ ABaseCharacter::ABaseCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 	
 	//Create and set SpringArm component as our RootComponent
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f;
+	CameraBoom->TargetArmLength = 0.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
 	//Create a Camera Component and attach it to our SpringArm Component "CameraSpringArm"
@@ -22,14 +22,21 @@ ABaseCharacter::ABaseCharacter()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+	//Create a skeletalMesh for holding weapon and attach it to the character mesh
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(GetMesh());
 
+	FirstPersonViewMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonViewMesh"));
+	FirstPersonViewMesh->SetupAttachment(Camera);
+
 	//Initialize default values
 	ADSBlendInterpSpeed = 10.0f;
-	CameraFOV = 90.0f;
-	ADSCameraFOV = 60.0f;
+	CameraFOV = 120.0f;
+	ADSCameraFOV = 90.0f;
+	SprintSpeed = 600.0f;
+
 	bAlwaysADS = false;
+	bIsInFirstPersonView = true;
 
 }
 
@@ -38,8 +45,9 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	CharacterWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
-	DefaultBaseEyeHeight = BaseEyeHeight;
+	OriginalWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+	SetCameraView(bIsInFirstPersonView);
 }
 
 // Called every frame
@@ -49,13 +57,13 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 	if (bIsSprinting)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = CharacterWalkSpeed * 2.0f;
-		GetCharacterMovement()->MaxFlySpeed = CharacterWalkSpeed * 2.0f;
+		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		GetCharacterMovement()->MaxFlySpeed = SprintSpeed;
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = CharacterWalkSpeed;
-		GetCharacterMovement()->MaxFlySpeed = CharacterWalkSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = OriginalWalkSpeed;
+		GetCharacterMovement()->MaxFlySpeed = OriginalWalkSpeed;
 	}
 
 	//can aim down sight on third person
@@ -63,7 +71,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 	if (!CanAdsOnTP)
 	{
-		ADSBlend = 1.0f;
+		ADSBlend = 1.0f; //1 = fully blend into aiming down sight animation
 	}
 
 	if (bIsAimingDownSights)
@@ -98,7 +106,137 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::FireButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::FireButtonReleased);
+
+	PlayerInputComponent->BindAction("SwitchView", IE_Pressed, this, &ABaseCharacter::ChangeView);
 }
+
+bool ABaseCharacter::CanCharacterCrouch()const
+{
+	return !GetCharacterMovement()->IsFalling();
+}
+
+bool ABaseCharacter::CanCharacterJump()const
+{
+	return CanJump() && !bIsCrouched;
+}
+
+bool ABaseCharacter::CanCharacterSprint()const
+{
+	FVector ForwardVector = GetActorForwardVector(); //normalized forward direction of the player
+	FVector VelocityVector = GetCharacterMovement()->Velocity.GetSafeNormal(); //the normalized direction in which the player is moving
+	
+	bool IsMovingForward = false;
+	bool IsMovingOnRightVector = false;
+
+	float p = FVector::DotProduct(ForwardVector, VelocityVector); //cosine of angle between forward vector and velocity vector
+
+	//p = 1 if player is moving forward
+	//p = -1 if player is moving backward
+	//p = 0 if player is moving right or left
+
+	//we don't get exact values due to limited precision so check if p is nearly equal to 1, -1 or 0
+
+	if (p > 0.7f) //check if dot product is nearly one
+		IsMovingForward = true;
+
+	if (p < 0.1f) //check if dot product is nearly zero
+		IsMovingOnRightVector = true;
+	
+
+	return !bIsCrouched && //Is not crouching
+		!GetCharacterMovement()->IsFalling() && //Is not Falling
+		(GetCharacterMovement()->Velocity.SizeSquared() != 0.0f) && //Is not sationary
+		IsMovingForward && //Is moving forward and not backward
+		!IsMovingOnRightVector; //Is NOT moving right or left
+	
+}
+
+FRotator ABaseCharacter::GetAimOffsets() const
+{
+	const FVector AimDirWS = GetBaseAimRotation().Vector();
+	const FVector AimDirLS = ActorToWorld().InverseTransformVectorNoScale(AimDirWS);
+	const FRotator AimRotLS = AimDirLS.Rotation();
+
+
+	return AimRotLS;
+}
+
+void ABaseCharacter::Sprint(float AxisValue)
+{
+
+	if (AxisValue != 0.0f && CanCharacterSprint())
+	{
+		bIsSprinting = true;
+
+		if (!HasAuthority())
+			ServerSetIsSprinting(true);
+	}
+	else
+	{
+		bIsSprinting = false;
+
+		if (!HasAuthority())
+			ServerSetIsSprinting(false);
+	}
+}
+
+void ABaseCharacter::DoCrouch()
+{
+	if (!CanCharacterCrouch())
+		return;
+
+	Crouch();
+}
+
+
+void ABaseCharacter::DoUnCrouch()
+{
+	UnCrouch();
+}
+
+void ABaseCharacter::SetCameraView(bool bFirstPerson)
+{
+	if (bFirstPerson)
+	{
+
+		GetMesh()->SetOwnerNoSee(true);
+		FirstPersonViewMesh->SetOnlyOwnerSee(true);
+		FirstPersonViewMesh->SetOwnerNoSee(false);
+
+		WeaponMesh->SetOnlyOwnerSee(false);
+		WeaponMesh->SetOwnerNoSee(false);
+
+		CameraBoom->TargetArmLength = 0.0f;
+
+		bIsInFirstPersonView = true;
+	}
+	else
+	{
+		GetMesh()->SetOwnerNoSee(false);
+		FirstPersonViewMesh->SetOnlyOwnerSee(false);
+		FirstPersonViewMesh->SetOwnerNoSee(true);
+
+		WeaponMesh->SetOnlyOwnerSee(false);
+		WeaponMesh->SetOwnerNoSee(true);
+
+		CameraBoom->TargetArmLength = 300.0f;
+
+		bIsInFirstPersonView = false;
+	}
+}
+
+
+//Replicate variables
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ABaseCharacter, bFireButtonDown, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsSprinting, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsAimingDownSights, COND_SkipOwner);
+}
+
+
 
 #pragma region Server RPCs
 //RPC that is Run on Server
@@ -170,101 +308,9 @@ void ABaseCharacter::FireButtonReleased()
 		ServerSetFireButtonDown(bFireButtonDown);
 }
 
+void ABaseCharacter::ChangeView()
+{
+	SetCameraView(!bIsInFirstPersonView);
+}
 #pragma endregion
 
-
-bool ABaseCharacter::CanCharacterCrouch()const
-{
-	return !GetCharacterMovement()->IsFalling();
-}
-
-bool ABaseCharacter::CanCharacterJump()const
-{
-	return CanJump() && !bIsCrouched;
-}
-
-bool ABaseCharacter::CanCharacterSprint()const
-{
-	FVector ForwardVector = GetActorForwardVector(); //normalized forward direction of the player
-	FVector VelocityVector = GetCharacterMovement()->Velocity.GetSafeNormal(); //the normalized direction in which the player is moving
-	
-	bool IsMovingForward = false;
-	bool IsMovingOnRightVector = false;
-
-	float p = FVector::DotProduct(ForwardVector, VelocityVector); //cosine of angle between forward vector and velocity vector
-
-	//p = 1 if player is moving forward
-	//p = -1 if player is moving backward
-	//p = 0 if player is moving right or left
-
-	//we don't get exact values due to limited precision so check if p is nearly equal to 1, -1 or 0
-
-	if (p > 0.7f) //check if dot product is nearly one
-		IsMovingForward = true;
-
-	if (p < 0.1f) //check if dot product is nearly zero
-		IsMovingOnRightVector = true;
-	
-
-	return !bIsCrouched && //Is not crouching
-		!GetCharacterMovement()->IsFalling() && //Is not Falling
-		(GetCharacterMovement()->Velocity.SizeSquared() != 0.0f) && //Is not sationary
-		IsMovingForward && //Is moving forward and not backward
-		!IsMovingOnRightVector; //Is NOT moving right or left
-	
-}
-
-FRotator ABaseCharacter::GetAimOffsets() const
-{
-	const FVector AimDirWS = GetBaseAimRotation().Vector();
-	const FVector AimDirLS = ActorToWorld().InverseTransformVectorNoScale(AimDirWS);
-	const FRotator AimRotLS = AimDirLS.Rotation();
-
-
-	return AimRotLS;
-}
-
-void ABaseCharacter::Sprint(float AxisValue)
-{
-
-	if (AxisValue != 0.0f && //is sprint button down
-		 CanCharacterSprint() //make sure it's in valid state to sprint. Example - you shouldn't be able to sprint while crouching
-		)
-	{
-		bIsSprinting = true;
-
-		if (!HasAuthority())
-			ServerSetIsSprinting(true);
-		
-	}
-	else
-	{
-		bIsSprinting = false;
-
-		if (!HasAuthority())
-			ServerSetIsSprinting(false);
-
-	}
-}
-
-void ABaseCharacter::DoCrouch()
-{
-	Crouch();
-}
-
-
-void ABaseCharacter::DoUnCrouch()
-{
-	UnCrouch();
-}
-
-
-//Replicate variables
-void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(ABaseCharacter, bFireButtonDown, COND_SkipOwner);
-	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsSprinting, COND_SkipOwner);
-	DOREPLIFETIME_CONDITION(ABaseCharacter, bIsAimingDownSights, COND_SkipOwner);
-}

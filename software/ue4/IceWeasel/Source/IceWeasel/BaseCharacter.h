@@ -26,26 +26,35 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
-	//ThirdPerson Camera
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	//Camera
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
 
-	//Spring arm component to hold and position the camera
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	//Spring arm component to hold and position the camera (for third person)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
 	//Weapon that player holds in his hands
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* WeaponMesh;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* FirstPersonViewMesh;
+
+	//Is this player firing a weapon
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Player Status")
 	bool bFireButtonDown;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
+	//Is this player sprinting
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Player Status")
 	bool bIsSprinting;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Input States")
+	//Is this player aiming down sight
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character|Player Status")
 	bool bIsAimingDownSights;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Character|Player Status")
+	bool bIsInFirstPersonView;
 
 	//Do others see you (as third person) always aiming down sight on their local screen?
 	//if true, your third person character is always aiming down sight regardless of your first person character (first person hands)
@@ -61,6 +70,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Player Properties")
 	float ADSBlendInterpSpeed;
 
+	//Speed of the player while sprinting
+	UPROPERTY(EditAnywhere, Category = "Player Properties")
+	float SprintSpeed;
+
 	//Normal camera FOV
 	UPROPERTY(EditAnywhere, Category = "First Person Properties")
 	float CameraFOV;
@@ -69,9 +82,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "First Person Properties")
 	float ADSCameraFOV;
 
+
 protected:
 	void Sprint(float AxisValue);
-
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Character|Server RPCs")
 	void ServerSetFireButtonDown(bool IsDown);
@@ -83,17 +96,20 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Character|Server RPCs")
 	void ServerSetIsAimingDownSights(bool IsADS);
 
-	UFUNCTION(BlueprintPure, Category = "Character|States")
+	UFUNCTION(BlueprintPure, Category = "Character|Player Status")
 	bool CanCharacterCrouch()const;
 
-	UFUNCTION(BlueprintPure, Category = "Character|States")
+	UFUNCTION(BlueprintPure, Category = "Character|Player Status")
 	bool CanCharacterJump()const;
 
-	UFUNCTION(BlueprintPure, Category = "Character|States")
+	UFUNCTION(BlueprintPure, Category = "Character|Player Status")
 	bool CanCharacterSprint()const;
 
-	UFUNCTION(BlueprintCallable, Category = "Character|Aiming")
+	UFUNCTION(BlueprintPure, Category = "Character|Player Status")
 	FRotator GetAimOffsets()const;
+
+	UFUNCTION(BlueprintCallable, Category = "Character|Player Status")
+	void SetCameraView(bool bFirstPerson);
 
 	UFUNCTION(BlueprintCallable, Category = "Character|Movement")
 	void DoCrouch();
@@ -109,8 +125,9 @@ private:
 	void FireButtonPressed();
 	void FireButtonReleased();
 
+	void ChangeView();
 
 private:
-	float CharacterWalkSpeed;
-	float DefaultBaseEyeHeight;
+	//Store the original WalkSpeed from CharacterMovement so that we can use it later
+	float OriginalWalkSpeed;
 };
