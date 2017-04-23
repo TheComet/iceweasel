@@ -55,6 +55,7 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 	ABasePlayerController* PC = Cast<ABasePlayerController>(NewPlayer);
 	ABasePlayerState* PState = Cast<ABasePlayerState>(NewPlayer->PlayerState);
 
+	//Load the character which player has choosen from SaveGame
 	PC->ClientLoadSavedCharacterIndex();
 
 	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, FString::Printf(TEXT("Charcter : %i"), PC->SelectedCharacterIndex));
