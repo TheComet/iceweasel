@@ -55,6 +55,16 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 	ABasePlayerController* PC = Cast<ABasePlayerController>(NewPlayer);
 	ABasePlayerState* PState = Cast<ABasePlayerState>(NewPlayer->PlayerState);
 
+	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, FString::Printf(TEXT("Charcter : %i"), PC->SelectedCharacterIndex));
+
+
+	if (!PC->SelectedCharacter.IsValidIndex(0))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("No Characters available in Charactar Array."));
+		return;
+	}
+
+
 	if (PC && PState)
 	{
 		if (PC->SelectedCharacter[PC->SelectedCharacterIndex])

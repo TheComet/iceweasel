@@ -89,5 +89,20 @@ void ABasePlayerController::JumpButtonReleased()
 	}
 }
 
+void ABasePlayerController::ServerSetSelectedCharacter_Implementation(int32 Character)
+{
+	SelectedCharacterIndex = Character;
+}
+
+bool ABasePlayerController::ServerSetSelectedCharacter_Validate(int32 Character)
+{
+	return true;
+}
 
 
+void ABasePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABasePlayerController, SelectedCharacterIndex);
+}

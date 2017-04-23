@@ -30,15 +30,20 @@ protected:
 	void Turn(float AxisValue);
 	void LookUp(float AxisValue);
 
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void ServerSetSelectedCharacter(int32 SelectedCharacter);
+
 private:
 	void JumpButtonDown();
 	void JumpButtonReleased();
 
 
 public:
-	/** Character to spawn and posses when this player is connected to a server */
+	/** A Choosen Character to spawn from this Character Array and posses when this player is connected to a server */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, DisplayName="Player Character", Category = "Player Character")
 	TArray<TSubclassOf<ACharacter>> SelectedCharacter;
 
-
+	/** Which Character to Spawn */
+	UPROPERTY(BlueprintReadWrite, Replicated)
+	int SelectedCharacterIndex;
 };
