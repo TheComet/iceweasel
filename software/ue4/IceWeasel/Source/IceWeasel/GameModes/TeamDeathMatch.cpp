@@ -57,7 +57,7 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 
 	if (PC && PState)
 	{
-		if (PC->SelectedCharacter)
+		if (PC->SelectedCharacter[PC->SelectedCharacterIndex])
 		{
 			//UnPosses and destroy the default pawn spawned by GameMode if there is one
 			if (PC->GetPawn())
@@ -80,7 +80,7 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 					return;
 				}
 
-				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter, TeamASpawns[ArrayIndex]);
+				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter[PC->SelectedCharacterIndex], TeamASpawns[ArrayIndex]);
 			}
 			
 			//Spawn at TEAM_B PlayerStarts if the ChoosenTeam is TEAM_B
@@ -94,7 +94,7 @@ void ATeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 					return;
 				}
 
-				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter, TeamBSpawns[ArrayIndex]);
+				SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(PC->SelectedCharacter[PC->SelectedCharacterIndex], TeamBSpawns[ArrayIndex]);
 				
 			}
 

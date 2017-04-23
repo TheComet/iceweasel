@@ -38,6 +38,7 @@ private:
 public:
 	/** Character to spawn and posses when this player is connected to a server */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, DisplayName="Player Character", Category = "Player Character")
-	const TSubclassOf<ACharacter> SelectedCharacter;
+	TArray<TSubclassOf<ACharacter>> SelectedCharacter;
+
 
 };

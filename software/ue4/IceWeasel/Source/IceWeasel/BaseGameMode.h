@@ -23,5 +23,4 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<APlayerController*> PlayerControllerArray;
 
-
 };
