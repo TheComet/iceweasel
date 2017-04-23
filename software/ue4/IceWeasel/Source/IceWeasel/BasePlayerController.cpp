@@ -2,14 +2,13 @@
 
 #include "IceWeasel.h"
 #include "BasePlayerController.h"
+#include "BaseSaveGame.h"
 
 
 ABasePlayerController::ABasePlayerController()
 {
 	//Initialize defaults
 }
-
-
 
 
 void ABasePlayerController::SetupInputComponent()
@@ -89,16 +88,31 @@ void ABasePlayerController::JumpButtonReleased()
 	}
 }
 
-void ABasePlayerController::ServerSetSelectedCharacter_Implementation(int32 Character)
+void ABasePlayerController::ClientLoadSavedCharacterIndex_Implementation()
 {
-	SelectedCharacterIndex = Character;
+	UBaseSaveGame* SaveGameObj = Cast<UBaseSaveGame>(UGameplayStatics::CreateSaveGameObject(UBaseSaveGame::StaticClass()));
+
+	SaveGameObj = Cast<UBaseSaveGame>(UGameplayStatics::LoadGameFromSlot("SelectedCharacter", 0));
+
+	SelectedCharacterIndex = SaveGameObj->SelectedCharacterIndex;
+
+	ServerSetCharacterIndex(SaveGameObj->SelectedCharacterIndex);
 }
 
-bool ABasePlayerController::ServerSetSelectedCharacter_Validate(int32 Character)
+bool ABasePlayerController::ClientLoadSavedCharacterIndex_Validate()
 {
 	return true;
 }
 
+void ABasePlayerController::ServerSetCharacterIndex_Implementation(int Index)
+{
+	SelectedCharacterIndex = Index;
+}
+
+bool ABasePlayerController::ServerSetCharacterIndex_Validate(int Index)
+{
+	return true;
+}
 
 void ABasePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
 {

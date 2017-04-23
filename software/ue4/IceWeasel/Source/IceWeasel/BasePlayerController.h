@@ -30,9 +30,13 @@ protected:
 	void Turn(float AxisValue);
 	void LookUp(float AxisValue);
 
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	void ServerSetSelectedCharacter(int32 SelectedCharacter);
 
+public:
+	UFUNCTION(Client, Reliable, WithValidation, BlueprintCallable)
+	void ClientLoadSavedCharacterIndex();
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void ServerSetCharacterIndex(int Index);
 private:
 	void JumpButtonDown();
 	void JumpButtonReleased();

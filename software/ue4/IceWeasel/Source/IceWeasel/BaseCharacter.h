@@ -125,6 +125,7 @@ private:
 	void FireButtonPressed();
 	void FireButtonReleased();
 
+	/** Switches the view between first person and third person */
 	void ChangeView();
 
 private:

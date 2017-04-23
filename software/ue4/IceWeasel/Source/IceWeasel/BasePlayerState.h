@@ -17,7 +17,7 @@ public:
 	ABasePlayerState();
 	
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")
-	void SetTeamNumber(int TeamNum);
+	void SetTeamNumber(int TeamNumber);
 
 	__forceinline int GetTeamNumber() const;
 

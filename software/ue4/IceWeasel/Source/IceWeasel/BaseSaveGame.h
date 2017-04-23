@@ -12,8 +12,7 @@ UCLASS()
 class ICEWEASEL_API UBaseSaveGame : public USaveGame
 {
 	GENERATED_BODY()
-	
-	
+
 public:
 
 
