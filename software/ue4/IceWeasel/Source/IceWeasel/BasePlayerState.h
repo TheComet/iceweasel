@@ -19,7 +19,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")
 	void SetTeamNumber(int TeamNumber);
 
-	__forceinline int GetTeamNumber() const;
+	int GetTeamNumber() const;
 
 private:
 	UFUNCTION(Server, Reliable, WithValidation)

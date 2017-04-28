@@ -23,6 +23,8 @@ public:
 	
 protected:
 
+	virtual void BeginPlay() override;
+
 	virtual void SetupInputComponent() override;
 
 	void MoveForward(float AxisValue);
@@ -30,13 +32,6 @@ protected:
 	void Turn(float AxisValue);
 	void LookUp(float AxisValue);
 
-
-public:
-	UFUNCTION(Client, Reliable, WithValidation, BlueprintCallable)
-	void ClientLoadSavedCharacterIndex();
-
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	void ServerSetCharacterIndex(int Index);
 private:
 	void JumpButtonDown();
 	void JumpButtonReleased();
@@ -48,6 +43,6 @@ public:
 	TArray<TSubclassOf<ACharacter>> SelectedCharacter;
 
 	/** Which Character to Spawn */
-	UPROPERTY(BlueprintReadWrite, Replicated)
+	UPROPERTY(BlueprintReadWrite)
 	int SelectedCharacterIndex;
 };

@@ -10,6 +10,15 @@ ABasePlayerController::ABasePlayerController()
 	//Initialize defaults
 }
 
+void ABasePlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("BasePlayerController BeginPlay!."));
+
+	SelectedCharacterIndex = 0;
+}
+
 
 void ABasePlayerController::SetupInputComponent()
 {
@@ -86,37 +95,4 @@ void ABasePlayerController::JumpButtonReleased()
 	{
 		character->StopJumping();
 	}
-}
-
-void ABasePlayerController::ClientLoadSavedCharacterIndex_Implementation()
-{
-	UBaseSaveGame* SaveGameObj = Cast<UBaseSaveGame>(UGameplayStatics::CreateSaveGameObject(UBaseSaveGame::StaticClass()));
-
-	SaveGameObj = Cast<UBaseSaveGame>(UGameplayStatics::LoadGameFromSlot("SelectedCharacter", 0));
-
-	SelectedCharacterIndex = SaveGameObj->SelectedCharacterIndex;
-
-	ServerSetCharacterIndex(SaveGameObj->SelectedCharacterIndex);
-}
-
-bool ABasePlayerController::ClientLoadSavedCharacterIndex_Validate()
-{
-	return true;
-}
-
-void ABasePlayerController::ServerSetCharacterIndex_Implementation(int Index)
-{
-	SelectedCharacterIndex = Index;
-}
-
-bool ABasePlayerController::ServerSetCharacterIndex_Validate(int Index)
-{
-	return true;
-}
-
-void ABasePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ABasePlayerController, SelectedCharacterIndex);
 }

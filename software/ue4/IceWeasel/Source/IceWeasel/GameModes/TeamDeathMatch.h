@@ -17,7 +17,6 @@ protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	/** Choose a team for newly joined player - true if successful */
-	UFUNCTION(BlueprintCallable, Category = "Team")
 	bool ChooseTeam(APlayerController* Player);
 
 private:
