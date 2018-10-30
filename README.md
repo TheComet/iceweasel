@@ -7,7 +7,7 @@ This project requires you to add Starter Content after successfully cloning the 
 
 After adding Starter Content, you can open any map successfully which references assets from it.
 
-(This project requires Unreal Engine of version 4.15.)
+(This project uses Unreal Engine version 4.15.)
 
 
 Building (Old Guide - for the Urho3D Engine)
